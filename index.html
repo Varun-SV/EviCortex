@@ -68,6 +68,7 @@
           <a href="#architecture">Architecture</a>
           <a href="#evidence">Evidence</a>
           <a href="#quickstart">Quickstart</a>
+          <a href="docs/judge-guide.html">Build Week</a>
           <a href="docs/">Docs</a>
           <a class="nav-github" href="https://github.com/Varun-SV/EviCortex">GitHub <span aria-hidden="true">↗</span></a>
         </nav>
@@ -78,14 +79,15 @@
       <section class="hero" id="top" aria-labelledby="hero-title">
         <div class="shell hero-grid">
           <div class="hero-copy">
-            <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Pre-alpha research kernel · v0.3.0a0</p>
+            <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> OpenAI Build Week · Developer Tools · pre-alpha</p>
             <h1 id="hero-title">Memory that keeps the <em>evidence</em> attached.</h1>
             <p class="hero-lede">
               EviCortex is a local-first Python engine for long-running LLM applications. It preserves exact observations,
               derives temporal and associative views, then compiles only the evidence a query needs under a hard estimated-token budget.
             </p>
             <div class="hero-actions">
-              <a class="button button-primary" href="#quickstart">Run the quickstart <span aria-hidden="true">→</span></a>
+              <a class="button button-primary" href="docs/judge-guide.html">Open the judge guide <span aria-hidden="true">→</span></a>
+              <a class="button button-secondary" href="#quickstart">Run the quickstart <span aria-hidden="true">→</span></a>
               <a class="button button-secondary" href="https://github.com/Varun-SV/EviCortex">View source <span aria-hidden="true">↗</span></a>
             </div>
             <ul class="capability-list" aria-label="Project characteristics">
@@ -341,6 +343,7 @@ python -m venv .venv
 
 <span class="code-muted"># Activate it, then install the local package</span>
 python -m pip install -e .
+evicortex demo --json --budget-tokens 320
 python examples/quickstart.py</code></pre>
               <p>Optional dense-encoder support is isolated in the <code>local-transformers</code> extra.</p>
             </article>
@@ -444,6 +447,7 @@ python examples/quickstart.py</code></pre>
           <p>Evidence-preserving, temporal memory research for LLM applications.</p>
         </div>
         <nav aria-label="Footer navigation">
+          <a href="docs/judge-guide.html">Build Week judge guide</a>
           <a href="docs/">Documentation</a>
           <a href="https://github.com/Varun-SV/EviCortex">Repository</a>
           <a href="https://github.com/Varun-SV/EviCortex/blob/main/LICENSE">MIT license</a>

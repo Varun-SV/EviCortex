@@ -10,7 +10,7 @@ import inspect
 import json
 import math
 import re
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from .budget import BudgetTooSmallError, estimate_tokens, validate_budget
 from .errors import EmbeddingProfileNotFoundError
@@ -1066,7 +1066,13 @@ class DeterministicRetriever:
             (
                 (overlap, candidate)
                 for candidate in applicable_facts
-                if (overlap := _query_overlap(positive_terms, candidate.item)) > 0
+                if (
+                    overlap := _query_overlap(
+                        positive_terms,
+                        cast(CapsuleFact, candidate.item),
+                    )
+                )
+                > 0
             ),
             key=lambda pair: (
                 -pair[0],
@@ -1710,9 +1716,9 @@ class DeterministicRetriever:
                     total,
                 )
                 if proposed.estimated_tokens <= budget_tokens:
-                    for episode in selected_episodes:
-                        if episode.memory_id in duplicate_episode_ids:
-                            decisions[("episode", episode.memory_id)] = (
+                    for selected_episode in selected_episodes:
+                        if selected_episode.memory_id in duplicate_episode_ids:
+                            decisions[("episode", selected_episode.memory_id)] = (
                                 False,
                                 "deduplicated_by_fact",
                             )

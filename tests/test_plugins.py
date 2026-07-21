@@ -12,7 +12,6 @@ from evicortex.plugins import (
     CanonicalClaimExtractor,
     ClaimExtraction,
     ClaimExtractor,
-    ClaimProvenance,
     Embedder,
     EmbeddingValidationError,
     EvidenceContext,

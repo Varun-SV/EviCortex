@@ -15,7 +15,7 @@ import hashlib
 import math
 import re
 from types import MappingProxyType
-from typing import Mapping, Protocol, Sequence, runtime_checkable
+from typing import Mapping, Protocol, Sequence, cast, runtime_checkable
 
 from .models import ClaimInput
 
@@ -177,7 +177,7 @@ def embed_document_batch(
             "role-aware embedder must implement both embed_documents and embed_query"
         )
     if has_documents and has_query:
-        return embedder.embed_documents(texts)
+        return cast(RoleAwareEmbedder, embedder).embed_documents(texts)
     return embedder.embed_batch(texts)
 
 
@@ -195,7 +195,7 @@ def embed_query_text(embedder: Embedder, text: str) -> Sequence[float]:
             "role-aware embedder must implement both embed_documents and embed_query"
         )
     if has_documents and has_query:
-        return embedder.embed_query(text)
+        return cast(RoleAwareEmbedder, embedder).embed_query(text)
     vectors = tuple(embedder.embed_batch((text,)))
     if len(vectors) != 1:
         raise EmbeddingValidationError(

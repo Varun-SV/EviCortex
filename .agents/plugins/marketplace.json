@@ -1,0 +1,20 @@
+{
+  "name": "evicortex-local",
+  "interface": {
+    "displayName": "EviCortex"
+  },
+  "plugins": [
+    {
+      "name": "evicortex",
+      "source": {
+        "source": "local",
+        "path": "./plugins/evicortex"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "evicortex",
+  "version": "0.3.0-alpha.0",
+  "description": "Local, cited temporal memory for long-running Codex workflows.",
+  "author": {
+    "name": "EviCortex contributors",
+    "url": "https://github.com/Varun-SV/EviCortex"
+  },
+  "homepage": "https://varun-sv.github.io/EviCortex/",
+  "repository": "https://github.com/Varun-SV/EviCortex",
+  "license": "MIT",
+  "keywords": ["codex", "memory", "temporal", "evidence", "llm"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "EviCortex",
+    "shortDescription": "Cited temporal memory for Codex",
+    "longDescription": "Remember exact project evidence locally, retrieve current or historical context under a hard estimated-token budget, and expand cited records only when needed.",
+    "developerName": "EviCortex contributors",
+    "category": "Developer Tools",
+    "capabilities": ["Local memory", "Temporal recall", "Evidence citations"],
+    "websiteURL": "https://varun-sv.github.io/EviCortex/",
+    "brandColor": "#79F2B4",
+    "defaultPrompt": [
+      "Remember this project decision with EviCortex.",
+      "Recall the current decision and cite its evidence.",
+      "Show what we knew at an earlier date."
+    ]
+  }
+}

@@ -3,7 +3,10 @@
 [Website](https://varun-sv.github.io/EviCortex/) ·
 [Documentation](docs/index.md) ·
 [![CI](https://github.com/Varun-SV/EviCortex/actions/workflows/ci.yml/badge.svg)](https://github.com/Varun-SV/EviCortex/actions/workflows/ci.yml) ·
+[![CodeQL](https://github.com/Varun-SV/EviCortex/actions/workflows/codeql.yml/badge.svg)](https://github.com/Varun-SV/EviCortex/actions/workflows/codeql.yml) ·
 [![License: MIT](https://img.shields.io/badge/License-MIT-57d9a3.svg)](LICENSE)
+
+[Build Week sprint](docs/build-week.md) · [Judge guide](docs/judge-guide.md)
 
 Evidence-preserving, temporal memory infrastructure for long-lived AI systems.
 
@@ -65,9 +68,26 @@ From a source checkout:
 
 ```powershell
 python -m pip install -e .
+evicortex demo --json --budget-tokens 320
 python examples/quickstart.py
 python examples/phase_b_diagnostic.py
 ```
+
+The `demo` command is the shortest judge path. It runs offline against a temporary
+database and shows a correction, current recall, historical recall, stable evidence IDs,
+and exact evidence expansion. See the [Build Week judge guide](docs/judge-guide.md) for
+the Codex plugin workflow.
+
+To use EviCortex as a Codex plugin after installing the Python package:
+
+```console
+codex plugin marketplace add Varun-SV/EviCortex
+codex plugin add evicortex@evicortex-local
+```
+
+Start a new Codex task so the installed skill is discovered. The
+[judge guide](docs/judge-guide.md) provides a safe, disposable workflow and the required
+plaintext-data boundary.
 
 The public API stores exact evidence plus optional structured claims, then returns a compact
 prompt payload under a hard estimated-token budget:
@@ -95,6 +115,13 @@ with EviCortex.open("memory.db") as memory:
 ## Project documents
 
 - [Documentation home](docs/index.md)
+- [OpenAI Build Week sprint](docs/build-week.md)
+- [Build Week judge guide](docs/judge-guide.md)
+- [Devpost copy and video script](docs/build-week-submission.md)
+- [Production-readiness gates](docs/production-readiness.md)
+- [Operations and recovery](docs/operations.md)
+- [Release and compatibility policy](docs/release-policy.md)
+- [Changelog](CHANGELOG.md)
 - [Getting started](docs/getting-started.md)
 - [Core concepts](docs/concepts.md)
 - [API guide](docs/api-guide.md)

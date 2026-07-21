@@ -87,6 +87,7 @@ def local_transformers_artifact_sha256(path: str | Path) -> str:
     """
 
     source = Path(path).expanduser().resolve(strict=True)
+    files: tuple[tuple[str, Path], ...]
     if source.is_file():
         files = ((source.name, source),)
     elif source.is_dir():
@@ -132,6 +133,8 @@ def local_transformers_artifact_sha256(path: str | Path) -> str:
 
 
 class _TorchTransformersRuntime:
+    metadata: Mapping[str, object]
+
     def __init__(
         self,
         *,

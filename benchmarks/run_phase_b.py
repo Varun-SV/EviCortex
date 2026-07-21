@@ -58,7 +58,7 @@ from .run import (
     _suite_digest,
     SUITE_DIGEST_SEMANTICS,
 )
-from .synthetic import QueryCase, SyntheticEvent, SyntheticSuite, generate_suite
+from .synthetic import QueryCase, SyntheticEvent, generate_suite
 
 
 EVICORTEX_PHASE_B_LABEL = (

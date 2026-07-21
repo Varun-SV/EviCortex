@@ -1,0 +1,7 @@
+interface:
+  display_name: "EviCortex Memory"
+  short_description: "Cited temporal memory for Codex workflows"
+  default_prompt: "Use $evicortex-memory to remember this project decision and retrieve it later with evidence."
+
+policy:
+  allow_implicit_invocation: true

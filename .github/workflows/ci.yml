@@ -17,26 +17,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
-    name: Python 3.12 verification
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+  test:
+    name: Python 3.12 / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
     env:
       PYTHONDONTWRITEBYTECODE: "1"
       PYTHONUNBUFFERED: "1"
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: "3.12"
 
-      - name: Build and install the package
+      - name: Install package
         run: python -m pip install .
 
       - name: Compile Python sources
@@ -45,8 +52,132 @@ jobs:
       - name: Run unit tests
         run: python -m unittest discover -s tests -p "test_*.py" -v
 
+  static-quality:
+    name: Ruff and mypy / Ubuntu
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Install static analysis tools
+        run: python -m pip install ruff==0.15.5 mypy==1.20.2
+
+      - name: Run Ruff
+        run: python -m ruff check src tests benchmarks examples
+
+      - name: Run mypy
+        run: python -m mypy src
+
+  examples:
+    name: Documented examples / Ubuntu
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Install package
+        run: python -m pip install .
+
       - name: Run documented quickstart
         run: python examples/quickstart.py
 
       - name: Run documented Phase B diagnostic
         run: python examples/phase_b_diagnostic.py
+
+  distribution:
+    name: Build and verify distributions
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Install hashed build toolchain
+        shell: bash
+        run: |
+          cat > "$RUNNER_TEMP/build-requirements.txt" <<'REQ'
+          build==1.5.0 --hash=sha256:13f3eecb844759ab66efec90ca17639bbf14dc06cb2fdf37a9010322d9c50a6f
+          packaging==26.2 --hash=sha256:5fc45236b9446107ff2415ce77c807cee2862cb6fac22b8a73826d0693b0980e
+          pyproject-hooks==1.2.0 --hash=sha256:9e5c6bfa8dcc30091c74b0cf803c81fdd29d94f01992a7707bc97babb1141913
+          setuptools==83.0.0 --hash=sha256:29b23c360f22f414dc7336bb39178cc7bcbf6021ed2733cde173f09dba19abb3
+          wheel==0.47.0 --hash=sha256:212281cab4dff978f6cedd499cd893e1f620791ca6ff7107cf270781e587eced
+          REQ
+          python -m pip install \
+            --disable-pip-version-check \
+            --only-binary=:all: \
+            --require-hashes \
+            --no-deps \
+            --requirement "$RUNNER_TEMP/build-requirements.txt"
+
+      - name: Build wheel and source distribution
+        run: python -m build --no-isolation
+
+      - name: Verify wheel in an isolated environment
+        shell: bash
+        run: |
+          mapfile -t wheels < <(find dist -maxdepth 1 -type f -name '*.whl' -print)
+          mapfile -t sdists < <(find dist -maxdepth 1 -type f -name '*.tar.gz' -print)
+          if [[ ${#wheels[@]} -ne 1 || ${#sdists[@]} -ne 1 ]]; then
+            echo "::error::Expected exactly one wheel and one source distribution"
+            exit 1
+          fi
+
+          python -m venv .dist-venv
+          .dist-venv/bin/python -m pip install --no-deps "${wheels[0]}"
+          .dist-venv/bin/evicortex --version
+          .dist-venv/bin/evicortex demo --json --budget-tokens 320 > demo-output.json
+          .dist-venv/bin/python - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = json.loads(Path("demo-output.json").read_text(encoding="utf-8"))
+          assert payload["command"] == "demo"
+          assert payload["demonstrates"]["current_value"] == "dark"
+          assert payload["demonstrates"]["historical_value"] == "light"
+          assert payload["demonstrates"]["exact_expansion"] is True
+          PY
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: evicortex-distributions-${{ github.sha }}
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14

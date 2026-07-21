@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,18 +9,21 @@ description = "Evidence-preserving, temporal memory research kernel for LLM appl
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [{ name = "EviCortex contributors" }]
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 keywords = ["llm", "memory", "retrieval", "rag", "temporal"]
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",
   "Intended Audience :: Developers",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.12",
   "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = []
+
+[project.scripts]
+evicortex = "evicortex.cli:main"
 
 [project.urls]
 Homepage = "https://varun-sv.github.io/EviCortex/"
