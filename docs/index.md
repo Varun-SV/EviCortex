@@ -17,6 +17,8 @@ than a tuned dense, hybrid, graph, agentic, or production RAG system. Start with
 
 | Goal | Start here |
 | --- | --- |
+| Evaluate the OpenAI Build Week Developer Tools submission | [Build Week sprint](build-week.md) |
+| Run the shortest deterministic demo and install the Codex plugin | [Judge guide](judge-guide.md) |
 | Install EviCortex and run a temporal-memory example | [Getting started](getting-started.md) |
 | Understand evidence, claims, time, projections, and capsules | [Core concepts](concepts.md) |
 | Look up public classes, methods, and provider options | [API guide](api-guide.md) |
@@ -34,6 +36,24 @@ than a tuned dense, hybrid, graph, agentic, or production RAG system. Start with
    multi-user application.
 5. Use [Benchmarking and reproducibility](benchmarking.md) before interpreting or
    publishing performance results.
+
+## Build Week sprint
+
+EviCortex is being prepared for the OpenAI Build Week **Developer Tools** track. The
+submission combines the deterministic local memory kernel with a Codex plugin/skill: Codex
+chooses when to remember, recall, expand cited evidence, or check integrity, while the core
+stores and retrieves data without requiring a model or cloud service.
+
+- [Sprint scope, architecture, attribution, and disclosures](build-week.md)
+- [Five-minute judge guide](judge-guide.md)
+- [Paste-ready Devpost copy and sub-three-minute video script](build-week-submission.md)
+- [Production-readiness status and closure gates](production-readiness.md)
+- [Supported pre-alpha operations and recovery envelope](operations.md)
+- [Release and compatibility policy](release-policy.md)
+- [Changelog](../CHANGELOG.md)
+
+The submission path is demonstrable, but the project remains pre-alpha research software
+and is not yet production-ready.
 
 ## Design and research record
 

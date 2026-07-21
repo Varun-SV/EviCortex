@@ -1,0 +1,167 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and verify release distributions
+    if: github.repository == 'Varun-SV/EviCortex'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      prerelease: ${{ steps.version.outputs.prerelease }}
+
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Install hashed build toolchain
+        shell: bash
+        run: |
+          cat > "$RUNNER_TEMP/build-requirements.txt" <<'REQ'
+          build==1.5.0 --hash=sha256:13f3eecb844759ab66efec90ca17639bbf14dc06cb2fdf37a9010322d9c50a6f
+          packaging==26.2 --hash=sha256:5fc45236b9446107ff2415ce77c807cee2862cb6fac22b8a73826d0693b0980e
+          pyproject-hooks==1.2.0 --hash=sha256:9e5c6bfa8dcc30091c74b0cf803c81fdd29d94f01992a7707bc97babb1141913
+          setuptools==83.0.0 --hash=sha256:29b23c360f22f414dc7336bb39178cc7bcbf6021ed2733cde173f09dba19abb3
+          wheel==0.47.0 --hash=sha256:212281cab4dff978f6cedd499cd893e1f620791ca6ff7107cf270781e587eced
+          REQ
+          python -m pip install \
+            --disable-pip-version-check \
+            --only-binary=:all: \
+            --require-hashes \
+            --no-deps \
+            --requirement "$RUNNER_TEMP/build-requirements.txt"
+
+      - name: Verify tag matches package version
+        id: version
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import tomllib
+
+          from packaging.version import Version
+
+          project = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]
+          version = project["version"]
+          tag = os.environ["GITHUB_REF_NAME"]
+          expected = f"v{version}"
+          if tag != expected:
+              raise SystemExit(f"tag {tag!r} does not match package version {expected!r}")
+          prerelease = Version(version).is_prerelease
+          output = Path(os.environ["GITHUB_OUTPUT"])
+          with output.open("a", encoding="utf-8") as stream:
+              print(f"prerelease={'true' if prerelease else 'false'}", file=stream)
+          PY
+
+      - name: Build wheel and source distribution
+        run: python -m build --no-isolation
+
+      - name: Verify release artifacts
+        shell: bash
+        run: |
+          mapfile -t wheels < <(find dist -maxdepth 1 -type f -name '*.whl' -print)
+          mapfile -t sdists < <(find dist -maxdepth 1 -type f -name '*.tar.gz' -print)
+          if [[ ${#wheels[@]} -ne 1 || ${#sdists[@]} -ne 1 ]]; then
+            echo "::error::Expected exactly one wheel and one source distribution"
+            exit 1
+          fi
+
+          python -m venv .release-venv
+          .release-venv/bin/python -m pip install --no-deps "${wheels[0]}"
+          .release-venv/bin/evicortex demo --json --budget-tokens 320 > release-demo.json
+          .release-venv/bin/python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          payload = json.loads(Path("release-demo.json").read_text(encoding="utf-8"))
+          assert payload["command"] == "demo"
+          assert payload["demonstrates"]["current_value"] == "dark"
+          assert payload["demonstrates"]["historical_value"] == "light"
+          assert payload["demonstrates"]["exact_expansion"] is True
+
+          artifacts = sorted((*Path("dist").glob("*.whl"), *Path("dist").glob("*.tar.gz")))
+          lines = []
+          for artifact in artifacts:
+              digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+              lines.append(f"{digest}  {artifact.name}")
+          Path("dist/SHA256SUMS").write_text("\n".join(lines) + "\n", encoding="utf-8")
+          PY
+
+      - name: Stage verified release bundle
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: release-distributions-${{ github.sha }}
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+            dist/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    name: Publish GitHub release
+    needs: build
+    if: github.repository == 'Varun-SV/EviCortex'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: write
+
+    steps:
+      - name: Download verified release bundle
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: release-distributions-${{ github.sha }}
+          path: dist
+
+      - name: Verify release checksums
+        shell: bash
+        run: cd dist && sha256sum --check SHA256SUMS
+
+      - name: Create GitHub release from verified tag
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IS_PRERELEASE: ${{ needs.build.outputs.prerelease }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "::error::Release $GITHUB_REF_NAME already exists"
+            exit 1
+          fi
+
+          release_args=(
+            release create "$GITHUB_REF_NAME"
+            dist/*.whl
+            dist/*.tar.gz
+            dist/SHA256SUMS
+            --verify-tag
+            --generate-notes
+            --title "EviCortex $GITHUB_REF_NAME"
+          )
+          if [[ "$IS_PRERELEASE" == "true" ]]; then
+            release_args+=(--prerelease)
+          fi
+          gh "${release_args[@]}"

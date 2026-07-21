@@ -3015,7 +3015,9 @@ def _lexical_score(
     return matched / len(query_terms), frequency, excluded_matches
 
 
-def _memory_row_tie_key(row: Mapping[str, Any]) -> tuple[str, ...]:
+def _memory_row_tie_key(
+    row: Mapping[str, Any] | sqlite3.Row,
+) -> tuple[str, ...]:
     """Prefer durable evidence fields over generated IDs for equal ranks."""
 
     return (
