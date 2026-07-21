@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="{{ site.lang | default: 'en' }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ page.description | default: site.description | escape }}">
+    <meta name="theme-color" content="#07110f">
+    <title>{{ page.title | default: 'Documentation' | escape }} &middot; {{ site.title }}</title>
+    <link rel="stylesheet" href="{{ '/assets/site.css' | relative_url }}">
+  </head>
+  <body class="docs-page">
+    <a class="skip-link" href="#docs-content">Skip to documentation</a>
+
+    <header class="docs-header">
+      <a class="docs-brand" href="{{ '/' | relative_url }}" aria-label="EviCortex home">
+        <span class="brand-mark" aria-hidden="true"><span></span></span>
+        <span>EviCortex</span>
+      </a>
+      <nav class="docs-header-nav" aria-label="Primary">
+        <a href="{{ '/docs/' | relative_url }}">Documentation</a>
+        <a href="https://github.com/Varun-SV/EviCortex">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="docs-shell">
+      <aside class="docs-sidebar" aria-label="Documentation sections">
+        <p class="docs-sidebar-label">Start here</p>
+        <nav>
+          <a href="{{ '/docs/' | relative_url }}">Overview</a>
+          <a href="{{ '/docs/getting-started.html' | relative_url }}">Getting started</a>
+          <a href="{{ '/docs/concepts.html' | relative_url }}">Core concepts</a>
+          <a href="{{ '/docs/api-guide.html' | relative_url }}">API guide</a>
+          <a href="{{ '/docs/benchmarking.html' | relative_url }}">Benchmarking</a>
+          <a href="{{ '/docs/faq.html' | relative_url }}">FAQ</a>
+        </nav>
+        <p class="docs-sidebar-label">Research notes</p>
+        <nav>
+          <a href="{{ '/docs/architecture.html' | relative_url }}">Architecture</a>
+          <a href="{{ '/docs/benchmark-contract.html' | relative_url }}">Benchmark contract</a>
+          <a href="{{ '/docs/phase-b.html' | relative_url }}">Phase B</a>
+          <a href="{{ '/docs/phase-c.html' | relative_url }}">Phase C</a>
+        </nav>
+      </aside>
+
+      <main class="docs-content" id="docs-content" tabindex="-1">
+        {{ content }}
+      </main>
+    </div>
+
+    <footer class="docs-footer">
+      <p>EviCortex is pre-alpha research software released under the <a href="https://github.com/Varun-SV/EviCortex/blob/main/LICENSE">MIT License</a>.</p>
+    </footer>
+  </body>
+</html>

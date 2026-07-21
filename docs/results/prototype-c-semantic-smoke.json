@@ -1,0 +1,409 @@
+{
+  "benchmark": "evicortex-phase-c-longmemeval-session-retrieval",
+  "claim_scope": "Reader-free session-retrieval evaluation on a caller-supplied local LongMemEval subset. Metrics describe retrieved evidence under a hard prompt budget; they do not measure answer accuracy or establish superiority.",
+  "config": {
+    "budget_tokens": 256,
+    "candidate_limit": 40,
+    "cutoffs": [
+      1,
+      2
+    ],
+    "date_timezone_assumption": "Naive released LongMemEval dates are interpreted as UTC for deterministic ordering; original date text remains in evidence.",
+    "embedder_sharing": "Both systems use separate counting wrappers over the same injected provider instance; quality configuration is identical.",
+    "evidence_unit_policy": "One source row per conversation turn. Session date, zero-based turn index, role, and content are rendered; has_answer and answer labels are never indexed.",
+    "hybrid_candidate_limit": 40,
+    "hybrid_channel_limit": 80,
+    "hybrid_chunk_chars": [
+      192,
+      576
+    ],
+    "hybrid_chunk_overlaps": [
+      32,
+      96
+    ],
+    "hybrid_max_exact_candidates": 100000,
+    "latency_policy": "Single cold-order pass, EviCortex then hybrid per query; latency is exploratory and not a statistically controlled comparison.",
+    "minimum_semantic_score": 0.05,
+    "network_access": "The runner performs none and the CLI forces local_files_only; a programmatically injected provider remains caller-controlled.",
+    "query_rendering": "raw LongMemEval question; question_date is as_of only",
+    "reader_model": null,
+    "representation_note": "Both systems receive the same rendered turn sources. EviCortex embeds its canonical memory envelope; the hybrid embeds its configured child chunks. Those system-specific representations are intentionally measured, not asserted to be identical.",
+    "semantic_scan_cap": 4096,
+    "token_estimator": "evicortex.budget.estimate_tokens (UTF-8 bytes/3)"
+  },
+  "dataset": {
+    "abstention_cases": 1,
+    "answerable_cases": 2,
+    "compression": "none",
+    "dataset_limit": null,
+    "declared_license": null,
+    "declared_source": null,
+    "declared_variant": null,
+    "evidence_units": 9,
+    "input_kind": "caller-supplied LongMemEval-schema data",
+    "local_path": "benchmarks/fixtures/longmemeval_semantic_smoke.json",
+    "logical_json_bytes": 2913,
+    "logical_json_sha256": "7e347a0438874099fa0ea08a72d8127478437bbe5cd3418eedfa25416dff5f88",
+    "official_artifact_verified": false,
+    "question_types": {
+      "single-session-user": 3
+    },
+    "selected_cases": 3,
+    "source_file_bytes": 2913,
+    "source_file_sha256": "7e347a0438874099fa0ea08a72d8127478437bbe5cd3418eedfa25416dff5f88"
+  },
+  "embedding": {
+    "diagnostic_only": false,
+    "dimensions": 384,
+    "identity": "evicortex.transformers-embedder.v1/dca319ad5ca7273e9a9f456827c8806422a8b1dd20fdc038e738a8a0a1ede47e",
+    "identity_fields": {
+      "dimensions": 384,
+      "document_prefix": "",
+      "implementation": {
+        "model_class": "BertModel",
+        "model_dtype": "torch.float32",
+        "tokenizer_class": "BertTokenizerFast",
+        "tokenizers_version": "0.22.2",
+        "torch_version": "2.10.0+cu130",
+        "transformers_version": "4.57.6"
+      },
+      "inference_dtype": "float32",
+      "max_length": 128,
+      "model": "unsloth/bge-small-en-v1.5",
+      "normalized": true,
+      "overflow_policy": "error",
+      "pooling": "cls",
+      "query_prefix": "Represent this sentence for searching relevant passages: ",
+      "requested_revision": "7382f1122c10708a1faa0bbe548674a14b1ffe7e",
+      "resolved_revision": "7382f1122c10708a1faa0bbe548674a14b1ffe7e",
+      "schema": "evicortex.transformers-embedder.v1",
+      "tokenizer_resolved_revision": "7382f1122c10708a1faa0bbe548674a14b1ffe7e",
+      "trust_remote_code": false
+    },
+    "implementation": "evicortex.providers.transformers.TransformersEmbedder",
+    "is_semantic": true,
+    "normalized": true,
+    "profile_sha256": "3c007a283b03e5e32958689fe7f402882a1b983fa00d4ccd06bc6ca3bc872e7e",
+    "runtime_metadata": {
+      "device": "cpu",
+      "load_seconds": 18.578475199999957,
+      "model_class": "BertModel",
+      "model_dtype": "torch.float32",
+      "model_position_capacity": 512,
+      "tokenizer_capacity": 512,
+      "tokenizer_class": "BertTokenizerFast",
+      "tokenizer_resolved_revision": "7382f1122c10708a1faa0bbe548674a14b1ffe7e",
+      "tokenizers_version": "0.22.2",
+      "torch_version": "2.10.0+cu130",
+      "transformers_version": "4.57.6"
+    }
+  },
+  "evaluation_policy": {
+    "abstention": "Official-style retrieval metrics skip question IDs ending in '_abs' because they have no gold answer session. A separate retrieval-only no-evidence rate is reported for those questions; it is not reader refusal accuracy.",
+    "answer_and_has_answer_ingested": false,
+    "gold_unit": "LongMemEval answer_session_ids",
+    "metrics_stage": "after hard-budget prompt packing",
+    "ndcg_naming": "ndcg_any@k reproduces the released LongMemEval eval_utils.py binary-relevance DCG formula, including equal rank-1/rank-2 weight.",
+    "rank_unit": "first occurrence of each session in packed evidence order",
+    "superiority_claim": false
+  },
+  "reproducibility": {
+    "code_revision": {
+      "git_commit": "44171801e5affabcfe1da0c3fa1ecbdeca5c1202",
+      "git_dirty": true,
+      "runtime_source_files": 22,
+      "runtime_source_sha256": "232996dcd1ba7d929cdd68c2edc1f3b39b691a86f285dfa641a4f1142fc3050f",
+      "source_digest_scope": [
+        "pyproject.toml",
+        "benchmarks/**/*.py",
+        "src/evicortex/**/*.py",
+        "src/evicortex/py.typed"
+      ],
+      "source_digest_semantics": "evicortex.runtime-source-tree.path-and-content-framed-sha256.v1"
+    },
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python_version": "3.12.0",
+    "sqlite_version": "3.42.0"
+  },
+  "schema_version": 1,
+  "systems": {
+    "evicortex": {
+      "database_bytes_after_compaction": 204800,
+      "embedding_usage": {
+        "batch_calls": 12,
+        "text_count": 12,
+        "text_utf8_bytes": 1987
+      },
+      "index_stats": {
+        "claim_index_rows": 0,
+        "claims": 0,
+        "memories": 9,
+        "memory_index_rows": 9,
+        "namespaces": 3
+      },
+      "ingestion_time_ms": 735.5196,
+      "label": "EviCortex semantic retrieval candidate; reader-free",
+      "metrics": {
+        "abstention_queries_skipped_by_official_metrics": 1,
+        "answerable_queries_scored": 2,
+        "budget_compliance_rate": 1.0,
+        "context_tokens_max": 208,
+        "context_tokens_mean": 199.0,
+        "context_tokens_p95": 207.2,
+        "queries": 3,
+        "retrieval_latency_ms_p50": 36.1256,
+        "retrieval_latency_ms_p95": 43.45511,
+        "retrieval_only_abstention_no_evidence_rate": 0.0,
+        "retrieved_sessions_mean": 1.6666666666666667,
+        "session_retrieval": {
+          "ndcg_any@1": 1.0,
+          "ndcg_any@2": 1.0,
+          "recall_all@1": 1.0,
+          "recall_all@2": 1.0,
+          "recall_any@1": 1.0,
+          "recall_any@2": 1.0,
+          "recall_fraction@1": 1.0,
+          "recall_fraction@2": 1.0
+        }
+      },
+      "metrics_by_question_type": {
+        "single-session-user": {
+          "abstention_queries_skipped_by_official_metrics": 1,
+          "answerable_queries_scored": 2,
+          "budget_compliance_rate": 1.0,
+          "context_tokens_max": 208,
+          "context_tokens_mean": 199.0,
+          "context_tokens_p95": 207.2,
+          "queries": 3,
+          "retrieval_latency_ms_p50": 36.1256,
+          "retrieval_latency_ms_p95": 43.45511,
+          "retrieval_only_abstention_no_evidence_rate": 0.0,
+          "retrieved_sessions_mean": 1.6666666666666667,
+          "session_retrieval": {
+            "ndcg_any@1": 1.0,
+            "ndcg_any@2": 1.0,
+            "recall_all@1": 1.0,
+            "recall_all@2": 1.0,
+            "recall_any@1": 1.0,
+            "recall_any@2": 1.0,
+            "recall_fraction@1": 1.0,
+            "recall_fraction@2": 1.0
+          }
+        }
+      },
+      "queries": [
+        {
+          "budget_compliant": true,
+          "estimated_context_tokens": 200,
+          "gold_session_ids": [
+            "pet_gold"
+          ],
+          "is_abstention": false,
+          "metrics": {
+            "ndcg_any@1": 1.0,
+            "ndcg_any@2": 1.0,
+            "recall_all@1": 1.0,
+            "recall_all@2": 1.0,
+            "recall_any@1": 1.0,
+            "recall_any@2": 1.0,
+            "recall_fraction@1": 1.0,
+            "recall_fraction@2": 1.0,
+            "skipped_abstention": false
+          },
+          "question_id": "semantic_pet_food",
+          "question_type": "single-session-user",
+          "retrieval_latency_ms": 44.2695,
+          "retrieved_session_ids": [
+            "pet_gold"
+          ]
+        },
+        {
+          "budget_compliant": true,
+          "estimated_context_tokens": 208,
+          "gold_session_ids": [
+            "delivery_gold"
+          ],
+          "is_abstention": false,
+          "metrics": {
+            "ndcg_any@1": 1.0,
+            "ndcg_any@2": 1.0,
+            "recall_all@1": 1.0,
+            "recall_all@2": 1.0,
+            "recall_any@1": 1.0,
+            "recall_any@2": 1.0,
+            "recall_fraction@1": 1.0,
+            "recall_fraction@2": 1.0,
+            "skipped_abstention": false
+          },
+          "question_id": "semantic_anniversary_delivery",
+          "question_type": "single-session-user",
+          "retrieval_latency_ms": 35.4714,
+          "retrieved_session_ids": [
+            "delivery_gold",
+            "office_noise"
+          ]
+        },
+        {
+          "budget_compliant": true,
+          "estimated_context_tokens": 189,
+          "gold_session_ids": [],
+          "is_abstention": true,
+          "metrics": {
+            "skipped_abstention": true
+          },
+          "question_id": "semantic_weather_abs",
+          "question_type": "single-session-user",
+          "retrieval_latency_ms": 36.1256,
+          "retrieved_session_ids": [
+            "recipe_noise",
+            "book_noise"
+          ]
+        }
+      ]
+    },
+    "hybrid_baseline": {
+      "database_bytes_after_compaction": 110592,
+      "embedding_usage": {
+        "batch_calls": 12,
+        "text_count": 21,
+        "text_utf8_bytes": 2183
+      },
+      "index_stats": {
+        "chunks": 18,
+        "chunks_by_granularity": [
+          [
+            "large",
+            9
+          ],
+          [
+            "small",
+            9
+          ]
+        ],
+        "sources": 9,
+        "vectors": 18
+      },
+      "ingestion_time_ms": 333.1163,
+      "label": "diagnostic local BM25 + exact-cosine hybrid RAG comparator; not a validated strong dense baseline",
+      "metrics": {
+        "abstention_queries_skipped_by_official_metrics": 1,
+        "answerable_queries_scored": 2,
+        "budget_compliance_rate": 1.0,
+        "context_tokens_max": 239,
+        "context_tokens_mean": 211.66666666666666,
+        "context_tokens_p95": 238.8,
+        "queries": 3,
+        "retrieval_latency_ms_p50": 38.3213,
+        "retrieval_latency_ms_p95": 47.234899999999996,
+        "retrieval_only_abstention_no_evidence_rate": 0.0,
+        "retrieved_sessions_mean": 2.3333333333333335,
+        "session_retrieval": {
+          "ndcg_any@1": 1.0,
+          "ndcg_any@2": 1.0,
+          "recall_all@1": 1.0,
+          "recall_all@2": 1.0,
+          "recall_any@1": 1.0,
+          "recall_any@2": 1.0,
+          "recall_fraction@1": 1.0,
+          "recall_fraction@2": 1.0
+        }
+      },
+      "metrics_by_question_type": {
+        "single-session-user": {
+          "abstention_queries_skipped_by_official_metrics": 1,
+          "answerable_queries_scored": 2,
+          "budget_compliance_rate": 1.0,
+          "context_tokens_max": 239,
+          "context_tokens_mean": 211.66666666666666,
+          "context_tokens_p95": 238.8,
+          "queries": 3,
+          "retrieval_latency_ms_p50": 38.3213,
+          "retrieval_latency_ms_p95": 47.234899999999996,
+          "retrieval_only_abstention_no_evidence_rate": 0.0,
+          "retrieved_sessions_mean": 2.3333333333333335,
+          "session_retrieval": {
+            "ndcg_any@1": 1.0,
+            "ndcg_any@2": 1.0,
+            "recall_all@1": 1.0,
+            "recall_all@2": 1.0,
+            "recall_any@1": 1.0,
+            "recall_any@2": 1.0,
+            "recall_fraction@1": 1.0,
+            "recall_fraction@2": 1.0
+          }
+        }
+      },
+      "queries": [
+        {
+          "budget_compliant": true,
+          "estimated_context_tokens": 237,
+          "gold_session_ids": [
+            "pet_gold"
+          ],
+          "is_abstention": false,
+          "metrics": {
+            "ndcg_any@1": 1.0,
+            "ndcg_any@2": 1.0,
+            "recall_all@1": 1.0,
+            "recall_all@2": 1.0,
+            "recall_any@1": 1.0,
+            "recall_any@2": 1.0,
+            "recall_fraction@1": 1.0,
+            "recall_fraction@2": 1.0,
+            "skipped_abstention": false
+          },
+          "question_id": "semantic_pet_food",
+          "question_type": "single-session-user",
+          "retrieval_latency_ms": 48.2253,
+          "retrieved_session_ids": [
+            "pet_gold",
+            "pet_noise"
+          ]
+        },
+        {
+          "budget_compliant": true,
+          "estimated_context_tokens": 239,
+          "gold_session_ids": [
+            "delivery_gold"
+          ],
+          "is_abstention": false,
+          "metrics": {
+            "ndcg_any@1": 1.0,
+            "ndcg_any@2": 1.0,
+            "recall_all@1": 1.0,
+            "recall_all@2": 1.0,
+            "recall_any@1": 1.0,
+            "recall_any@2": 1.0,
+            "recall_fraction@1": 1.0,
+            "recall_fraction@2": 1.0,
+            "skipped_abstention": false
+          },
+          "question_id": "semantic_anniversary_delivery",
+          "question_type": "single-session-user",
+          "retrieval_latency_ms": 38.3213,
+          "retrieved_session_ids": [
+            "delivery_gold",
+            "office_noise",
+            "music_noise"
+          ]
+        },
+        {
+          "budget_compliant": true,
+          "estimated_context_tokens": 159,
+          "gold_session_ids": [],
+          "is_abstention": true,
+          "metrics": {
+            "skipped_abstention": true
+          },
+          "question_id": "semantic_weather_abs",
+          "question_type": "single-session-user",
+          "retrieval_latency_ms": 33.8335,
+          "retrieved_session_ids": [
+            "recipe_noise",
+            "book_noise"
+          ]
+        }
+      ]
+    }
+  }
+}

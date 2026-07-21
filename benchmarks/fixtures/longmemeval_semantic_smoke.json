@@ -1,0 +1,114 @@
+[
+  {
+    "question_id": "semantic_pet_food",
+    "question_type": "single-session-user",
+    "question": "Which pet should receive the renal-support diet?",
+    "answer": "Miso",
+    "question_date": "2026/03/01 (Sun) 12:00",
+    "haystack_session_ids": [
+      "pet_noise",
+      "pet_gold",
+      "garden_noise"
+    ],
+    "haystack_dates": [
+      "2026/01/05 (Mon) 09:00",
+      "2026/02/14 (Sat) 10:30",
+      "2026/02/20 (Fri) 16:15"
+    ],
+    "haystack_sessions": [
+      [
+        {
+          "role": "user",
+          "content": "My dog Poppy enjoys agility training on weekends."
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Dr. Rivera prescribed kidney-care food for my tabby cat, Miso.",
+          "has_answer": true
+        },
+        {
+          "role": "assistant",
+          "content": "I will remember that dietary instruction for Miso."
+        }
+      ],
+      [
+        {
+          "role": "assistant",
+          "content": "Rosemary grows best in a sunny, well-drained planter."
+        }
+      ]
+    ],
+    "answer_session_ids": ["pet_gold"]
+  },
+  {
+    "question_id": "semantic_anniversary_delivery",
+    "question_type": "single-session-user",
+    "question": "Where should the anniversary package be delivered?",
+    "answer": "the blue cottage on Willow Lane",
+    "question_date": "2026/04/10 (Fri) 18:00",
+    "haystack_session_ids": [
+      "office_noise",
+      "delivery_gold",
+      "music_noise"
+    ],
+    "haystack_dates": [
+      "2026/03/03 (Tue) 08:45",
+      "2026/03/18 (Wed) 19:20",
+      "2026/04/01 (Wed) 13:00"
+    ],
+    "haystack_sessions": [
+      [
+        {
+          "role": "assistant",
+          "content": "The accounting office moved to the third floor downtown."
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "For our anniversary, ship the parcel to the blue cottage on Willow Lane.",
+          "has_answer": true
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I have been listening to a new jazz piano album."
+        }
+      ]
+    ],
+    "answer_session_ids": ["delivery_gold"]
+  },
+  {
+    "question_id": "semantic_weather_abs",
+    "question_type": "single-session-user",
+    "question": "What will the weather be at my mountain cabin tomorrow?",
+    "answer": "I don't know",
+    "question_date": "2026/05/01 (Fri) 12:00",
+    "haystack_session_ids": [
+      "recipe_noise",
+      "book_noise"
+    ],
+    "haystack_dates": [
+      "2026/04/02 (Thu) 11:00",
+      "2026/04/20 (Mon) 20:00"
+    ],
+    "haystack_sessions": [
+      [
+        {
+          "role": "user",
+          "content": "I made lentil soup with carrots and cumin."
+        }
+      ],
+      [
+        {
+          "role": "assistant",
+          "content": "The mystery novel you mentioned has three sequels."
+        }
+      ]
+    ],
+    "answer_session_ids": []
+  }
+]
