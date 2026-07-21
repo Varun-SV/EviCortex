@@ -1,0 +1,15 @@
+title: EviCortex
+description: Evidence-preserving, temporal memory infrastructure for long-lived AI systems.
+url: https://varun-sv.github.io
+lang: en
+markdown: kramdown
+plugins:
+  - jekyll-relative-links
+relative_links:
+  enabled: true
+  collections: true
+exclude:
+  - README.md
+  - CONTRIBUTING.md
+  - SECURITY.md
+  - LICENSE
