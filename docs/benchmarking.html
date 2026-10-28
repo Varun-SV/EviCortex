@@ -19,6 +19,7 @@
 <a class="skip" href="#main">Skip to content</a>
 <canvas id="ev-canvas" aria-hidden="true"></canvas>
 <div class="vignette" aria-hidden="true"></div>
+<div class="focus" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 <div class="veil" aria-hidden="true"></div>
 <header class="hdr">
@@ -26,13 +27,18 @@
     <a class="brand" href="../index.html" aria-label="EviCortex home"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
     <ul class="nav" id="nav"><li><a href="../index.html#how">How it works</a></li><li><a href="../index.html#results">Results</a></li><li><a href="../index.html#roadmap">Roadmap</a></li><li><a href="../docs/index.html" aria-current="page">Docs</a></li></ul>
     <button class="search-btn" type="button" aria-label="Search the docs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>⌘K</kbd></button>
-    <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false">Menu</button>
+    <button class="menu-btn" type="button" aria-controls="mnav" aria-expanded="false">Menu</button>
     <a class="gh" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
     <span class="prog" aria-hidden="true"></span>
   </div>
 </header>
+<nav class="mnav" id="mnav" aria-label="Menu">
+  <ul><li style="--i:0"><a href="../index.html"><small>01</small>Home</a></li><li style="--i:1"><a href="../index.html#how"><small>02</small>How it works</a></li><li style="--i:2"><a href="../index.html#results"><small>03</small>Results</a></li><li style="--i:3"><a href="../index.html#roadmap"><small>04</small>Roadmap</a></li><li style="--i:4"><a href="../docs/index.html"><small>05</small>Docs</a></li></ul>
+  <div class="mfoot"><a class="btn btn-p" href="../docs/getting-started.html"><span class="lbl">Get started</span></a><a class="btn btn-g" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><span class="lbl">GitHub</span></a></div>
+</nav>
 <div class="docs-shell">
 <aside class="side glass" aria-label="Documentation"><h4>Start here</h4><a href="../docs/index.html">Overview</a><a href="../docs/getting-started.html">Getting started</a><a href="../docs/concepts.html">Core concepts</a><a href="../docs/api-guide.html">API guide</a><a href="../docs/faq.html">FAQ and limitations</a><h4>Benchmarking</h4><a href="../docs/benchmarking.html" aria-current="page">Benchmarking</a><a href="../docs/benchmark-contract.html">Benchmark contract</a><h4>Research notes</h4><a href="../docs/architecture.html">Architecture</a><a href="../docs/phase-b.html">Phase B plan</a><a href="../docs/phase-c.html">Phase C evaluation</a><a href="../docs/decisions/0001-local-first-python-sqlite.html">ADR 0001: Python + SQLite</a><h4>Results</h4><a href="../docs/results/prototype-a.html">Prototype A</a><a href="../docs/results/prototype-b-diagnostic.html">Prototype B diagnostic</a><a href="../docs/results/prototype-c-semantic-smoke.html">Prototype C smoke</a></aside>
+<div class="side-scrim" aria-hidden="true"></div>
 <main id="main" class="article glass">
   <button class="menu-btn side-btn" type="button">☰ All docs</button>
   <p class="crumbs"><a href="../docs/index.html">Docs</a> / Benchmarking</p>

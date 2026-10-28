@@ -56,6 +56,8 @@ def shell(root: str, title: str, desc: str, body_cls: str, mode: str, main: str,
     nav_html = "".join(
         f'<li><a href="{h}"{" aria-current=\"page\"" if label == nav_here else ""}>{label}</a></li>' for label, h in nav
     )
+    mnav = [("Home", f"{root}index.html")] + nav
+    mnav_html = "".join(f'<li style="--i:{i}"><a href="{h}"><small>0{i + 1}</small>{label}</a></li>' for i, (label, h) in enumerate(mnav))
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -77,6 +79,7 @@ def shell(root: str, title: str, desc: str, body_cls: str, mode: str, main: str,
 <a class="skip" href="#main">Skip to content</a>
 <canvas id="ev-canvas" aria-hidden="true"></canvas>
 <div class="vignette" aria-hidden="true"></div>
+<div class="focus" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 <div class="veil" aria-hidden="true"></div>
 <header class="hdr">
@@ -84,11 +87,15 @@ def shell(root: str, title: str, desc: str, body_cls: str, mode: str, main: str,
     <a class="brand" href="{root}index.html" aria-label="EviCortex home"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
     <ul class="nav" id="nav">{nav_html}</ul>
     <button class="search-btn" type="button" aria-label="Search the docs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>⌘K</kbd></button>
-    <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false">Menu</button>
+    <button class="menu-btn" type="button" aria-controls="mnav" aria-expanded="false">Menu</button>
     <a class="gh" href="{REPO}" target="_blank" rel="noopener">{GH_ICON}<span>GitHub</span></a>
     <span class="prog" aria-hidden="true"></span>
   </div>
 </header>
+<nav class="mnav" id="mnav" aria-label="Menu">
+  <ul>{mnav_html}</ul>
+  <div class="mfoot"><a class="btn btn-p" href="{root}docs/getting-started.html"><span class="lbl">Get started</span></a><a class="btn btn-g" href="{REPO}" target="_blank" rel="noopener"><span class="lbl">GitHub</span></a></div>
+</nav>
 {main}
 <footer class="foot">
   <div class="wrap">
@@ -210,6 +217,7 @@ def main() -> None:
         pager += "</nav>"
         main = f"""<div class="docs-shell">
 <aside class="side glass" aria-label="Documentation">{''.join(side)}</aside>
+<div class="side-scrim" aria-hidden="true"></div>
 <main id="main" class="article glass">
   <button class="menu-btn side-btn" type="button">☰ All docs</button>
   <p class="crumbs"><a href="{root}docs/index.html">Docs</a> / {html.escape(p['group'])}</p>

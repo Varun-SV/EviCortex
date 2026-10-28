@@ -14,8 +14,14 @@
   /* ---------- arrival veil ---------- */
   var veil = $('.veil');
   var arrived = false; try { arrived = sessionStorage.getItem('ev-zoom') === '1'; } catch (e) {}
-  if (veil && arrived) { veil.classList.add('arrive'); requestAnimationFrame(function () { requestAnimationFrame(function () { veil.classList.add('out'); }); }); setTimeout(function () { veil.className = 'veil'; }, 1500); }
-  addEventListener('pageshow', function (e) { if (e.persisted && veil) veil.className = 'veil'; });
+  if (veil && arrived && !reduce) {
+    veil.className = 'veil cover'; body.classList.add('arriving');
+    requestAnimationFrame(function () { requestAnimationFrame(function () { veil.classList.add('open'); }); });
+    var done = function () { veil.className = 'veil'; body.classList.remove('arriving'); };
+    veil.addEventListener('transitionend', done, { once: true }); setTimeout(done, 2600);
+  }
+  addEventListener('pageshow', function (e) { if (e.persisted) { if (veil) veil.className = 'veil'; body.classList.remove('leaving', 'menu-open'); } });
+  function setMode(mode, p) { body.classList.toggle('calm', mode === 'overview'); scene(function () { EV.setMode(mode, p || 0); }); }
 
   /* ---------- smooth scroll ---------- */
   var lenis = null;
@@ -25,6 +31,7 @@
     else { (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(0); }
   }
   if (anim) G.registerPlugin(ST);
+  function sideOpen(o) { var sd = $('.side'); if (!sd) return; sd.classList.toggle('open', o); body.classList.toggle('side-open', o); }
   function scrollTo(target) {
     if (typeof target === 'number') { if (lenis) lenis.scrollTo(target, { duration: 1.4 }); else window.scrollTo({ top: target, behavior: reduce ? 'auto' : 'smooth' }); return; }
     var el = typeof target === 'string' ? d.getElementById(target.replace(/^#/, '')) : target;
@@ -37,27 +44,38 @@
   function onScroll() {
     var y = scrollY, h = d.documentElement.scrollHeight - innerHeight;
     if (prog) prog.style.transform = 'scaleX(' + (h > 0 ? y / h : 0) + ')';
-    if (hdr) hdr.classList.toggle('hide', y > lastY && y > 300 && !$('.nav.open'));
+    if (hdr) hdr.classList.toggle('hide', y > lastY && y > 300 && !body.classList.contains('menu-open'));
     lastY = y;
   }
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
-  var menu = $('.menu-btn'), nav = $('.nav');
-  if (menu) menu.addEventListener('click', function () { var o = nav.classList.toggle('open'); menu.setAttribute('aria-expanded', o); });
+  var menu = $('.hdr .menu-btn');
+  function menuOpen(o) {
+    body.classList.toggle('menu-open', o); if (!menu) return;
+    menu.setAttribute('aria-expanded', o); menu.textContent = o ? 'Close' : 'Menu';
+    if (lenis) { if (o) lenis.stop(); else lenis.start(); }
+    if (o && hdr) hdr.classList.remove('hide');
+  }
+  if (menu) menu.addEventListener('click', function () { menuOpen(!body.classList.contains('menu-open')); });
+  d.addEventListener('keydown', function (e) { if (e.key === 'Escape') { menuOpen(false); sideOpen(false); } });
 
   /* ---------- page transitions: zoom through a node ---------- */
   d.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href]'); if (!a) return;
     var href = a.getAttribute('href');
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank' || a.hasAttribute('download')) return;
-    if (href.charAt(0) === '#') { e.preventDefault(); scrollTo(href); if (nav) nav.classList.remove('open'); history.replaceState(null, '', href); return; }
+    if (href.charAt(0) === '#') { e.preventDefault(); menuOpen(false); scrollTo(href); history.replaceState(null, '', href); return; }
     var url; try { url = new URL(a.href, location.href); } catch (err) { return; }
     if (url.origin !== location.origin || /\.(json|md|py|txt|pdf)$/i.test(url.pathname)) return;
-    if (url.pathname === location.pathname && url.hash) { e.preventDefault(); scrollTo(url.hash); return; }
+    if (url.pathname === location.pathname && url.hash) { e.preventDefault(); menuOpen(false); scrollTo(url.hash); return; }
     e.preventDefault();
-    try { sessionStorage.setItem('ev-zoom', '1'); } catch (err) {}
-    if (veil) { veil.className = 'veil'; void veil.offsetWidth; setTimeout(function () { veil.classList.add('on'); }, reduce ? 0 : 380); }
     var go = function () { location.href = url.href; };
-    if (EV.dive && !reduce) EV.dive(950).then(go); else setTimeout(go, reduce ? 150 : 900);
+    if (reduce) { go(); return; }
+    try { sessionStorage.setItem('ev-zoom', '1'); } catch (err) {}
+    var x = e.clientX || innerWidth / 2, y = e.clientY || innerHeight / 2;
+    if (veil) { veil.className = 'veil'; veil.style.setProperty('--x', x + 'px'); veil.style.setProperty('--y', y + 'px'); void veil.offsetWidth; veil.classList.add('go'); }
+    body.classList.add('leaving'); setTimeout(function () { menuOpen(false); }, 300);
+    if (EV.dive) EV.dive(850);
+    setTimeout(go, 860);
   });
 
   /* ---------- custom cursor + magnetic ---------- */
@@ -178,7 +196,7 @@
       var mode = sec.dataset.mode;
       ST.create({
         trigger: sec, start: 'top 55%', end: 'bottom 45%',
-        onToggle: function (s) { if (s.isActive) scene(function () { EV.setMode(mode, s.progress); }); },
+        onToggle: function (s) { if (s.isActive) setMode(mode, s.progress); },
         onUpdate: function (s) { if (EV.setProgress && s.isActive) EV.setProgress(s.progress); }
       });
     });
@@ -194,7 +212,7 @@
       if (i !== cur) { cur = i; steps.forEach(function (s, k) { s.classList.toggle('on', k === i); }); }
       scene(function () { EV.setStory(Math.max(0, p * n - 1), Math.max(0, Math.min(1, (p * n - 2) * 1.4))); });
     };
-    if (anim) ST.create({ trigger: story, start: 'top top', end: 'bottom bottom', onUpdate: function (s) { setStep(s.progress); }, onEnter: function () { scene(function () { EV.setMode('story'); }); }, onEnterBack: function () { scene(function () { EV.setMode('story'); }); } });
+    if (anim) ST.create({ trigger: story, start: 'top top', end: 'bottom bottom', onUpdate: function (s) { setStep(s.progress); }, onEnter: function () { setMode('story'); }, onEnterBack: function () { setMode('story'); } });
     else steps.forEach(function (s) { s.classList.add('on'); });
     if (anim) setStep(0);
   }
@@ -217,10 +235,10 @@
       onUpdate: function (s) {
         var p = s.progress; show(Math.min(6, Math.floor(p * 7)));
         $$('.rail b', pipe).forEach(function (b, k) { b.style.transform = 'scaleX(' + Math.max(0, Math.min(1, p * 7 - k)) + ')'; });
-        scene(function () { EV.setMode('pipeline', p); });
+        setMode('pipeline', p);
       },
-      onLeave: function () { scene(function () { EV.setMode('overview', 0); }); },
-      onLeaveBack: function () { scene(function () { EV.setMode('story', 1); }); }
+      onLeave: function () { setMode('overview', 0); },
+      onLeaveBack: function () { setMode('story', 1); }
     }) : null;
     btns.forEach(function (b, k) {
       b.addEventListener('click', function () {
@@ -253,8 +271,9 @@
   });
 
   /* ---------- docs: drawer, toc scrollspy, search ---------- */
-  var side = $('.side'), sb = $('.side-btn');
-  if (sb && side) sb.addEventListener('click', function () { side.classList.toggle('open'); });
+  var sb = $('.side-btn'), ss = $('.side-scrim');
+  if (sb) sb.addEventListener('click', function () { sideOpen(!body.classList.contains('side-open')); });
+  if (ss) ss.addEventListener('click', function () { sideOpen(false); });
   var tocLinks = $$('.toc a');
   if (tocLinks.length) {
     var heads = tocLinks.map(function (a) { return d.getElementById(decodeURIComponent(a.hash.slice(1))); });

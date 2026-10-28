@@ -232,12 +232,15 @@ function direct(t) {
 }
 
 /* ---------- loop ---------- */
-const clock = new THREE.Clock(); let visible = true, last = 0;
+const clock = new THREE.Clock(); let visible = true, tAcc = 0, tScale = 1;
 const tmp = new THREE.Vector3();
 function frame() {
   requestAnimationFrame(frame);
   if (!visible) return;
-  const dt = Math.min(clock.getDelta(), .05); const t = clock.elapsedTime * (reduce ? .25 : 1);
+  const dt0 = Math.min(clock.getDelta(), .05);
+  const calm = state.mode === 'overview' || state.mode === 'docs';
+  tScale += ((calm ? .35 : 1) * (reduce ? .25 : 1) - tScale) * (1 - Math.exp(-dt0 * 2));
+  const dt = dt0 * tScale; tAcc += dt; const t = tAcc;
   U.uTime.value = t; starMat.uniforms.uTime.value = t;
   state.smx += (state.mx - state.smx) * (1 - Math.exp(-dt * 3)); state.smy += (state.my - state.smy) * (1 - Math.exp(-dt * 3));
 
@@ -248,14 +251,14 @@ function frame() {
     look.lerp(dive.target, .2); camera.lookAt(look);
   } else {
     direct(t);
-    const k = 1 - Math.exp(-dt * (state.fast ? 6 : 2.2));
+    const k = 1 - Math.exp(-dt0 * 2.2);
     camera.position.lerp(desired.pos, k); look.lerp(desired.look, k); camera.lookAt(look);
     camera.fov += (desired.fov - camera.fov) * k;
-    bloom.strength += (1.05 - bloom.strength) * k;
+    bloom.strength += ((calm ? .7 : 1.05) - bloom.strength) * k;
   }
   camera.updateProjectionMatrix();
-  const dimT = state.mode === 'docs' ? .7 : (state.mode === 'hero' && innerWidth < 900 ? .55 : 1);
-  U.uDim.value += (dimT - U.uDim.value) * (1 - Math.exp(-dt * 2));
+  const dimT = calm ? .45 : (state.mode === 'hero' && innerWidth < 900 ? .55 : 1);
+  U.uDim.value += (dimT - U.uDim.value) * (1 - Math.exp(-dt0 * 2));
 
   // packets
   for (let i = 0; i < PK; i++) {
@@ -280,10 +283,10 @@ function frame() {
 
   // pipeline gates
   const pipeOn = state.mode === 'pipeline' ? 1 : 0;
-  stMat.uniforms.uOn.value += (pipeOn - stMat.uniforms.uOn.value) * (1 - Math.exp(-dt * 3));
+  stMat.uniforms.uOn.value += (pipeOn - stMat.uniforms.uOn.value) * (1 - Math.exp(-dt0 * 3));
   gates.forEach((g, i) => {
     const target = pipeOn && state.p * 6.6 >= i - .3 ? 1 : 0;
-    g.lit += (target - g.lit) * (1 - Math.exp(-dt * 4));
+    g.lit += (target - g.lit) * (1 - Math.exp(-dt0 * 4));
     const vis = stMat.uniforms.uOn.value; g.t.material.color.copy(LILAC).lerp(AMBER, g.lit); g.t.material.opacity = (.3 + g.lit * .7) * vis; g.t.visible = vis > .01;
     g.t.rotation.z += dt * .1 * (i % 2 ? 1 : -1);
   });

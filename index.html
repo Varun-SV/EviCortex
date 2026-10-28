@@ -19,6 +19,7 @@
 <a class="skip" href="#main">Skip to content</a>
 <canvas id="ev-canvas" aria-hidden="true"></canvas>
 <div class="vignette" aria-hidden="true"></div>
+<div class="focus" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 <div class="veil" aria-hidden="true"></div>
 <header class="hdr">
@@ -26,15 +27,19 @@
     <a class="brand" href="index.html" aria-label="EviCortex home"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
     <ul class="nav" id="nav"><li><a href="#how">How it works</a></li><li><a href="#results">Results</a></li><li><a href="#roadmap">Roadmap</a></li><li><a href="docs/index.html">Docs</a></li></ul>
     <button class="search-btn" type="button" aria-label="Search the docs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>⌘K</kbd></button>
-    <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false">Menu</button>
+    <button class="menu-btn" type="button" aria-controls="mnav" aria-expanded="false">Menu</button>
     <a class="gh" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
     <span class="prog" aria-hidden="true"></span>
   </div>
 </header>
+<nav class="mnav" id="mnav" aria-label="Menu">
+  <ul><li style="--i:0"><a href="index.html"><small>01</small>Home</a></li><li style="--i:1"><a href="#how"><small>02</small>How it works</a></li><li style="--i:2"><a href="#results"><small>03</small>Results</a></li><li style="--i:3"><a href="#roadmap"><small>04</small>Roadmap</a></li><li style="--i:4"><a href="docs/index.html"><small>05</small>Docs</a></li></ul>
+  <div class="mfoot"><a class="btn btn-p" href="docs/getting-started.html"><span class="lbl">Get started</span></a><a class="btn btn-g" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><span class="lbl">GitHub</span></a></div>
+</nav>
 <main id="main">
 
 <section class="hero" id="top" data-mode="hero" aria-labelledby="hero-title">
-  <div class="wrap">
+  <div class="wrap"><div class="scrim">
     <p class="status"><i aria-hidden="true"></i>Open-source research kernel · pre-alpha</p>
     <h1 class="display" id="hero-title" data-split data-hero>Remember everything. <span class="serif">Pack only what is still true.</span></h1>
     <p class="lead" data-reveal>EviCortex is a local-first Python memory kernel for long-lived AI systems. It keeps <strong>every observation exactly as recorded</strong>, tracks which claims a newer one has replaced, and compiles a cited context capsule under a hard token budget.</p>
@@ -42,7 +47,7 @@
       <a class="btn btn-p" data-magnetic href="docs/getting-started.html"><span class="lbl">Get started</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       <a class="btn btn-g" data-magnetic href="#story"><span class="lbl">See it work</span></a>
     </div>
-  </div>
+  </div></div>
   <div class="hero-meta glass" aria-hidden="true">
     <div class="meter-row"><span id="meterNs">Capsule</span><b><span id="meterVal">0</span> / 512 tokens</b></div>
     <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
@@ -54,7 +59,7 @@
 <section class="story" id="story" aria-labelledby="story-title">
   <div class="pin">
     <div class="wrap">
-      <div>
+      <div class="scrim">
         <p class="eyebrow" data-scramble>The problem</p>
         <h2 class="h2" id="story-title">Old facts look <span class="serif">just as relevant</span> as new ones.</h2>
         <p class="story-q"><small>Question sent to memory</small>“Which interface theme does Ada prefer?”</p>
@@ -109,7 +114,7 @@
 <section class="pipe-sec" id="pipeline" aria-labelledby="pipe-title">
   <div class="pin pipe-pin">
     <div class="wrap">
-      <div class="pipe-title">
+      <div class="pipe-title scrim">
         <p class="eyebrow">The recall pipeline</p>
         <h2 class="h2" id="pipe-title">Fly through a <span class="serif">recall.</span></h2>
         <p class="lead">Seven gates between a question and a capsule. Watch the rose (superseded) evidence drop out at the temporal filter, and the stream narrow at the packer.</p>
@@ -251,7 +256,7 @@
   </div>
 </section>
 
-<section class="sec" id="quickstart" data-mode="hero" aria-labelledby="qs-title">
+<section class="sec" id="quickstart" data-mode="overview" aria-labelledby="qs-title">
   <div class="wrap">
     <div class="sec-head">
       <p class="eyebrow" data-scramble>Quickstart</p>
@@ -325,7 +330,7 @@
   </div>
 </section>
 
-<section class="sec" id="docs" data-mode="hero" aria-labelledby="docs-title">
+<section class="sec" id="docs" data-mode="overview" aria-labelledby="docs-title">
   <div class="wrap">
     <div class="sec-head">
       <p class="eyebrow" data-scramble>Documentation</p>
