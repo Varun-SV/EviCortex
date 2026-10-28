@@ -294,7 +294,7 @@ function frame() {
 }
 
 function resize() {
-  const w = innerWidth, h = innerHeight;
+  const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
   renderer.setSize(w, h, false); composer.setSize(w, h);
   bloom.resolution.set(w / 2, h / 2);
   camera.aspect = w / h; camera.updateProjectionMatrix();
@@ -307,7 +307,7 @@ addEventListener('pointermove', e => {
 document.addEventListener('visibilitychange', () => { visible = !document.hidden; if (visible) clock.getDelta(); });
 
 // Arrival: start inside a node and pull back out of it.
-let arrived = false; try { arrived = sessionStorage.getItem('ev-zoom') === '1'; sessionStorage.removeItem('ev-zoom'); } catch (e) {}
+let arrived = false; try { arrived = !!sessionStorage.getItem('ev-zoom'); sessionStorage.removeItem('ev-zoom'); } catch (e) {}
 direct(0);
 if (arrived) {
   const n = nodes[Math.floor(N / 2)].p; camera.position.copy(n).add(new THREE.Vector3(0, 0, 1.2)); look.copy(n); camera.fov = 18;

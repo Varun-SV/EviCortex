@@ -7,10 +7,10 @@
   --ease:cubic-bezier(.2,.8,.2,1); --r:22px; --gut:clamp(16px,4vw,56px); --max:1240px;
 }
 *,*::before,*::after{box-sizing:border-box}
-html{background:var(--bg);color-scheme:dark;-webkit-text-size-adjust:100%}
+html{background:var(--bg);color-scheme:dark;-webkit-text-size-adjust:100%;overflow-x:clip}
 html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
-body{margin:0;background:transparent;color:var(--ink);font:400 17px/1.65 var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body{margin:0;background:transparent;color:var(--ink);font:400 17px/1.65 var(--sans);overflow-x:clip;-webkit-font-smoothing:antialiased}
 ::selection{background:var(--amber);color:#1a1205}
 a{color:inherit}
 img,svg{max-width:100%}
@@ -22,7 +22,7 @@ code{font-family:var(--mono);font-size:.86em;background:rgba(169,177,255,.1);bor
 .wrap{width:100%;max-width:var(--max);margin:0 auto;padding:0 var(--gut)}
 
 /* ---------- stage: canvas, vignette, grain, veil ---------- */
-#ev-canvas{position:fixed;inset:0;width:100vw;height:100vh;z-index:-3;display:block}
+#ev-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:-3;display:block}
 .no-webgl #ev-canvas{display:none}
 .no-webgl body{background:radial-gradient(1200px 700px at 70% 20%,#1a1640 0,transparent 60%),radial-gradient(900px 600px at 10% 80%,#2a1626 0,transparent 60%),var(--bg)}
 .vignette{position:fixed;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(120% 90% at 50% 40%,transparent 40%,rgba(0,0,0,.7) 100%)}
@@ -35,8 +35,8 @@ code{font-family:var(--mono);font-size:.86em;background:rgba(169,177,255,.1);bor
   background:radial-gradient(circle at var(--x) var(--y),#fff4da 0,#f6b84a 4%,#8a3d6a 14%,#1a1236 34%,#04050d 62%);
   clip-path:circle(0px at var(--x) var(--y))}
 .veil.go{visibility:visible;clip-path:circle(150vmax at var(--x) var(--y));transition:clip-path .85s cubic-bezier(.6,0,.3,1)}
-.veil.cover{visibility:visible;clip-path:none;--x:50vw;--y:50vh;--vr:0px;
-  -webkit-mask:radial-gradient(circle at 50% 50%,transparent var(--vr),#000 calc(var(--vr) + 60px));mask:radial-gradient(circle at 50% 50%,transparent var(--vr),#000 calc(var(--vr) + 60px))}
+.veil.cover{visibility:visible;clip-path:none;--vr:0px;
+  -webkit-mask:radial-gradient(circle at var(--x) var(--y),transparent var(--vr),#000 calc(var(--vr) + 60px));mask:radial-gradient(circle at var(--x) var(--y),transparent var(--vr),#000 calc(var(--vr) + 60px))}
 .veil.cover.open{--vr:150vmax;transition:--vr 1.15s cubic-bezier(.6,0,.2,1) .12s}
 body.leaving main,body.leaving .foot{transition:opacity .6s var(--ease),transform .8s var(--ease);opacity:.2;transform:translateY(-20px)}
 body.arriving main{animation:arrive 1.2s var(--ease) both .15s}
@@ -98,8 +98,8 @@ body.arriving main{animation:arrive 1.2s var(--ease) both .15s}
 .h2 .serif{color:var(--amber2)}
 .lead{font-size:clamp(1.05rem,1.4vw,1.25rem);color:var(--muted);max-width:60ch;margin:0}
 .lead strong{color:var(--ink);font-weight:600}
-.split-mask .w{display:inline-block;white-space:nowrap}
-.ch{display:inline-block;will-change:transform}
+[data-split] .w{display:inline-block;white-space:nowrap}
+.ch{display:inline-block}
 .split-mask .w{overflow:hidden;vertical-align:top;padding-bottom:.08em;margin-bottom:-.08em}
 
 /* ---------- glass ---------- */
@@ -108,7 +108,7 @@ body.arriving main{animation:arrive 1.2s var(--ease) both .15s}
 body.calm .focus{opacity:1}
 .docs-page .focus{opacity:1;background:rgba(3,4,10,.7)}
 .scrim{position:relative;isolation:isolate}
-.scrim::before{content:"";position:absolute;inset:-70px -110px;z-index:-1;pointer-events:none;background:radial-gradient(closest-side,rgba(3,4,10,.78),rgba(3,4,10,.45) 55%,transparent)}
+.scrim::before{content:"";position:absolute;inset:-60px max(-110px,calc(-1 * var(--gut)));z-index:-1;pointer-events:none;background:radial-gradient(closest-side,rgba(3,4,10,.78),rgba(3,4,10,.45) 55%,transparent)}
 .h2,.hero h1,.prose h1{text-shadow:0 2px 30px rgba(0,0,0,.55)}
 .sec{position:relative;padding:clamp(90px,14vh,160px) 0}
 .sec-head{margin-bottom:clamp(36px,6vh,64px)}

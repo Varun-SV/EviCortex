@@ -13,12 +13,13 @@
 
   /* ---------- arrival veil ---------- */
   var veil = $('.veil');
-  var arrived = false; try { arrived = sessionStorage.getItem('ev-zoom') === '1'; } catch (e) {}
+  var arrived = null; try { arrived = JSON.parse(sessionStorage.getItem('ev-zoom') || 'null'); } catch (e) {}
   if (veil && arrived && !reduce) {
+    veil.style.setProperty('--x', (arrived.x || .5) * innerWidth + 'px'); veil.style.setProperty('--y', (arrived.y || .5) * innerHeight + 'px');
     veil.className = 'veil cover'; body.classList.add('arriving');
-    requestAnimationFrame(function () { requestAnimationFrame(function () { veil.classList.add('open'); }); });
     var done = function () { veil.className = 'veil'; body.classList.remove('arriving'); };
-    veil.addEventListener('transitionend', done, { once: true }); setTimeout(done, 2600);
+    veil.addEventListener('transitionend', function te(ev) { if (ev.propertyName === '--vr') { veil.removeEventListener('transitionend', te); done(); } });
+    requestAnimationFrame(function () { requestAnimationFrame(function () { veil.classList.add('open'); setTimeout(done, 1600); }); });
   }
   addEventListener('pageshow', function (e) { if (e.persisted) { if (veil) veil.className = 'veil'; body.classList.remove('leaving', 'menu-open'); } });
   function setMode(mode, p) { body.classList.toggle('calm', mode === 'overview'); scene(function () { EV.setMode(mode, p || 0); }); }
@@ -70,8 +71,8 @@
     e.preventDefault();
     var go = function () { location.href = url.href; };
     if (reduce) { go(); return; }
-    try { sessionStorage.setItem('ev-zoom', '1'); } catch (err) {}
     var x = e.clientX || innerWidth / 2, y = e.clientY || innerHeight / 2;
+    try { sessionStorage.setItem('ev-zoom', JSON.stringify({ x: x / innerWidth, y: y / innerHeight })); } catch (err) {}
     if (veil) { veil.className = 'veil'; veil.style.setProperty('--x', x + 'px'); veil.style.setProperty('--y', y + 'px'); void veil.offsetWidth; veil.classList.add('go'); }
     body.classList.add('leaving'); setTimeout(function () { menuOpen(false); }, 300);
     if (EV.dive) EV.dive(850);
@@ -144,7 +145,8 @@
     $$('[data-split]').forEach(function (el) {
       var chars = split(el), hero = el.hasAttribute('data-hero');
       G.set(chars, { yPercent: 115, rotate: 8, opacity: 0 });
-      var tw = { yPercent: 0, rotate: 0, opacity: 1, duration: 1.1, ease: 'expo.out', stagger: { each: hero ? .022 : .012 }, delay: hero ? (arrived ? .5 : .25) : 0 };
+      var tw = { yPercent: 0, rotate: 0, opacity: 1, duration: 1.1, ease: 'expo.out', stagger: { each: hero ? .022 : .012 }, delay: hero ? (arrived ? .5 : .25) : 0,
+        onComplete: function () { G.set(chars, { clearProps: 'all' }); el.classList.remove('split-mask'); } };
       if (hero) G.to(chars, tw); else G.to(chars, Object.assign(tw, { scrollTrigger: { trigger: el, start: 'top 85%' } }));
     });
     $$('[data-scramble]').forEach(function (el) { ST.create({ trigger: el, start: 'top 90%', once: true, onEnter: function () { scramble(el); } }); });
