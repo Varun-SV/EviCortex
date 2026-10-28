@@ -1,0 +1,332 @@
+<main id="main">
+
+<section class="hero" id="top" data-mode="hero" aria-labelledby="hero-title">
+  <div class="wrap">
+    <p class="status"><i aria-hidden="true"></i>Open-source research kernel · pre-alpha</p>
+    <h1 class="display" id="hero-title" data-split data-hero>Remember everything. <span class="serif">Pack only what is still true.</span></h1>
+    <p class="lead" data-reveal>EviCortex is a local-first Python memory kernel for long-lived AI systems. It keeps <strong>every observation exactly as recorded</strong>, tracks which claims a newer one has replaced, and compiles a cited context capsule under a hard token budget.</p>
+    <div class="cta" data-reveal data-stagger>
+      <a class="btn btn-p" data-magnetic href="{root}docs/getting-started.html"><span class="lbl">Get started</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a class="btn btn-g" data-magnetic href="#story"><span class="lbl">See it work</span></a>
+    </div>
+  </div>
+  <div class="hero-meta glass" aria-hidden="true">
+    <div class="meter-row"><span id="meterNs">Capsule</span><b><span id="meterVal">0</span> / 512 tokens</b></div>
+    <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
+    <ul class="legend"><li><span class="c"></span>Current claim</li><li><span class="s"></span>Superseded</li><li><span class="q"></span>Query packet</li></ul>
+  </div>
+  <div class="scroll-cue" aria-hidden="true">Scroll<i></i></div>
+</section>
+
+<section class="story" id="story" aria-labelledby="story-title">
+  <div class="pin">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow" data-scramble>The problem</p>
+        <h2 class="h2" id="story-title">Old facts look <span class="serif">just as relevant</span> as new ones.</h2>
+        <p class="story-q"><small>Question sent to memory</small>“Which interface theme does Ada prefer?”</p>
+      </div>
+      <div class="steps">
+        <div class="step glass on">
+          <span class="n">01 / A PREFERENCE CHANGES</span>
+          <h3>In January, Ada picks light. In April, she switches to dark.</h3>
+          <p>Assistants that run for months collect facts that change. Each update is just more text in the history.</p>
+          <ul class="ctx"><li><span class="tag kept">2026-01-02</span>Ada prefers the light interface theme.</li><li><span class="tag kept">2026-04-18</span>Ada switched to the dark interface theme.</li></ul>
+        </div>
+        <div class="step glass">
+          <span class="n">02 / CHUNK RETRIEVAL PACKS BOTH</span>
+          <h3>Both chunks match the question, whatever the date.</h3>
+          <p>The reader model has to guess which one is still true, and the outdated chunk spends budget the current one needed.</p>
+          <ul class="ctx"><li><span class="tag old">stale</span>chunk 14 · Ada prefers the light interface theme.</li><li><span class="tag cur">current</span>chunk 61 · Ada switched to the dark interface theme.</li></ul>
+        </div>
+        <div class="step glass">
+          <span class="n">03 / EVICORTEX PACKS WHAT IS TRUE</span>
+          <h3>The newer claim supersedes the older one. Nothing is deleted.</h3>
+          <p>Both observations stay in the evidence ledger. Only the current fact is packed, with a stable evidence ID you can expand.</p>
+          <ul class="ctx"><li><span class="tag cur">packed</span>user:ada prefers_theme = "dark" · valid from 2026-04-18</li><li class="dim"><span class="tag kept">ledger</span>user:ada prefers_theme = "light"</li></ul>
+        </div>
+        <div class="step glass">
+          <span class="n">04 / ASK ABOUT THE PAST</span>
+          <h3>Set <code>as_of</code> and the capsule shows what was true then.</h3>
+          <p>History is a query, not a deletion. On 1 Feb 2026 the light theme was the valid claim, and that is what gets packed.</p>
+          <ul class="ctx"><li><span class="tag cur">packed</span>user:ada prefers_theme = "light" · valid 2026-01-02 → 2026-04-18</li><li class="dim"><span class="tag kept">not yet valid</span>user:ada prefers_theme = "dark"</li></ul>
+          <p class="cap">Illustration built from <code>examples/quickstart.py</code>. Behaviour, not a benchmark.</p>
+        </div>
+      </div>
+    </div>
+    <div class="story-dots" aria-hidden="true"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+  </div>
+</section>
+
+<section class="sec" id="how" data-mode="overview" aria-labelledby="how-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow" data-scramble>How it works</p>
+      <h2 class="h2" id="how-title" data-split>Three planes. <span class="serif">One bounded capsule.</span></h2>
+      <p class="lead" data-reveal>EviCortex separates the evidence it keeps from the views it uses to find that evidence. Views can be wrong or rebuilt. <strong>The evidence stays put.</strong></p>
+    </div>
+    <div class="planes" data-reveal data-stagger>
+      <article class="plane glass" data-tilt><span class="orb" aria-hidden="true"></span><span class="ix">01</span><h3>Evidence ledger</h3><p class="alias">Genome</p><p>Append-only observations with source, SHA-256 digest, namespace, and both occurrence and recording time. The lossless source of truth.</p></article>
+      <article class="plane glass" data-tilt><span class="orb" aria-hidden="true"></span><span class="ix">02</span><h3>Memory indexes</h3><p class="alias">Engram</p><p>Rebuildable claim, lexical, entity, graph, temporal and optional semantic views. A correction creates a revision instead of erasing old evidence.</p></article>
+      <article class="plane glass" data-tilt><span class="orb" aria-hidden="true"></span><span class="ix">03</span><h3>Context compiler</h3><p class="alias">Transcript</p><p>Query-time ranking, temporal filtering, conflict surfacing and packing under a strict estimated-token budget, with stable IDs you can expand later.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="pipe-sec" id="pipeline" aria-labelledby="pipe-title">
+  <div class="pin pipe-pin">
+    <div class="wrap">
+      <div class="pipe-title">
+        <p class="eyebrow">The recall pipeline</p>
+        <h2 class="h2" id="pipe-title">Fly through a <span class="serif">recall.</span></h2>
+        <p class="lead">Seven gates between a question and a capsule. Watch the rose (superseded) evidence drop out at the temporal filter, and the stream narrow at the packer.</p>
+      </div>
+      <div class="stage-card glass" aria-live="polite">
+        <p class="stage-num" aria-hidden="true">01</p>
+        <span class="stage-api"></span>
+        <h3 class="stage-name"></h3>
+        <div class="stage-body"></div>
+      </div>
+    </div>
+    <nav class="rail" aria-label="Pipeline stages">
+      <button type="button"><i><b></b></i><span>Ingest</span></button>
+      <button type="button"><i><b></b></i><span>Native memory</span></button>
+      <button type="button"><i><b></b></i><span>Claims</span></button>
+      <button type="button"><i><b></b></i><span>Ranking</span></button>
+      <button type="button"><i><b></b></i><span>Temporal</span></button>
+      <button type="button"><i><b></b></i><span>Packer</span></button>
+      <button type="button"><i><b></b></i><span>Context</span></button>
+    </nav>
+  </div>
+  <script type="application/json" id="pipe-data">[
+    ["Ingest","remember()","<p>Exact evidence and any explicit claims are validated and written in one atomic transaction, with provenance, occurrence time and recording time.</p>"],
+    ["Native memory","evidence ledger","<ul><li>Append-only observations with a SHA-256 content digest</li><li>Stored locally in SQLite with an FTS5 index</li><li>Idempotency keys make replays safe</li></ul>"],
+    ["Canonical claims","ClaimInput","<ul><li>Subject, predicate, value, validity, confidence and authority</li><li>A claim can <code>supersede</code> an earlier one: a revision, not a deletion</li><li>Claim views are projections that <code>rebuild_indexes()</code> can recreate</li></ul>"],
+    ["Ranking","fused channels","<ul><li>Lexical, entity, graph, temporal and optional semantic channels are fused</li><li>An optional reranker sees at most 16 filtered candidates</li><li>Every score contribution is kept in a trace, outside the prompt</li></ul>"],
+    ["Temporal filter","as_of","<ul><li><code>as_of</code> selects the claims valid at that point in time</li><li>Superseded claims stay out of the current answer</li><li>Competing values are surfaced as conflicts, not silently dropped</li></ul>"],
+    ["Budget packer","budget_tokens","<ul><li>Packs facts and evidence excerpts under a hard estimated-token budget</li><li>The estimate is one token per three UTF-8 bytes</li><li>Candidates that don’t fit are counted in <code>omitted_count</code></li></ul>"],
+    ["Context","MemoryCapsule","<ul><li><code>to_prompt()</code> returns compact, stable JSON for the reader model</li><li>Each item carries evidence IDs</li><li><code>expand()</code> returns the exact original record on demand</li></ul>"]
+  ]</script>
+</section>
+
+<section class="sec" id="results" data-mode="overview" aria-labelledby="results-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow" data-scramble>Interim results · cutoff 25 Oct 2026</p>
+      <h2 class="h2" id="results-title" data-split>Stale evidence stays out. <span class="serif">Clean coverage at 4k.</span></h2>
+    </div>
+    <div class="figs">
+      <div class="fig glass rose" data-reveal>
+        <div class="num" data-count="0" data-from="100" data-dec="2"><span class="cv">0.00</span><small>%</small></div>
+        <h3>Stale-reference inclusion on knowledge updates</h3>
+        <p>Across 200 knowledge-update queries at a 512-token budget, no EviCortex capsule included a superseded source. <b>Fixed-chunk FTS and Hybrid RAG did in 100% of them.</b></p>
+      </div>
+      <div class="fig glass" data-reveal>
+        <div class="num" data-count="99.27" data-dec="2"><span class="cv">99.27</span><small>%</small></div>
+        <h3>All gold and no forbidden IDs at 4,000 tokens</h3>
+        <p>On the matched answerable cohort (n = 1,921), EviCortex packed every gold source and no forbidden one in 99.27% of queries. <b>Both chunk baselines reached 89.59%.</b></p>
+      </div>
+    </div>
+    <div class="note glass" role="note" data-reveal><span class="i" aria-hidden="true">i</span><span><strong>These are source-ID retrieval proxies, not answer accuracy.</strong> No reader model was run. Each number reports which evidence IDs ended up inside the packed context.</span></div>
+    <div class="charts">
+      <figure class="chart glass" data-reveal>
+        <h3>Mean source-ID recall by budget</h3>
+        <p class="sub">Matched answerable cohort, n = 1,921</p>
+        <ul class="keys"><li><i style="background:var(--amber)"></i>EviCortex</li><li><i style="background:var(--lilac)"></i>FTS and Hybrid RAG (identical)</li></ul>
+        <svg viewBox="0 0 640 350" role="img" aria-labelledby="cr-t cr-d">
+          <title id="cr-t">Mean source-ID recall by token budget</title>
+          <desc id="cr-d">EviCortex: 71.73% at 512, 69.99% at 1000, 69.73% at 2000, 99.27% at 4000, 100% at 8000. Fixed-chunk FTS and Hybrid RAG: 100% at every budget.</desc>
+          <defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="rgba(234,111,149,.04)"/><line x1="0" y1="0" x2="0" y2="8" stroke="rgba(234,111,149,.22)" stroke-width="2"/></pattern></defs>
+          <rect class="band" x="56" y="24" width="304" height="260" rx="6"/>
+          <text class="band-lab" x="68" y="268">Active research: small-budget recall</text>
+          <g class="grid"><line x1="44" x2="616" y1="24" y2="24"/><line x1="44" x2="616" y1="89" y2="89"/><line x1="44" x2="616" y1="154" y2="154"/><line x1="44" x2="616" y1="219" y2="219"/><line x1="44" x2="616" y1="284" y2="284"/></g>
+          <g class="axis-t" text-anchor="end"><text x="36" y="28">100%</text><text x="36" y="93">75%</text><text x="36" y="158">50%</text><text x="36" y="223">25%</text><text x="36" y="288">0%</text></g>
+          <g text-anchor="middle"><text x="80" y="310">512</text><text x="208" y="310">1,000</text><text x="336" y="310">2,000</text><text x="464" y="310">4,000</text><text x="592" y="310">8,000</text><text class="axis-t" x="336" y="338">Context budget (estimated tokens)</text></g>
+          <path class="ln-path ln-base" d="M80 24 L208 24 L336 24 L464 24 L592 24"/>
+          <path class="ln-path ln-ev" d="M80 97.5 L208 102.03 L336 102.7 L464 25.9 L592 24"/>
+          <g fill="#f6b84a"><circle class="pt" cx="80" cy="97.5" r="5"/><circle class="pt" cx="208" cy="102.03" r="5"/><circle class="pt" cx="336" cy="102.7" r="5"/><circle class="pt" cx="464" cy="25.9" r="5"/><circle class="pt" cx="592" cy="24" r="5"/></g>
+          <g class="vlab" text-anchor="middle"><text x="80" y="124">71.73%</text><text x="208" y="128">69.99%</text><text x="336" y="128">69.73%</text><text x="464" y="52">99.27%</text></g>
+        </svg>
+      </figure>
+      <figure class="chart glass" data-reveal>
+        <h3>All gold and no forbidden IDs</h3>
+        <p class="sub">Share of queries whose context held every gold source and no forbidden one</p>
+        <ul class="keys"><li><i style="background:var(--amber)"></i>EviCortex</li><li><i style="background:var(--lilac)"></i>FTS</li><li><i style="background:var(--teal)"></i>Hybrid RAG</li></ul>
+        <svg viewBox="0 0 520 350" role="img" aria-labelledby="cc-t cc-d">
+          <title id="cc-t">All gold and no forbidden source IDs, at 512 and 4,000 tokens</title>
+          <desc id="cc-d">At 512 tokens: EviCortex 65.12%, FTS 89.59%, Hybrid 89.59%. At 4,000 tokens: EviCortex 99.27%, FTS 89.59%, Hybrid 89.59%.</desc>
+          <g class="grid"><line x1="44" x2="510" y1="24" y2="24"/><line x1="44" x2="510" y1="89" y2="89"/><line x1="44" x2="510" y1="154" y2="154"/><line x1="44" x2="510" y1="219" y2="219"/><line x1="44" x2="510" y1="284" y2="284"/></g>
+          <g class="axis-t" text-anchor="end"><text x="36" y="28">100%</text><text x="36" y="93">75%</text><text x="36" y="158">50%</text><text x="36" y="223">25%</text><text x="36" y="288">0%</text></g>
+          <rect class="bar" x="85" y="114.69" width="48" height="169.31" rx="4" fill="#f6b84a"/><rect class="bar" x="141" y="51.07" width="48" height="232.93" rx="4" fill="#a9b1ff"/><rect class="bar" x="197" y="51.07" width="48" height="232.93" rx="4" fill="#5fd0c8"/>
+          <rect class="bar" x="315" y="25.9" width="48" height="258.1" rx="4" fill="#f6b84a"/><rect class="bar" x="371" y="51.07" width="48" height="232.93" rx="4" fill="#a9b1ff"/><rect class="bar" x="427" y="51.07" width="48" height="232.93" rx="4" fill="#5fd0c8"/>
+          <g class="vlab" text-anchor="middle"><text x="109" y="106">65.12</text><text x="165" y="43">89.59</text><text x="221" y="43">89.59</text><text x="339" y="17">99.27</text><text x="395" y="43">89.59</text><text x="451" y="43">89.59</text></g>
+          <g text-anchor="middle"><text x="165" y="310">512 tokens</text><text x="395" y="310">4,000 tokens</text></g>
+        </svg>
+      </figure>
+      <figure class="chart wide glass" data-reveal>
+        <h3>Stale-reference inclusion on knowledge-update queries</h3>
+        <p class="sub">n = 200, budget 512 tokens. Lower is better.</p>
+        <div class="hbars" role="img" aria-label="Stale-reference inclusion: EviCortex 0.00 percent, Fixed-chunk FTS 100 percent, Hybrid RAG 100 percent.">
+          <div class="hb"><span>EviCortex</span><span class="tr"><span class="zero"></span></span><span class="v" style="color:var(--amber)">0.00%</span></div>
+          <div class="hb"><span>Fixed-chunk FTS</span><span class="tr"><span class="fl" style="background:var(--lilac)"></span></span><span class="v">100%</span></div>
+          <div class="hb"><span>Hybrid RAG</span><span class="tr"><span class="fl" style="background:var(--teal)"></span></span><span class="v">100%</span></div>
+        </div>
+        <details class="data-tbl"><summary>Show all numbers as a table</summary>
+          <div class="tbl-scroll"><table>
+            <thead><tr><th scope="col">Metric and budget</th><th scope="col">EviCortex</th><th scope="col">FTS</th><th scope="col">Hybrid RAG</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Mean source-ID recall, 512</th><td>71.73%</td><td>100%</td><td>100%</td></tr>
+              <tr><th scope="row">Mean source-ID recall, 1,000</th><td>69.99%</td><td>100%</td><td>100%</td></tr>
+              <tr><th scope="row">Mean source-ID recall, 2,000</th><td>69.73%</td><td>100%</td><td>100%</td></tr>
+              <tr><th scope="row">Mean source-ID recall, 4,000</th><td>99.27%</td><td>100%</td><td>100%</td></tr>
+              <tr><th scope="row">Mean source-ID recall, 8,000</th><td>100%</td><td>100%</td><td>100%</td></tr>
+              <tr><th scope="row">All gold, no forbidden, 512</th><td>65.12%</td><td>89.59%</td><td>89.59%</td></tr>
+              <tr><th scope="row">All gold, no forbidden, 4,000</th><td>99.27%</td><td>89.59%</td><td>89.59%</td></tr>
+              <tr><th scope="row">Stale-reference inclusion, 512 (n = 200)</th><td>0.00%</td><td>100%</td><td>100%</td></tr>
+            </tbody>
+          </table></div>
+        </details>
+      </figure>
+    </div>
+    <div class="caveat glass" data-reveal><span class="m" aria-hidden="true">!</span><div><h3>Small budgets are still a weak spot</h3><p>At 512 to 2,000 tokens EviCortex recovers about 70–72% of gold source IDs, while both chunk baselines recover all of them. That gap is where current research effort goes.</p></div></div>
+  </div>
+</section>
+
+<section class="sec" id="method" data-mode="overview" aria-labelledby="method-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow" data-scramble>Methodology</p>
+      <h2 class="h2" id="method-title" data-split>How these numbers <span class="serif">were measured.</span></h2>
+    </div>
+    <div class="method" data-reveal data-stagger>
+      <dl class="glass">
+        <dt>Corpus</dt><dd>Authored evaluation corpus, not the official LongMemEval-S artifact</dd>
+        <dt>Cohort</dt><dd>Matched answerable cohort, n = 1,921 queries</dd>
+        <dt>Updates</dt><dd>Knowledge-update queries, n = 200, at a 512-token budget</dd>
+        <dt>Mode</dt><dd>Retrieval only. No reader model generated an answer</dd>
+        <dt>Budgets</dt><dd>512, 1,000, 2,000, 4,000 and 8,000 estimated tokens</dd>
+        <dt>Tokens</dt><dd>One token per three UTF-8 bytes, not a model tokenizer</dd>
+        <dt>Baselines</dt><dd>Fixed-chunk full-text search and a Hybrid RAG comparator</dd>
+      </dl>
+      <div class="defs glass">
+        <div><b>Mean source-ID recall</b><p>The average share of a query’s gold source IDs present in the packed context.</p></div>
+        <div><b>All gold and no forbidden IDs</b><p>The share of queries whose context holds every gold source and none marked forbidden.</p></div>
+        <div><b>Stale-reference inclusion</b><p>On knowledge-update queries, the share whose context includes a source a later update superseded.</p></div>
+        <div class="nm-list"><b>Not measured here</b><ul><li>Answer accuracy with a shared reader model</li><li>The official LongMemEval-S dataset</li><li>Any comparison with Mem0, Graphiti or HippoRAG 2</li></ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="quickstart" data-mode="hero" aria-labelledby="qs-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow" data-scramble>Quickstart</p>
+      <h2 class="h2" id="qs-title" data-split>Run it on <span class="serif">your machine.</span></h2>
+    </div>
+    <div class="qs">
+      <ul class="reqs glass" data-reveal>
+        <li><b>Python</b>3.12 or later</li>
+        <li><b>Storage</b>SQLite with FTS5, included in standard CPython builds</li>
+        <li><b>Runtime deps</b>None beyond the standard library</li>
+        <li><b>Package</b><span><code>evicortex-research</code>, imported as <code>evicortex</code></span></li>
+        <li><b>Licence</b>MIT</li>
+      </ul>
+      <div class="term glass" data-reveal>
+        <div class="term-bar">
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <div class="tabs" role="tablist" aria-label="Quickstart snippets">
+            <button role="tab" id="tab-i" aria-selected="true" aria-controls="p-i">Install</button>
+            <button role="tab" id="tab-p" aria-selected="false" aria-controls="p-p" tabindex="-1">Python</button>
+          </div>
+          <button class="copy" type="button">Copy</button>
+        </div>
+        <div class="tabpanel" id="p-i" role="tabpanel" aria-labelledby="tab-i"><pre><code><span class="f">git</span> clone https://github.com/Varun-SV/EviCortex.git
+<span class="f">cd</span> EviCortex
+<span class="f">python3.12</span> -m venv .venv
+<span class="f">source</span> .venv/bin/activate
+<span class="f">python</span> -m pip install -e .
+<span class="f">python</span> examples/quickstart.py</code></pre></div>
+        <div class="tabpanel" id="p-p" role="tabpanel" aria-labelledby="tab-p" hidden><pre><code><span class="k">from</span> evicortex <span class="k">import</span> ClaimInput, EviCortex
+
+<span class="k">with</span> EviCortex.<span class="f">open</span>(<span class="s">"memory.db"</span>) <span class="k">as</span> memory:
+    record = memory.<span class="f">remember</span>(
+        namespace=<span class="s">"assistant/user-1"</span>,
+        content=<span class="s">"Ada prefers the dark interface theme."</span>,
+        source=<span class="s">"conversation/42"</span>,
+        occurred_at=<span class="s">"2026-04-18T09:30:00Z"</span>,
+        claims=[ClaimInput(<span class="s">"user:ada"</span>, <span class="s">"prefers_theme"</span>, <span class="s">"dark"</span>)],
+    )
+    capsule = memory.<span class="f">recall</span>(
+        namespace=<span class="s">"assistant/user-1"</span>,
+        query=<span class="s">"Which interface theme does Ada prefer?"</span>,
+        budget_tokens=<span class="k">300</span>,
+    )
+    <span class="f">print</span>(capsule.<span class="f">to_prompt</span>())</code></pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="roadmap" data-mode="overview" aria-labelledby="road-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow" data-scramble>Roadmap</p>
+      <h2 class="h2" id="road-title" data-split>Next: <span class="serif">small-budget recall.</span></h2>
+      <p class="lead" data-reveal>The baselines fit all gold evidence into 512 tokens, so the gap comes from selection and serialization, not from the budget itself.</p>
+    </div>
+    <ol class="road">
+      <li class="draw-line" aria-hidden="true"></li>
+      <li class="done" data-reveal><span class="st">Shipped</span><div class="body"><h3>Prototype A kernel</h3><p>Evidence ledger, versioned claims, valid-time recall, conflict surfacing and hard-budget packing on SQLite and FTS5.</p></div></li>
+      <li class="done" data-reveal><span class="st">Shipped</span><div class="body"><h3>Extraction and embedding projections</h3><p>Audited claim-extraction boundary with exact source spans, durable semantic profiles and repair.</p></div></li>
+      <li class="done" data-reveal><span class="st">Shipped</span><div class="body"><h3>Pinned semantic path</h3><p>Offline dense-encoder adapter, reranker seam and a strict LongMemEval-schema retrieval runner.</p></div></li>
+      <li class="now" data-reveal><span class="st">In progress</span><div class="body glass"><h3>Improving small-budget recall</h3><p>Close the 512–2,000 token gap without giving back the 0% stale-reference result.</p>
+        <ol class="phases">
+          <li><b>Phase 1 · no models</b><span>Per-stage miss audit and a fine budget sweep. A budget-monotone knapsack packer. A compact provenance legend. Temporal annotate-then-guard, so 0% stale holds by construction.</span></li>
+          <li><b>Phase 2 · local retrieval</b><span>A dense or learned-sparse channel fused with RRF, plus cross-encoder reranking for paraphrase- and distractor-heavy histories.</span></li>
+          <li><b>Phase 3 · optional +LLM</b><span>Ingest-time proposition keys, multi-hop expansion over valid edges, and conditional query rewriting, reported as separate variants.</span></li>
+        </ol></div></li>
+      <li data-reveal><span class="st">Planned</span><div class="body"><h3>Official LongMemEval-S evaluation</h3><p>Byte-verified dataset, preregistered configuration, and no-memory, full-history and oracle controls.</p></div></li>
+      <li data-reveal><span class="st">Planned</span><div class="body"><h3>Shared reader and answer accuracy</h3><p>Move from retrieval proxies to answers, with exact reader-tokenizer accounting and calibrated abstention.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section class="sec" id="docs" data-mode="hero" aria-labelledby="docs-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow" data-scramble>Documentation</p>
+      <h2 class="h2" id="docs-title" data-split>Go deeper. <span class="serif">Every guide is here.</span></h2>
+    </div>
+    <div class="doc-grid" data-reveal data-stagger>
+      <a class="doc-card glass" href="{root}docs/getting-started.html"><span class="ix">01 · START</span><span class="arr" aria-hidden="true">→</span><h3>Getting started</h3><p>Install the kernel and inspect your first MemoryCapsule.</p></a>
+      <a class="doc-card glass" href="{root}docs/concepts.html"><span class="ix">02 · LEARN</span><span class="arr" aria-hidden="true">→</span><h3>Core concepts</h3><p>Evidence, claims, time, projections, namespaces and capsules.</p></a>
+      <a class="doc-card glass" href="{root}docs/api-guide.html"><span class="ix">03 · BUILD</span><span class="arr" aria-hidden="true">→</span><h3>API guide</h3><p>Public classes, methods and provider options.</p></a>
+      <a class="doc-card glass" href="{root}docs/architecture.html"><span class="ix">04 · DESIGN</span><span class="arr" aria-hidden="true">→</span><h3>Architecture</h3><p>The three planes and the invariants that hold them together.</p></a>
+      <a class="doc-card glass" href="{root}docs/benchmarking.html"><span class="ix">05 · MEASURE</span><span class="arr" aria-hidden="true">→</span><h3>Benchmarking</h3><p>Reproduce tests and research checkpoints.</p></a>
+      <a class="doc-card glass" href="{root}docs/faq.html"><span class="ix">06 · ASK</span><span class="arr" aria-hidden="true">→</span><h3>FAQ and limitations</h3><p>Security boundaries, limits and common questions.</p></a>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="paper" data-mode="overview" aria-labelledby="paper-title">
+  <div class="wrap">
+    <div class="paper glass" data-reveal>
+      <div>
+        <p class="eyebrow" data-scramble>Paper</p>
+        <h2 class="h2" id="paper-title">The paper is <span class="serif">in preparation.</span></h2>
+        <p class="lead">A write-up of the design, the evaluation contract and the full results. It will report final numbers, not the interim ones above.</p>
+        <p style="margin-top:28px"><a class="btn btn-g" data-magnetic href="{root}docs/benchmark-contract.html"><span class="lbl">Read the benchmark contract</span></a></p>
+      </div>
+      <div class="ms" aria-hidden="true" data-tilt>
+        <div class="ms-t">EviCortex: evidence-preserving temporal memory under token budgets</div>
+        <div class="ms-a">Varun S V</div>
+        <div class="ms-l"></div><div class="ms-l m"></div><div class="ms-l"></div><div class="ms-l s"></div>
+        <div style="height:14px"></div>
+        <div class="ms-l m"></div><div class="ms-l"></div><div class="ms-l s"></div>
+        <div class="ms-st">In preparation</div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>

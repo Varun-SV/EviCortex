@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core concepts · EviCortex docs</title>
+<meta name="description" content="EviCortex documentation: Core concepts">
+<meta name="theme-color" content="#04050d">
+<meta property="og:title" content="Core concepts · EviCortex docs">
+<meta property="og:description" content="EviCortex documentation: Core concepts">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2304050d'/><circle cx='11' cy='12' r='4.5' fill='%23f6b84a'/><circle cx='22' cy='21' r='3.6' fill='none' stroke='%23ea6f95' stroke-width='1.8'/><circle cx='23' cy='8.5' r='2.4' fill='%23a9b1ff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/ev.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="docs-page" data-root="../" data-scene="docs">
+<a class="skip" href="#main">Skip to content</a>
+<canvas id="ev-canvas" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+<header class="hdr">
+  <div class="bar">
+    <a class="brand" href="../index.html" aria-label="EviCortex home"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+    <ul class="nav" id="nav"><li><a href="../index.html#how">How it works</a></li><li><a href="../index.html#results">Results</a></li><li><a href="../index.html#roadmap">Roadmap</a></li><li><a href="../docs/index.html" aria-current="page">Docs</a></li></ul>
+    <button class="search-btn" type="button" aria-label="Search the docs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>⌘K</kbd></button>
+    <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false">Menu</button>
+    <a class="gh" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    <span class="prog" aria-hidden="true"></span>
+  </div>
+</header>
+<div class="docs-shell">
+<aside class="side glass" aria-label="Documentation"><h4>Start here</h4><a href="../docs/index.html">Overview</a><a href="../docs/getting-started.html">Getting started</a><a href="../docs/concepts.html" aria-current="page">Core concepts</a><a href="../docs/api-guide.html">API guide</a><a href="../docs/faq.html">FAQ and limitations</a><h4>Benchmarking</h4><a href="../docs/benchmarking.html">Benchmarking</a><a href="../docs/benchmark-contract.html">Benchmark contract</a><h4>Research notes</h4><a href="../docs/architecture.html">Architecture</a><a href="../docs/phase-b.html">Phase B plan</a><a href="../docs/phase-c.html">Phase C evaluation</a><a href="../docs/decisions/0001-local-first-python-sqlite.html">ADR 0001: Python + SQLite</a><h4>Results</h4><a href="../docs/results/prototype-a.html">Prototype A</a><a href="../docs/results/prototype-b-diagnostic.html">Prototype B diagnostic</a><a href="../docs/results/prototype-c-semantic-smoke.html">Prototype C smoke</a></aside>
+<main id="main" class="article glass">
+  <button class="menu-btn side-btn" type="button">☰ All docs</button>
+  <p class="crumbs"><a href="../docs/index.html">Docs</a> / Start here</p>
+  <article class="prose"><h1 id="core-concepts" data-split>Core concepts</h1>
+<p>EviCortex separates exact evidence from the mutable structures used to retrieve it. That
+separation is the central design choice: a derived claim or vector may be incomplete or
+wrong, while the observation from which it came remains addressable and auditable.</p>
+<p>For the complete design contract, see <a href="architecture.html">Architecture and invariants</a>.</p>
+<h2 id="the-three-planes">The three planes<a class="hl" href="#the-three-planes" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Plane</th>
+<th>Stores or produces</th>
+<th>Key property</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Evidence ledger</td>
+<td>Original observations, source, digest, scope, and times</td>
+<td>Durable source of truth</td>
+</tr>
+<tr>
+<td>Memory indexes</td>
+<td>Claims, FTS rows, vectors, entities, links, and temporal status</td>
+<td>Derived and repairable</td>
+</tr>
+<tr>
+<td>Context compiler</td>
+<td>A query-specific <code>MemoryCapsule</code></td>
+<td>Traceable and hard-budgeted</td>
+</tr>
+</tbody>
+</table>
+<p>The architecture sometimes calls these planes “Genome,” “Engram,” and “Transcript.” They
+are software metaphors, not claims that human memory is stored in DNA or that SQLite
+reproduces neurobiology.</p>
+<h2 id="evidence-is-not-a-claim">Evidence is not a claim<a class="hl" href="#evidence-is-not-a-claim" aria-label="Link to this section">#</a></h2>
+<p>An evidence record is an immutable observation such as a conversation turn, document
+fragment, tool result, or application event. Its <code>MemoryRecord</code> includes:</p>
+<ul>
+<li>a stable ID and namespace;</li>
+<li>the exact text and SHA-256 content digest;</li>
+<li>a source locator and application-defined kind;</li>
+<li>occurrence and recording timestamps;</li>
+<li>JSON-compatible metadata; and</li>
+<li>zero or more evidence-linked claims.</li>
+</ul>
+<p>A claim is a structured interpretation:</p>
+<div class="codehilite codewrap"><pre><span></span><code>subject + predicate + value + validity + confidence + authority
+</code></pre></div>
+
+<p>For example, the observation “Ada switched to dark mode” can support the claim
+<code>user:ada / prefers_theme / dark</code>. The claim is useful for temporal and entity-aware
+retrieval, but it does not replace the observation. A user can expand the capsule's
+evidence ID to recover the exact text.</p>
+<h2 id="namespace-scope">Namespace scope<a class="hl" href="#namespace-scope" aria-label="Link to this section">#</a></h2>
+<p>All retrieval happens inside one namespace, and EviCortex applies that filter before
+ranking. Expansion and extraction lookup deliberately use the same missing-ID behavior for
+an absent record and a record in another namespace.</p>
+<p>This protects against accidental cross-namespace retrieval inside the embedded library. It
+does not identify the caller, authorize access, encrypt the database, or create a tenant
+security boundary. Those responsibilities belong to the host application or a future
+service layer.</p>
+<h2 id="time-and-revisions">Time and revisions<a class="hl" href="#time-and-revisions" aria-label="Link to this section">#</a></h2>
+<p>EviCortex records several different notions of time:</p>
+<ul>
+<li><code>occurred_at</code>: when the represented event happened;</li>
+<li><code>recorded_at</code>: when the evidence was ingested, or the trusted replay time supplied by
+  the caller;</li>
+<li><code>valid_from</code> and <code>valid_to</code>: the interval during which a claim applies; and</li>
+<li><code>as_of</code>: the valid-time point used by a recall request.</li>
+</ul>
+<p>When a new claim supersedes an earlier claim, EviCortex retains both evidence records,
+marks the projection of the older claim as superseded, and bounds its validity where
+appropriate. This supports both current and historical questions.</p>
+<p><code>as_of</code> is a valid-time query. The current API does not expose a transaction-time
+<code>known_at</code> query, so EviCortex should not yet be described as fully bitemporal.</p>
+<p>Naive Python datetimes and ISO strings without a timezone are currently interpreted as UTC;
+explicit offsets or <code>Z</code> are safer at application boundaries. Persisted timestamps are
+normalized to UTC.</p>
+<h2 id="derived-projections-and-semantic-profiles">Derived projections and semantic profiles<a class="hl" href="#derived-projections-and-semantic-profiles" aria-label="Link to this section">#</a></h2>
+<p>SQLite FTS rows and claim-status views are deterministic projections. <code>rebuild_indexes()</code>
+can recreate them without changing evidence.</p>
+<p>Embeddings are provider-derived projections. Their durable profile includes provider
+identity, dimensions, normalization behavior, and canonical input hashes. EviCortex does
+not silently mix projections from incompatible profiles and does not call a provider during
+<code>rebuild_indexes()</code>. Use <code>semantic_status(namespace)</code> and <code>sync_semantic(namespace)</code> with a
+compatible configured provider.</p>
+<p>The built-in <code>HashingEmbedder</code> is deterministic feature hashing for tests and lifecycle
+diagnostics. It is not a semantic model. The optional <code>TransformersEmbedder</code> supplies a
+pinned local dense path, but current retrieval is an exact, bounded cosine scan rather than
+an audited approximate-nearest-neighbor index.</p>
+<h2 id="extraction-is-an-audited-provider-boundary">Extraction is an audited provider boundary<a class="hl" href="#extraction-is-an-audited-provider-boundary" aria-label="Link to this section">#</a></h2>
+<p><code>remember_extracted()</code> sends an immutable <code>EvidenceContext</code> to a configured
+<code>ClaimExtractor</code>. Before anything is written, EviCortex validates that every emitted claim
+has an exact, ordered, non-overlapping source span, matching content digest, and stable
+extractor identity.</p>
+<p>The durable extraction record contains the provider identity, content digest, generated
+claim IDs, source spans, and diagnostics. If the extractor abstains, exact evidence can
+still be stored without claims.</p>
+<p>The bundled <code>CanonicalClaimExtractor</code> parses only an explicit benchmark grammar. It ignores
+ordinary natural-language statements and must not be treated as an LLM or production
+information extractor.</p>
+<h2 id="retrieval-and-context-compilation">Retrieval and context compilation<a class="hl" href="#retrieval-and-context-compilation" aria-label="Link to this section">#</a></h2>
+<p>Recall can combine lexical, entity, graph, temporal, optional semantic, and optional
+reranking contributions. EviCortex fuses ranked candidates, filters temporal state,
+deduplicates results, surfaces relevant conflicts, and packs selected evidence under the
+requested budget.</p>
+<p>The resulting <code>MemoryCapsule</code> has two audiences:</p>
+<ul>
+<li><code>to_prompt()</code> contains only the compact JSON intended for a reader model; and</li>
+<li><code>trace</code> and <code>diagnostics</code> contain operational explanations that stay outside the prompt.</li>
+</ul>
+<p>A capsule can include structured facts, evidence excerpts, conflicts, stable evidence IDs,
+an omitted-result count, and the valid-time boundary. Ranking reasons record the channels
+and contributions that selected each candidate.</p>
+<p>The current hard budget uses a deterministic estimate of one token per three UTF-8 bytes,
+not a model tokenizer. It is mechanically enforced for the serialized capsule, but an
+application must separately account for its system prompt, user message, schema, and reader
+model tokenizer.</p>
+<h2 id="a-typical-lifecycle">A typical lifecycle<a class="hl" href="#a-typical-lifecycle" aria-label="Link to this section">#</a></h2>
+<ol>
+<li>The host authenticates the caller and chooses an authorized namespace.</li>
+<li><code>remember()</code> stores exact evidence plus application-supplied claims, or
+   <code>remember_extracted()</code> validates a provider result before the atomic write.</li>
+<li>Deterministic indexes update in the same storage transaction.</li>
+<li>If configured, semantic projections are created after the evidence commit.</li>
+<li><code>recall()</code> compiles a bounded capsule and an inspectable trace.</li>
+<li><code>expand()</code> retrieves exact evidence when more detail or verification is needed.</li>
+<li><code>verify_integrity()</code> checks evidence digests and projection consistency.</li>
+<li><code>rebuild_indexes()</code> repairs deterministic projections; <code>sync_semantic()</code> repairs one
+   authorized namespace and embedding profile.</li>
+<li><code>purge_memory()</code> removes an authorized evidence record and its derived rows when retention
+   or privacy requirements take precedence over historical preservation.</li>
+</ol>
+<h2 id="what-the-design-does-not-guarantee">What the design does not guarantee<a class="hl" href="#what-the-design-does-not-guarantee" aria-label="Link to this section">#</a></h2>
+<p>Durable evidence does not imply perfect retrieval. Structured claims can be wrong, semantic
+models can retrieve distractors, a token budget can omit useful evidence, and a downstream
+reader can still generate an unsupported answer. These failure modes are why EviCortex
+preserves provenance, reports diagnostics, and treats benchmark claims as configuration-
+specific. See <a href="faq.html">FAQ and limitations</a> and the
+<a href="benchmark-contract.html">benchmark contract</a>.</p></article>
+  <p class="crumbs" style="margin-top:40px"><a href="https://github.com/Varun-SV/EviCortex/blob/main/docs/concepts.md" target="_blank" rel="noopener">View this page’s source ↗</a></p>
+  <nav class="pager" aria-label="Previous and next"><a href="../docs/getting-started.html"><small>Previous</small>Getting started</a><a class="nx" href="../docs/api-guide.html"><small>Next</small>API guide</a></nav>
+</main>
+<nav class="toc" aria-label="On this page"><h4>On this page</h4><ul><li><a href="#the-three-planes">The three planes</a></li><li><a href="#evidence-is-not-a-claim">Evidence is not a claim</a></li><li><a href="#namespace-scope">Namespace scope</a></li><li><a href="#time-and-revisions">Time and revisions</a></li><li><a href="#derived-projections-and-semantic-profiles">Derived projections and semantic profiles</a></li><li><a href="#extraction-is-an-audited-provider-boundary">Extraction is an audited provider boundary</a></li><li><a href="#retrieval-and-context-compilation">Retrieval and context compilation</a></li><li><a href="#a-typical-lifecycle">A typical lifecycle</a></li><li><a href="#what-the-design-does-not-guarantee">What the design does not guarantee</a></li></ul></nav>
+</div>
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../index.html"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+      <p>Evidence-preserving, temporal memory infrastructure for long-lived AI systems. Pre-alpha research software by Varun S V. MIT licence.</p>
+    </div>
+    <ul><li><a href="../docs/getting-started.html">Getting started</a></li><li><a href="../docs/concepts.html">Core concepts</a></li><li><a href="../docs/api-guide.html">API guide</a></li></ul>
+    <ul><li><a href="../docs/architecture.html">Architecture</a></li><li><a href="../docs/benchmarking.html">Benchmarking</a></li><li><a href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener">Source on GitHub</a></li></ul>
+    <div class="big" aria-hidden="true">EviCortex</div>
+  </div>
+</footer>
+<div class="search" role="dialog" aria-modal="true" aria-label="Search documentation">
+  <div class="box glass"><input type="search" placeholder="Search the docs…" aria-label="Search the docs"><ul></ul></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/ev-ui.js"></script>
+<script type="module" src="../assets/ev-scene.js"></script>
+</body>
+</html>

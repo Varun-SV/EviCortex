@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype A benchmark result · EviCortex docs</title>
+<meta name="description" content="EviCortex documentation: Prototype A benchmark result">
+<meta name="theme-color" content="#04050d">
+<meta property="og:title" content="Prototype A benchmark result · EviCortex docs">
+<meta property="og:description" content="EviCortex documentation: Prototype A benchmark result">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2304050d'/><circle cx='11' cy='12' r='4.5' fill='%23f6b84a'/><circle cx='22' cy='21' r='3.6' fill='none' stroke='%23ea6f95' stroke-width='1.8'/><circle cx='23' cy='8.5' r='2.4' fill='%23a9b1ff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../assets/ev.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="docs-page" data-root="../../" data-scene="docs">
+<a class="skip" href="#main">Skip to content</a>
+<canvas id="ev-canvas" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+<header class="hdr">
+  <div class="bar">
+    <a class="brand" href="../../index.html" aria-label="EviCortex home"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+    <ul class="nav" id="nav"><li><a href="../../index.html#how">How it works</a></li><li><a href="../../index.html#results">Results</a></li><li><a href="../../index.html#roadmap">Roadmap</a></li><li><a href="../../docs/index.html" aria-current="page">Docs</a></li></ul>
+    <button class="search-btn" type="button" aria-label="Search the docs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>⌘K</kbd></button>
+    <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false">Menu</button>
+    <a class="gh" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    <span class="prog" aria-hidden="true"></span>
+  </div>
+</header>
+<div class="docs-shell">
+<aside class="side glass" aria-label="Documentation"><h4>Start here</h4><a href="../../docs/index.html">Overview</a><a href="../../docs/getting-started.html">Getting started</a><a href="../../docs/concepts.html">Core concepts</a><a href="../../docs/api-guide.html">API guide</a><a href="../../docs/faq.html">FAQ and limitations</a><h4>Benchmarking</h4><a href="../../docs/benchmarking.html">Benchmarking</a><a href="../../docs/benchmark-contract.html">Benchmark contract</a><h4>Research notes</h4><a href="../../docs/architecture.html">Architecture</a><a href="../../docs/phase-b.html">Phase B plan</a><a href="../../docs/phase-c.html">Phase C evaluation</a><a href="../../docs/decisions/0001-local-first-python-sqlite.html">ADR 0001: Python + SQLite</a><h4>Results</h4><a href="../../docs/results/prototype-a.html" aria-current="page">Prototype A</a><a href="../../docs/results/prototype-b-diagnostic.html">Prototype B diagnostic</a><a href="../../docs/results/prototype-c-semantic-smoke.html">Prototype C smoke</a></aside>
+<main id="main" class="article glass">
+  <button class="menu-btn side-btn" type="button">☰ All docs</button>
+  <p class="crumbs"><a href="../../docs/index.html">Docs</a> / Results</p>
+  <article class="prose"><h1 id="prototype-a-benchmark-result" data-split>Prototype A benchmark result</h1>
+<p>Status: last verified local result, 2026-07-21. This is an engineering checkpoint, not a
+publication-quality comparison or a general claim that EviCortex is better than RAG.</p>
+<h2 id="configuration">Configuration<a class="hl" href="#configuration" aria-label="Link to this section">#</a></h2>
+<div class="codehilite codewrap"><pre><span></span><code><span class="nv">$env:PYTHONPATH</span> <span class="p">=</span> <span class="s2">"src"</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">benchmarks</span><span class="p">.</span><span class="n">run</span> <span class="p">-</span><span class="n">-events</span> <span class="n">1000</span> <span class="p">-</span><span class="n">-seed</span> <span class="n">7</span> <span class="p">-</span><span class="n">-budget-tokens</span> <span class="n">512</span> <span class="p">-</span><span class="n">-json</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Events</td>
+<td>1,000</td>
+</tr>
+<tr>
+<td>Queries</td>
+<td>12: 9 answerable and 3 retrieval-abstention probes</td>
+</tr>
+<tr>
+<td>Source bytes</td>
+<td>221,586</td>
+</tr>
+<tr>
+<td>Suite SHA-256</td>
+<td><code>109c196d585532bf6ee7f9f1f96d8b33a1d8cd57f0f1c17ec042b37fc6b59f7a</code></td>
+</tr>
+<tr>
+<td>Runtime-source SHA-256</td>
+<td><code>8f5a4cc0f922eedba3a6a7d1f5be757925684fb085ea7e46fbc9a64b7c0ea4f7</code></td>
+</tr>
+<tr>
+<td>Candidate limit</td>
+<td>40</td>
+</tr>
+<tr>
+<td>Baseline chunks</td>
+<td>320 characters, 48-character overlap</td>
+</tr>
+<tr>
+<td>Token estimate</td>
+<td>UTF-8 bytes / 3</td>
+</tr>
+<tr>
+<td>Reader model</td>
+<td>None; this measures evidence support, not generated-answer accuracy</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td>Python 3.12.0, SQLite 3.42.0, local Windows machine</td>
+</tr>
+</tbody>
+</table>
+<p>The worktree was dirty, so the report records both Git HEAD and a deterministic path+content
+digest of all runtime source. Both databases are cleanly closed, symmetrically <code>VACUUM</code>-
+compacted, closed again, and then measured; compaction time is excluded from ingestion.</p>
+<p>Both systems received the same canonical events, timestamps, namespace restrictions, query
+stream, and serialized-context budget. Times are single-machine measurements with only 12
+query probes and should be treated as directional.</p>
+<h2 id="systems-compared">Systems compared<a class="hl" href="#systems-compared" aria-label="Link to this section">#</a></h2>
+<p>The baseline is <strong>fixed-size chunks ranked by SQLite FTS5</strong> and packed to the same budget. It
+is a deliberately mechanical lexical baseline—not dense retrieval, hybrid RAG, GraphRAG, or
+a tuned production stack.</p>
+<p>The candidate is the deterministic EviCortex kernel: immutable evidence, explicit temporal
+claims, lexical/entity/graph/time retrieval, stale-claim filtering, and bounded capsule
+compilation. Neither system used an LLM. The generator supplies EviCortex with oracle
+structured claims while placing the same canonical facts verbatim in baseline text. This
+isolates representation/retrieval and excludes real extraction errors and cost.</p>
+<h2 id="single-seed-result">Single-seed result<a class="hl" href="#single-seed-result" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th style="text-align: right;">Fixed-chunk FTS5</th>
+<th style="text-align: right;">EviCortex</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Evidence Recall@Budget</td>
+<td style="text-align: right;">88.89%</td>
+<td style="text-align: right;">100%</td>
+<td>Candidate found every required source ID</td>
+</tr>
+<tr>
+<td>Supported-answer rate</td>
+<td style="text-align: right;">88.89%</td>
+<td style="text-align: right;">100%</td>
+<td>+11.11 percentage points</td>
+</tr>
+<tr>
+<td>Current-fact accuracy</td>
+<td style="text-align: right;">50%</td>
+<td style="text-align: right;">100%</td>
+<td>Update handling improved</td>
+</tr>
+<tr>
+<td>Historical as-of accuracy</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">100%</td>
+<td>Equal</td>
+</tr>
+<tr>
+<td>Stale-fact leakage</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">0%</td>
+<td>Superseded evidence excluded from current recall</td>
+</tr>
+<tr>
+<td>Retrieval-level no-evidence abstention</td>
+<td style="text-align: right;">33.33%</td>
+<td style="text-align: right;">33.33%</td>
+<td>Both fail the two partial-OOD probes</td>
+</tr>
+<tr>
+<td>Namespace isolation / budget compliance</td>
+<td style="text-align: right;">100% / 100%</td>
+<td style="text-align: right;">100% / 100%</td>
+<td>Equal</td>
+</tr>
+<tr>
+<td>Estimated context tokens, total</td>
+<td style="text-align: right;">3,701</td>
+<td style="text-align: right;">2,216</td>
+<td>Candidate used 40.1% fewer</td>
+</tr>
+<tr>
+<td>Retrieval latency p50</td>
+<td style="text-align: right;">0.532 ms</td>
+<td style="text-align: right;">3.725 ms</td>
+<td>7.01x; only 12 probes</td>
+</tr>
+<tr>
+<td>Retrieval latency p95</td>
+<td style="text-align: right;">2.865 ms</td>
+<td style="text-align: right;">4.614 ms</td>
+<td>1.61x; only 12 probes</td>
+</tr>
+<tr>
+<td>Retrieval latency p99</td>
+<td style="text-align: right;">4.656 ms</td>
+<td style="text-align: right;">4.834 ms</td>
+<td>1.04x; descriptive near-maximum only</td>
+</tr>
+<tr>
+<td>Ingestion time</td>
+<td style="text-align: right;">9,617.0 ms</td>
+<td style="text-align: right;">11,643.5 ms</td>
+<td>1.21x baseline</td>
+</tr>
+<tr>
+<td>Compacted database size</td>
+<td style="text-align: right;">1,265,664 B</td>
+<td style="text-align: right;">1,900,544 B</td>
+<td>1.502x baseline</td>
+</tr>
+<tr>
+<td>Storage/source-byte ratio</td>
+<td style="text-align: right;">5.712x</td>
+<td style="text-align: right;">8.577x</td>
+<td>Candidate stores more structure</td>
+</tr>
+<tr>
+<td>Query errors</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>Equal</td>
+</tr>
+</tbody>
+</table>
+<p>The candidate met the quality/context and temporal gates. It did not establish robust
+abstention, and it narrowly missed the optional 1.5x compacted-storage target by 0.16%.</p>
+<h2 id="three-seed-scale-check">Three-seed scale check<a class="hl" href="#three-seed-scale-check" aria-label="Link to this section">#</a></h2>
+<div class="codehilite codewrap"><pre><span></span><code><span class="nv">$env:PYTHONPATH</span> <span class="p">=</span> <span class="s2">"src"</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">benchmarks</span><span class="p">.</span><span class="n">sweep</span> <span class="p">-</span><span class="n">-seeds</span> <span class="n">7</span><span class="p">,</span><span class="n">11</span><span class="p">,</span><span class="n">19</span> <span class="p">-</span><span class="n">-events</span> <span class="n">1000</span> <span class="p">-</span><span class="n">-budget-tokens</span> <span class="n">512</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-bootstrap-samples</span> <span class="n">2000</span> <span class="p">-</span><span class="n">-bootstrap-seed</span> <span class="n">20260721</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Paired aggregate</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">Descriptive 95% bootstrap interval</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Supported-answer delta</td>
+<td style="text-align: right;">+11.11 percentage points</td>
+<td style="text-align: right;">+11.11 to +11.11 pp</td>
+</tr>
+<tr>
+<td>Evidence-recall delta</td>
+<td style="text-align: right;">+11.11 percentage points</td>
+<td style="text-align: right;">+11.11 to +11.11 pp</td>
+</tr>
+<tr>
+<td>Retrieval-abstention delta</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0 to 0</td>
+</tr>
+<tr>
+<td>Context-token ratio</td>
+<td style="text-align: right;">0.594x</td>
+<td style="text-align: right;">0.586x to 0.599x</td>
+</tr>
+<tr>
+<td>Retrieval p50 ratio</td>
+<td style="text-align: right;">6.99x</td>
+<td style="text-align: right;">6.89x to 7.06x</td>
+</tr>
+<tr>
+<td>Retrieval p95 ratio</td>
+<td style="text-align: right;">1.538x</td>
+<td style="text-align: right;">1.458x to 1.610x</td>
+</tr>
+<tr>
+<td>Retrieval p99 ratio</td>
+<td style="text-align: right;">0.960x</td>
+<td style="text-align: right;">0.880x to 1.038x</td>
+</tr>
+<tr>
+<td>Ingestion-time ratio</td>
+<td style="text-align: right;">1.208x</td>
+<td style="text-align: right;">1.199x to 1.213x</td>
+</tr>
+<tr>
+<td>Compacted database-size ratio</td>
+<td style="text-align: right;">1.502x</td>
+<td style="text-align: right;">1.502x to 1.502x</td>
+</tr>
+</tbody>
+</table>
+<p>All three streams share the same task templates and vary only generated values and
+distractors. The intervals are unstable small-N descriptions, not evidence of statistical
+significance. They do show the cost shape: the candidate uses about 40.6% fewer context tokens
+and fixes the baseline's update failure, while paying materially higher median lookup,
+ingestion, and storage costs.</p>
+<h2 id="gate-status">Gate status<a class="hl" href="#gate-status" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>Status</th>
+<th>Evidence or limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Namespace filtering, digest verification, budget compliance, deterministic ordering, preserved history, and per-item traces</td>
+<td>Pass</td>
+<td>Last verified suite: 144 tests passed</td>
+</tr>
+<tr>
+<td>≥10% relative support improvement or ≥20% fewer tokens at equal support</td>
+<td>Pass</td>
+<td>Support rose to 100%; context fell 40.1%</td>
+</tr>
+<tr>
+<td>No more than two-point direct-recall regression</td>
+<td>Pass in this suite</td>
+<td>Direct evidence remained supported</td>
+</tr>
+<tr>
+<td>Lower stale leakage; no worse historical accuracy</td>
+<td>Pass</td>
+<td>100%→0% stale leakage; historical stayed 100%</td>
+</tr>
+<tr>
+<td>Candidate p95 no greater than 2x baseline</td>
+<td>Pass, smoke-level only</td>
+<td>1.61x in the retained run</td>
+</tr>
+<tr>
+<td>Additional database target no greater than 1.5x baseline</td>
+<td><strong>Narrow miss</strong></td>
+<td>1.5016x after symmetric compaction</td>
+</tr>
+<tr>
+<td>Multi-seed paired bootstrap report</td>
+<td>Run, small-N only</td>
+<td>Three template-sharing streams</td>
+</tr>
+<tr>
+<td>Robust unsupported-query abstention</td>
+<td><strong>Fail</strong></td>
+<td>Both systems abstain only on the double-OOD case: 1/3</td>
+</tr>
+<tr>
+<td>Tuned dense-hybrid comparison</td>
+<td>Not met</td>
+<td>Phase B currently has only a hashing diagnostic</td>
+</tr>
+</tbody>
+</table>
+<h2 id="interpretation-and-next-evidence">Interpretation and next evidence<a class="hl" href="#interpretation-and-next-evidence" aria-label="Link to this section">#</a></h2>
+<p>Prototype A supports one narrow conclusion: on this deterministic workload, explicit temporal
+structure and budget-aware compilation fixed a mechanical chunk baseline's update failure and
+reduced prompt material. It does <strong>not</strong> show that the approach stores more information than
+RAG, scales better, or beats a modern retriever.</p>
+<p>The next decisive comparison needs a pinned dense encoder, equivalent metadata/version
+history, a shared reranker and reader, exact tokenizer accounting, partial-OOD support
+verification, and official external workloads. See the
+<a href="prototype-b-diagnostic.html">Phase B diagnostic result</a> for the implemented intermediate step.</p>
+<h2 id="biology-and-naming-caveats">Biology and naming caveats<a class="hl" href="#biology-and-naming-caveats" aria-label="Link to this section">#</a></h2>
+<p>“Genome,” “Engram,” and “Transcript” are software metaphors. Human autobiographical memories
+are not stored as ordinary records in DNA or RNA. EviCortex is the selected project identity,
+but it has not undergone formal trademark clearance.</p></article>
+  <p class="crumbs" style="margin-top:40px"><a href="https://github.com/Varun-SV/EviCortex/blob/main/docs/results/prototype-a.md" target="_blank" rel="noopener">View this page’s source ↗</a></p>
+  <nav class="pager" aria-label="Previous and next"><a href="../../docs/decisions/0001-local-first-python-sqlite.html"><small>Previous</small>ADR 0001: Python + SQLite</a><a class="nx" href="../../docs/results/prototype-b-diagnostic.html"><small>Next</small>Prototype B diagnostic</a></nav>
+</main>
+<nav class="toc" aria-label="On this page"><h4>On this page</h4><ul><li><a href="#configuration">Configuration</a></li><li><a href="#systems-compared">Systems compared</a></li><li><a href="#single-seed-result">Single-seed result</a></li><li><a href="#three-seed-scale-check">Three-seed scale check</a></li><li><a href="#gate-status">Gate status</a></li><li><a href="#interpretation-and-next-evidence">Interpretation and next evidence</a></li><li><a href="#biology-and-naming-caveats">Biology and naming caveats</a></li></ul></nav>
+</div>
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../../index.html"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+      <p>Evidence-preserving, temporal memory infrastructure for long-lived AI systems. Pre-alpha research software by Varun S V. MIT licence.</p>
+    </div>
+    <ul><li><a href="../../docs/getting-started.html">Getting started</a></li><li><a href="../../docs/concepts.html">Core concepts</a></li><li><a href="../../docs/api-guide.html">API guide</a></li></ul>
+    <ul><li><a href="../../docs/architecture.html">Architecture</a></li><li><a href="../../docs/benchmarking.html">Benchmarking</a></li><li><a href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener">Source on GitHub</a></li></ul>
+    <div class="big" aria-hidden="true">EviCortex</div>
+  </div>
+</footer>
+<div class="search" role="dialog" aria-modal="true" aria-label="Search documentation">
+  <div class="box glass"><input type="search" placeholder="Search the docs…" aria-label="Search the docs"><ul></ul></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="../../assets/search-index.js"></script>
+<script src="../../assets/ev-ui.js"></script>
+<script type="module" src="../../assets/ev-scene.js"></script>
+</body>
+</html>

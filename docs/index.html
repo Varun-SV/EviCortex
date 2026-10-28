@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentation · EviCortex docs</title>
+<meta name="description" content="EviCortex documentation: Documentation">
+<meta name="theme-color" content="#04050d">
+<meta property="og:title" content="Documentation · EviCortex docs">
+<meta property="og:description" content="EviCortex documentation: Documentation">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2304050d'/><circle cx='11' cy='12' r='4.5' fill='%23f6b84a'/><circle cx='22' cy='21' r='3.6' fill='none' stroke='%23ea6f95' stroke-width='1.8'/><circle cx='23' cy='8.5' r='2.4' fill='%23a9b1ff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/ev.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="docs-page" data-root="../" data-scene="docs">
+<a class="skip" href="#main">Skip to content</a>
+<canvas id="ev-canvas" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+<header class="hdr">
+  <div class="bar">
+    <a class="brand" href="../index.html" aria-label="EviCortex home"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+    <ul class="nav" id="nav"><li><a href="../index.html#how">How it works</a></li><li><a href="../index.html#results">Results</a></li><li><a href="../index.html#roadmap">Roadmap</a></li><li><a href="../docs/index.html" aria-current="page">Docs</a></li></ul>
+    <button class="search-btn" type="button" aria-label="Search the docs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>⌘K</kbd></button>
+    <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false">Menu</button>
+    <a class="gh" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    <span class="prog" aria-hidden="true"></span>
+  </div>
+</header>
+<div class="docs-shell">
+<aside class="side glass" aria-label="Documentation"><h4>Start here</h4><a href="../docs/index.html" aria-current="page">Overview</a><a href="../docs/getting-started.html">Getting started</a><a href="../docs/concepts.html">Core concepts</a><a href="../docs/api-guide.html">API guide</a><a href="../docs/faq.html">FAQ and limitations</a><h4>Benchmarking</h4><a href="../docs/benchmarking.html">Benchmarking</a><a href="../docs/benchmark-contract.html">Benchmark contract</a><h4>Research notes</h4><a href="../docs/architecture.html">Architecture</a><a href="../docs/phase-b.html">Phase B plan</a><a href="../docs/phase-c.html">Phase C evaluation</a><a href="../docs/decisions/0001-local-first-python-sqlite.html">ADR 0001: Python + SQLite</a><h4>Results</h4><a href="../docs/results/prototype-a.html">Prototype A</a><a href="../docs/results/prototype-b-diagnostic.html">Prototype B diagnostic</a><a href="../docs/results/prototype-c-semantic-smoke.html">Prototype C smoke</a></aside>
+<main id="main" class="article glass">
+  <button class="menu-btn side-btn" type="button">☰ All docs</button>
+  <p class="crumbs"><a href="../docs/index.html">Docs</a> / Start here</p>
+  <article class="prose"><h1 id="evicortex-documentation" data-split>EviCortex documentation</h1>
+<p>EviCortex is a pre-alpha, local-first Python research kernel for evidence-preserving,
+temporal memory in LLM applications. It stores exact source observations, derives
+rebuildable views, and compiles traceable evidence into a hard estimated-token context budget.</p>
+<p>The project is testing a research hypothesis; it has not established that it is better
+than a tuned dense, hybrid, graph, agentic, or production RAG system. Start with the
+<a href="getting-started.html">getting-started guide</a> to run the implemented kernel.</p>
+<h2 id="choose-a-path">Choose a path<a class="hl" href="#choose-a-path" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Start here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Install EviCortex and run a temporal-memory example</td>
+<td><a href="getting-started.html">Getting started</a></td>
+</tr>
+<tr>
+<td>Understand evidence, claims, time, projections, and capsules</td>
+<td><a href="concepts.html">Core concepts</a></td>
+</tr>
+<tr>
+<td>Look up public classes, methods, and provider options</td>
+<td><a href="api-guide.html">API guide</a></td>
+</tr>
+<tr>
+<td>Reproduce tests and research checkpoints</td>
+<td><a href="benchmarking.html">Benchmarking and reproducibility</a></td>
+</tr>
+<tr>
+<td>Check current limitations, security boundaries, and common questions</td>
+<td><a href="faq.html">FAQ and limitations</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="recommended-learning-path">Recommended learning path<a class="hl" href="#recommended-learning-path" aria-label="Link to this section">#</a></h2>
+<ol>
+<li>Follow <a href="getting-started.html">Getting started</a> and inspect the returned
+   <code>MemoryCapsule</code>.</li>
+<li>Read <a href="concepts.html">Core concepts</a>, especially namespaces, temporal revisions, and
+   the difference between exact evidence and derived claims.</li>
+<li>Use the <a href="api-guide.html">API guide</a> when integrating the embedded library.</li>
+<li>Read <a href="faq.html">FAQ and limitations</a> before evaluating EviCortex for real data or a
+   multi-user application.</li>
+<li>Use <a href="benchmarking.html">Benchmarking and reproducibility</a> before interpreting or
+   publishing performance results.</li>
+</ol>
+<h2 id="design-and-research-record">Design and research record<a class="hl" href="#design-and-research-record" aria-label="Link to this section">#</a></h2>
+<p>These documents describe the deeper design, evaluation contract, and retained results:</p>
+<ul>
+<li><a href="architecture.html">Architecture and invariants</a></li>
+<li><a href="benchmark-contract.html">Benchmark contract</a></li>
+<li><a href="decisions/0001-local-first-python-sqlite.html">ADR 0001: local Python and SQLite kernel</a></li>
+<li><a href="results/prototype-a.html">Prototype A result</a></li>
+<li><a href="phase-b.html">Prototype B semantic and extraction plan</a></li>
+<li><a href="results/prototype-b-diagnostic.html">Prototype B diagnostic result</a></li>
+<li><a href="phase-c.html">Phase C pinned semantic evaluation</a></li>
+<li><a href="results/prototype-c-semantic-smoke.html">Phase C semantic smoke result</a></li>
+<li><a href="results/prototype-c-semantic-smoke.json">Phase C machine-readable smoke artifact</a></li>
+</ul>
+<p>The result files are engineering checkpoints with named configurations and explicit
+claim boundaries. The synthetic suites are useful for regression testing, but they are
+not substitutes for official external benchmarks, a shared reader model, calibrated
+abstention, or statistically powered comparisons.</p>
+<h2 id="current-implementation-boundary">Current implementation boundary<a class="hl" href="#current-implementation-boundary" aria-label="Link to this section">#</a></h2>
+<p>Implemented today:</p>
+<ul>
+<li>a Python 3.12 embedded library backed by SQLite and FTS5;</li>
+<li>immutable evidence records with provenance, occurrence time, and recording time;</li>
+<li>explicit versioned claims, current and historical valid-time recall, and conflict
+  surfacing;</li>
+<li>lexical, entity, graph, temporal, and optional exact-semantic retrieval;</li>
+<li>deterministic context packing, stable evidence IDs, and retrieval traces;</li>
+<li>provider-neutral extraction, embedding, and reranking contracts;</li>
+<li>deterministic diagnostic providers and an optional pinned local Transformers adapter;</li>
+<li>integrity checks, deterministic index rebuilds, semantic repair, and scoped purge; and</li>
+<li>synthetic benchmark runners plus a strict LongMemEval-schema retrieval runner.</li>
+</ul>
+<p>Not yet established or production-ready:</p>
+<ul>
+<li>authentication or authorization, encryption, a network service, or distributed storage;</li>
+<li>natural-language claim extraction supplied by EviCortex;</li>
+<li>approximate-nearest-neighbor retrieval at large scale;</li>
+<li>calibrated unsupported-query refusal or reader answer accuracy;</li>
+<li>full transaction-time (<code>known_at</code>) queries; or</li>
+<li>superiority over a strong RAG or memory system.</li>
+</ul>
+<p>See <a href="faq.html">FAQ and limitations</a> for the operational consequences of these boundaries.</p></article>
+  <p class="crumbs" style="margin-top:40px"><a href="https://github.com/Varun-SV/EviCortex/blob/main/docs/index.md" target="_blank" rel="noopener">View this page’s source ↗</a></p>
+  <nav class="pager" aria-label="Previous and next"><a class="nx" href="../docs/getting-started.html"><small>Next</small>Getting started</a></nav>
+</main>
+<nav class="toc" aria-label="On this page"><h4>On this page</h4><ul><li><a href="#choose-a-path">Choose a path</a></li><li><a href="#recommended-learning-path">Recommended learning path</a></li><li><a href="#design-and-research-record">Design and research record</a></li><li><a href="#current-implementation-boundary">Current implementation boundary</a></li></ul></nav>
+</div>
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../index.html"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+      <p>Evidence-preserving, temporal memory infrastructure for long-lived AI systems. Pre-alpha research software by Varun S V. MIT licence.</p>
+    </div>
+    <ul><li><a href="../docs/getting-started.html">Getting started</a></li><li><a href="../docs/concepts.html">Core concepts</a></li><li><a href="../docs/api-guide.html">API guide</a></li></ul>
+    <ul><li><a href="../docs/architecture.html">Architecture</a></li><li><a href="../docs/benchmarking.html">Benchmarking</a></li><li><a href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener">Source on GitHub</a></li></ul>
+    <div class="big" aria-hidden="true">EviCortex</div>
+  </div>
+</footer>
+<div class="search" role="dialog" aria-modal="true" aria-label="Search documentation">
+  <div class="box glass"><input type="search" placeholder="Search the docs…" aria-label="Search the docs"><ul></ul></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/ev-ui.js"></script>
+<script type="module" src="../assets/ev-scene.js"></script>
+</body>
+</html>

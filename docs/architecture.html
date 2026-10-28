@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture · EviCortex docs</title>
+<meta name="description" content="EviCortex documentation: Architecture">
+<meta name="theme-color" content="#04050d">
+<meta property="og:title" content="Architecture · EviCortex docs">
+<meta property="og:description" content="EviCortex documentation: Architecture">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2304050d'/><circle cx='11' cy='12' r='4.5' fill='%23f6b84a'/><circle cx='22' cy='21' r='3.6' fill='none' stroke='%23ea6f95' stroke-width='1.8'/><circle cx='23' cy='8.5' r='2.4' fill='%23a9b1ff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/ev.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="docs-page" data-root="../" data-scene="docs">
+<a class="skip" href="#main">Skip to content</a>
+<canvas id="ev-canvas" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+<header class="hdr">
+  <div class="bar">
+    <a class="brand" href="../index.html" aria-label="EviCortex home"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+    <ul class="nav" id="nav"><li><a href="../index.html#how">How it works</a></li><li><a href="../index.html#results">Results</a></li><li><a href="../index.html#roadmap">Roadmap</a></li><li><a href="../docs/index.html" aria-current="page">Docs</a></li></ul>
+    <button class="search-btn" type="button" aria-label="Search the docs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>⌘K</kbd></button>
+    <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false">Menu</button>
+    <a class="gh" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    <span class="prog" aria-hidden="true"></span>
+  </div>
+</header>
+<div class="docs-shell">
+<aside class="side glass" aria-label="Documentation"><h4>Start here</h4><a href="../docs/index.html">Overview</a><a href="../docs/getting-started.html">Getting started</a><a href="../docs/concepts.html">Core concepts</a><a href="../docs/api-guide.html">API guide</a><a href="../docs/faq.html">FAQ and limitations</a><h4>Benchmarking</h4><a href="../docs/benchmarking.html">Benchmarking</a><a href="../docs/benchmark-contract.html">Benchmark contract</a><h4>Research notes</h4><a href="../docs/architecture.html" aria-current="page">Architecture</a><a href="../docs/phase-b.html">Phase B plan</a><a href="../docs/phase-c.html">Phase C evaluation</a><a href="../docs/decisions/0001-local-first-python-sqlite.html">ADR 0001: Python + SQLite</a><h4>Results</h4><a href="../docs/results/prototype-a.html">Prototype A</a><a href="../docs/results/prototype-b-diagnostic.html">Prototype B diagnostic</a><a href="../docs/results/prototype-c-semantic-smoke.html">Prototype C smoke</a></aside>
+<main id="main" class="article glass">
+  <button class="menu-btn side-btn" type="button">☰ All docs</button>
+  <p class="crumbs"><a href="../docs/index.html">Docs</a> / Research notes</p>
+  <article class="prose"><h1 id="evicortex-architecture" data-split>EviCortex architecture</h1>
+<p>Status: implemented design contract for Prototype A, the provider-neutral Phase B diagnostic,
+and the pinned-dense Phase C integration path. Official external evaluation, ANN, and service
+work remains open.</p>
+<h2 id="1-problem-statement">1. Problem statement<a class="hl" href="#1-problem-statement" aria-label="Link to this section">#</a></h2>
+<p>A fixed-chunk RAG pipeline preserves documents but usually exposes only similarity-ranked
+chunks to the model. That is a weak fit for long-running memory because:</p>
+<ul>
+<li>a fact can change without the old statement becoming irrelevant to historical questions;</li>
+<li>answers can require links across people, events, sessions, and time;</li>
+<li>large chunks waste context while small chunks lose surrounding evidence;</li>
+<li>generated summaries can erase details or silently merge contradictions;</li>
+<li>retrieval failures are difficult to diagnose when ranking decisions are opaque.</li>
+</ul>
+<p>EviCortex will test whether separating durable evidence, mutable indexes, and bounded
+context compilation improves the quality/cost frontier. It is still a retrieval-augmented
+system in the broad technical sense. “Beyond RAG” here means beyond a flat top-k chunk
+index, not the elimination of retrieval.</p>
+<h2 id="2-biological-inspiration-translated-carefully">2. Biological inspiration, translated carefully<a class="hl" href="#2-biological-inspiration-translated-carefully" aria-label="Link to this section">#</a></h2>
+<p>Human autobiographical memory is not stored as ordinary data in DNA. Neural memories
+are dynamic engrams that pass through encoding, consolidation, retrieval, reconsolidation,
+and forgetting. DNA and RNA are nevertheless useful <em>systems metaphors</em> for separating a
+durable record from temporary, task-specific expression.</p>
+<table>
+<thead>
+<tr>
+<th>Biological principle</th>
+<th>Software mechanism</th>
+<th>Limit of the analogy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stable genetic record</td>
+<td>Append-only, digest-verified evidence ledger</td>
+<td>Stored observations are not genes</td>
+</tr>
+<tr>
+<td>Transcription into RNA</td>
+<td>Query-specific context capsule</td>
+<td>A capsule is selected evidence, not RNA</td>
+</tr>
+<tr>
+<td>Fast hippocampal encoding</td>
+<td>Cheap append-only episodic writes</td>
+<td>SQLite is not a hippocampus</td>
+</tr>
+<tr>
+<td>Systems consolidation</td>
+<td>Background derivation of claims, links, and summaries</td>
+<td>Consolidation can be wrong and remains reversible</td>
+</tr>
+<tr>
+<td>Associative reactivation</td>
+<td>Weighted graph and co-retrieval links</td>
+<td>Scores approximate usefulness, not synaptic biology</td>
+</tr>
+<tr>
+<td>Multiple memory systems</td>
+<td>Episodic, semantic, procedural, and working views</td>
+<td>The categories are engineering interfaces</td>
+</tr>
+</tbody>
+</table>
+<p>The engineering rule is stronger than the metaphor: <strong>derived memory may be lossy; the
+evidence from which it was derived must remain addressable and verifiable.</strong></p>
+<h2 id="3-core-invariants">3. Core invariants<a class="hl" href="#3-core-invariants" aria-label="Link to this section">#</a></h2>
+<ol>
+<li><strong>Evidence fidelity</strong> — a successful write stores the original payload, a digest, source,
+   scope, and timestamps. Index maintenance cannot silently rewrite it.</li>
+<li><strong>Rebuildability</strong> — deterministic claim/FTS indexes can be recreated from evidence plus
+   explicit derivation records. Provider-derived semantic rows are preserved and repaired
+   explicitly, per namespace, with a compatible provider.</li>
+<li><strong>Temporal truth</strong> — occurrence time and ingestion time are distinct. A current claim
+   never erases the claims or evidence that preceded it.</li>
+<li><strong>Bounded context</strong> — capsule generation accepts a hard estimated-token budget and never
+   exceeds it under the configured estimator.</li>
+<li><strong>Progressive disclosure</strong> — compact results expose stable evidence IDs for exact expansion.</li>
+<li><strong>Traceable retrieval</strong> — every result records which retrieval channels and score features
+   selected it.</li>
+<li><strong>Isolation before relevance</strong> — namespace filtering runs before ranking; the host must
+   authorize that namespace before calling the embedded library.</li>
+<li><strong>Uncertainty is data</strong> — confidence, contradictions, and abstention are represented rather
+   than hidden in prose.</li>
+<li><strong>Privacy beats append-only</strong> — an authorized hard purge removes scoped evidence and
+   rebuilds affected views. “Immutable” is not an excuse to retain data unlawfully.</li>
+<li><strong>Claims require benchmarks</strong> — no “better than RAG” statement without a named baseline,
+    workload, model, context budget, and confidence interval.</li>
+</ol>
+<p>For Prototype A, invariant 7 covers namespace filtering only. Namespace values are selected
+by the API caller and are not authentication or authorization; a service adapter must enforce
+those controls before calling the embedded store. Likewise, the local SQLite file is not
+encrypted. Logical purge removes rows and projections but cannot guarantee forensic erasure
+from filesystem snapshots, backups, journals, or underlying storage media.</p>
+<h2 id="4-three-plane-design">4. Three-plane design<a class="hl" href="#4-three-plane-design" aria-label="Link to this section">#</a></h2>
+<div class="codehilite codewrap"><pre><span></span><code>flowchart LR
+    W["Observation"] --&gt; V["Validate scope, time, provenance"]
+    V --&gt; G["Evidence ledger / Genome"]
+    G --&gt; E["Episodic index"]
+    G --&gt; S["Semantic + temporal claims"]
+    G --&gt; A["Entities + associations"]
+    Q["Query + context budget"] --&gt; R["Route and retrieve"]
+    E --&gt; R
+    S --&gt; R
+    A --&gt; R
+    R --&gt; C["Resolve, diversify, and pack"]
+    C --&gt; T["Memory capsule / Transcript"]
+    T --&gt; X["Expand by evidence ID when needed"]
+    X --&gt; G
+</code></pre></div>
+
+<h3 id="41-evidence-ledger-genome">4.1 Evidence ledger (“Genome”)<a class="hl" href="#41-evidence-ledger-genome" aria-label="Link to this section">#</a></h3>
+<p>The ledger stores observations, not conclusions. An observation can be a conversation turn,
+document fragment, tool result, task outcome, explicit fact, or structured application event.</p>
+<p>Minimum fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>memory_id</code></td>
+<td>Stable opaque identifier</td>
+</tr>
+<tr>
+<td><code>namespace</code></td>
+<td>Tenant/application/user/agent isolation boundary</td>
+</tr>
+<tr>
+<td><code>kind</code></td>
+<td>Episode, document, tool result, explicit assertion, or procedure</td>
+</tr>
+<tr>
+<td><code>content</code></td>
+<td>Original payload or canonical serialized representation</td>
+</tr>
+<tr>
+<td><code>content_hash</code></td>
+<td>Integrity check for the exact stored content</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>URI or application-defined provenance</td>
+</tr>
+<tr>
+<td><code>occurred_at</code></td>
+<td>When the represented event happened</td>
+</tr>
+<tr>
+<td><code>recorded_at</code></td>
+<td>Logical ingestion time; generated by default or supplied by a trusted replay/import</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td>Versioned, validated application metadata</td>
+</tr>
+</tbody>
+</table>
+<p>Large binary payloads will eventually live in a blob store while the ledger retains their
+digest and locator. The prototype keeps text in SQLite.</p>
+<h3 id="42-memory-indexes-engram">4.2 Memory indexes (“Engram”)<a class="hl" href="#42-memory-indexes-engram" aria-label="Link to this section">#</a></h3>
+<p>All indexes are projections:</p>
+<ul>
+<li><strong>Episodic view:</strong> ordered events with local surrounding context.</li>
+<li><strong>Semantic view:</strong> atomic subject–predicate–value claims plus persistent, profile-bound
+  memory/claim vectors linked to supporting evidence.</li>
+<li><strong>Temporal view:</strong> validity intervals, recording time, supersession, and contradictions.
+  Prototype A does not yet support transaction-time <code>known_at</code> queries.</li>
+<li><strong>Entity/relationship view:</strong> aliases, typed entities, relations, and evidence-backed edges.</li>
+<li><strong>Lexical view:</strong> FTS5 over exact evidence and normalized claim text.</li>
+<li><strong>Associative view:</strong> explicit links plus co-retrieval/reinforcement weights.</li>
+<li><strong>Hierarchy view (later):</strong> reversible summaries that point to child evidence.</li>
+</ul>
+<p>The prototype does not pretend that heuristic or LLM extraction is ground truth. Applications
+may provide structured claims directly; automatic extractors implement a provider-neutral
+interface, are validated before the atomic write, and persist identity, content digest, exact
+span provenance, diagnostics, and generated claim-ID mappings.</p>
+<h3 id="43-context-compiler-transcript">4.3 Context compiler (“Transcript”)<a class="hl" href="#43-context-compiler-transcript" aria-label="Link to this section">#</a></h3>
+<p>Retrieval produces a compact, structured <code>MemoryCapsule</code>, not an unexamined chunk list.</p>
+<ol>
+<li>Parse query hints: entities, requested time, current-vs-historical intent, and memory kind.</li>
+<li>Apply namespace and policy filters.</li>
+<li>Collect candidates independently from lexical, semantic, temporal, and graph channels.</li>
+<li>Fuse ranks, expand only promising associations, and record score contributions.</li>
+<li>Detect stale/current conflicts and retain evidence needed to explain the resolution.</li>
+<li>Diversify near-duplicates.</li>
+<li>Pack the highest-utility evidence into the hard estimated-token budget.</li>
+<li>Return compact claims/episodes, citations, uncertainty, omitted-result counts, and an
+   expansion handle.</li>
+</ol>
+<p>The compiler is deterministic by default. An optional LLM compressor may be added only if
+its output is linked to exact evidence and its accuracy/cost is benchmarked separately.</p>
+<h2 id="5-versioned-claim-model">5. Versioned claim model<a class="hl" href="#5-versioned-claim-model" aria-label="Link to this section">#</a></h2>
+<p>A claim is an interpretation of evidence:</p>
+<div class="codehilite codewrap"><pre><span></span><code>Claim(
+  subject, predicate, value,
+  valid_from, valid_to,
+  recorded_at,
+  confidence,
+  evidence_ids[],
+  supersedes_claim_id?,
+  status = active | superseded | disputed
+)
+</code></pre></div>
+
+<p>Example:</p>
+<div class="codehilite codewrap"><pre><span></span><code>2026-01-02  user:varun prefers_theme light   [evidence m1]
+2026-04-18  user:varun prefers_theme dark    [evidence m9, supersedes first]
+</code></pre></div>
+
+<p>“What theme does Varun prefer?” should select the second claim. “What did Varun prefer in
+February?” should select the first. Both should remain expandable to their original evidence.</p>
+<h2 id="6-public-api-shape-for-the-prototype">6. Public API shape for the prototype<a class="hl" href="#6-public-api-shape-for-the-prototype" aria-label="Link to this section">#</a></h2>
+<div class="codehilite codewrap"><pre><span></span><code><span class="n">memory</span> <span class="o">=</span> <span class="n">EviCortex</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"memory.db"</span><span class="p">)</span>
+
+<span class="n">memory</span><span class="o">.</span><span class="n">remember</span><span class="p">(</span>
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">"demo/user-1"</span><span class="p">,</span>
+    <span class="n">content</span><span class="o">=</span><span class="s2">"I switched from light mode to dark mode today."</span><span class="p">,</span>
+    <span class="n">source</span><span class="o">=</span><span class="s2">"conversation/session-7/turn-12"</span><span class="p">,</span>
+    <span class="n">occurred_at</span><span class="o">=</span><span class="s2">"2026-04-18T09:30:00Z"</span><span class="p">,</span>
+    <span class="n">claims</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">ClaimInput</span><span class="p">(</span>
+            <span class="n">subject</span><span class="o">=</span><span class="s2">"user:1"</span><span class="p">,</span>
+            <span class="n">predicate</span><span class="o">=</span><span class="s2">"prefers_theme"</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="s2">"dark"</span><span class="p">,</span>
+            <span class="n">supersedes</span><span class="o">=</span><span class="s2">"claim-id-for-light"</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">capsule</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span>
+    <span class="n">namespace</span><span class="o">=</span><span class="s2">"demo/user-1"</span><span class="p">,</span>
+    <span class="n">query</span><span class="o">=</span><span class="s2">"Which theme should I use for this user?"</span><span class="p">,</span>
+    <span class="n">budget_tokens</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">exact</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">namespace</span><span class="o">=</span><span class="s2">"demo/user-1"</span><span class="p">,</span> <span class="n">memory_id</span><span class="o">=</span><span class="s2">"..."</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Phase B adds an auditable raw-evidence path and explicit semantic repair:</p>
+<div class="codehilite codewrap"><pre><span></span><code><span class="n">memory</span> <span class="o">=</span> <span class="n">EviCortex</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+    <span class="s2">"memory.db"</span><span class="p">,</span>
+    <span class="n">extractor</span><span class="o">=</span><span class="n">my_claim_extractor</span><span class="p">,</span>
+    <span class="n">embedder</span><span class="o">=</span><span class="n">my_embedder</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">record</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">remember_extracted</span><span class="p">(</span><span class="n">namespace</span><span class="o">=</span><span class="s2">"demo/user-1"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">raw_text</span><span class="p">)</span>
+<span class="n">run</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">get_extraction</span><span class="p">(</span><span class="s2">"demo/user-1"</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">sync_semantic</span><span class="p">(</span><span class="s2">"demo/user-1"</span><span class="p">)</span>
+</code></pre></div>
+
+<p><code>rebuild_indexes()</code> repairs deterministic claim-status and FTS projections only. It never
+silently invokes a provider or crosses namespaces; semantic repair is the explicit
+<code>sync_semantic(namespace)</code> operation.</p>
+<h2 id="7-what-makes-the-hypothesis-falsifiable">7. What makes the hypothesis falsifiable<a class="hl" href="#7-what-makes-the-hypothesis-falsifiable" aria-label="Link to this section">#</a></h2>
+<p>EviCortex fails its first hypothesis if, under the same source data and context budget, a
+well-tuned fixed-chunk RAG baseline matches or beats it on evidence recall, temporal update
+handling, and answer support while being no more expensive. A negative result is useful: the
+benchmark will reveal whether complexity belongs in indexing, query planning, or nowhere.</p>
+<p>See <a href="benchmark-contract.html">the benchmark contract</a> for the exact comparison rules.</p>
+<h2 id="8-staged-implementation">8. Staged implementation<a class="hl" href="#8-staged-implementation" aria-label="Link to this section">#</a></h2>
+<h3 id="prototype-a-deterministic-memory-kernel">Prototype A — deterministic memory kernel<a class="hl" href="#prototype-a-deterministic-memory-kernel" aria-label="Link to this section">#</a></h3>
+<ul>
+<li>Python 3.12, SQLite, FTS5, standard library only.</li>
+<li>Evidence ledger, explicit claims, namespace isolation, temporal revisions.</li>
+<li>Lexical/entity/temporal candidate generation and score tracing.</li>
+<li>Hard-budget capsule compiler and evidence expansion.</li>
+<li>Synthetic streaming benchmark and fixed-chunk lexical RAG baseline.</li>
+</ul>
+<h3 id="prototype-b-semantic-and-consolidation-plugins">Prototype B — semantic and consolidation plugins<a class="hl" href="#prototype-b-semantic-and-consolidation-plugins" aria-label="Link to this section">#</a></h3>
+<ul>
+<li>Implemented: pluggable embedder, reranker, and structured extractor interfaces.</li>
+<li>Implemented: durable extraction provenance, persistent exact-vector projections, explicit
+  repair, bounded lexical-semantic fusion, and a metadata-aware diagnostic comparator.</li>
+<li>Open: background consolidation, hierarchical reversible summaries, ANN, and learned or
+  optimized retrieval routing.</li>
+<li>Implemented: strict LongMemEval schema/metric adapter and reader-free local runner.</li>
+<li>Open: official LongMemEval run, LoCoMo/MemoryAgentBench, and a shared reader model.</li>
+</ul>
+<h3 id="prototype-c-pinned-dense-and-external-evaluation">Prototype C — pinned dense and external evaluation<a class="hl" href="#prototype-c-pinned-dense-and-external-evaluation" aria-label="Link to this section">#</a></h3>
+<ul>
+<li>Safetensors-only local Transformers adapter with immutable model/code identity.</li>
+<li>Bounded optional reranking after filtering and deduplication.</li>
+<li>LongMemEval session retrieval under the same hard prompt budget for both systems.</li>
+<li>Open: official data, shared reader, calibrated support, and ANN recall/scale gates.</li>
+</ul>
+<h3 id="prototype-d-service-and-scale">Prototype D — service and scale<a class="hl" href="#prototype-d-service-and-scale" aria-label="Link to this section">#</a></h3>
+<ul>
+<li>Transactional service API, encryption, access control, audit logs, backup/restore.</li>
+<li>PostgreSQL/object-store adapters and incremental index rebuilds.</li>
+<li>Multi-process ingestion, observability, and adversarial memory-poisoning tests.</li>
+</ul>
+<h2 id="9-research-basis-and-differentiation-risk">9. Research basis and differentiation risk<a class="hl" href="#9-research-basis-and-differentiation-risk" aria-label="Link to this section">#</a></h2>
+<p>The design deliberately incorporates lessons already demonstrated by prior work:</p>
+<ul>
+<li>LongMemEval identifies extraction, multi-session reasoning, time, updates, and abstention
+  as distinct capabilities: <a href="https://arxiv.org/abs/2410.10813">https://arxiv.org/abs/2410.10813</a></li>
+<li>HippoRAG 2 shows the value—and cost—of combining passages with an associative graph:
+  <a href="https://arxiv.org/abs/2502.14802">https://arxiv.org/abs/2502.14802</a></li>
+<li>Zep demonstrates bitemporal knowledge graphs for changing agent memory:
+  <a href="https://arxiv.org/abs/2501.13956">https://arxiv.org/abs/2501.13956</a></li>
+<li>MemMachine emphasizes preserving whole episodic ground truth:
+  <a href="https://arxiv.org/abs/2604.04853">https://arxiv.org/abs/2604.04853</a></li>
+<li>H-Mem combines temporal-semantic hierarchy with a graph:
+  <a href="https://arxiv.org/abs/2605.15701">https://arxiv.org/abs/2605.15701</a></li>
+<li>A 2026 study argues that data structure is a major quality determinant and evaluates the
+  full streaming lifecycle: <a href="https://arxiv.org/abs/2602.13967">https://arxiv.org/abs/2602.13967</a></li>
+</ul>
+<p>Therefore, “hybrid graph + vector memory” is not a novel contribution by itself. EviCortex’s
+candidate differentiator is the enforceable contract across lossless evidence, rebuildable
+views, temporal resolution, progressive disclosure, and budget-aware compilation. The
+benchmark—not branding—must establish whether that combination matters.</p></article>
+  <p class="crumbs" style="margin-top:40px"><a href="https://github.com/Varun-SV/EviCortex/blob/main/docs/architecture.md" target="_blank" rel="noopener">View this page’s source ↗</a></p>
+  <nav class="pager" aria-label="Previous and next"><a href="../docs/benchmark-contract.html"><small>Previous</small>Benchmark contract</a><a class="nx" href="../docs/phase-b.html"><small>Next</small>Phase B plan</a></nav>
+</main>
+<nav class="toc" aria-label="On this page"><h4>On this page</h4><ul><li><a href="#1-problem-statement">1. Problem statement</a></li><li><a href="#2-biological-inspiration-translated-carefully">2. Biological inspiration, translated carefully</a></li><li><a href="#3-core-invariants">3. Core invariants</a></li><li><a href="#4-three-plane-design">4. Three-plane design</a><ul><li><a href="#41-evidence-ledger-genome">4.1 Evidence ledger (“Genome”)</a></li><li><a href="#42-memory-indexes-engram">4.2 Memory indexes (“Engram”)</a></li><li><a href="#43-context-compiler-transcript">4.3 Context compiler (“Transcript”)</a></li></ul></li><li><a href="#5-versioned-claim-model">5. Versioned claim model</a></li><li><a href="#6-public-api-shape-for-the-prototype">6. Public API shape for the prototype</a></li><li><a href="#7-what-makes-the-hypothesis-falsifiable">7. What makes the hypothesis falsifiable</a></li><li><a href="#8-staged-implementation">8. Staged implementation</a><ul><li><a href="#prototype-a-deterministic-memory-kernel">Prototype A — deterministic memory kernel</a></li><li><a href="#prototype-b-semantic-and-consolidation-plugins">Prototype B — semantic and consolidation plugins</a></li><li><a href="#prototype-c-pinned-dense-and-external-evaluation">Prototype C — pinned dense and external evaluation</a></li><li><a href="#prototype-d-service-and-scale">Prototype D — service and scale</a></li></ul></li><li><a href="#9-research-basis-and-differentiation-risk">9. Research basis and differentiation risk</a></li></ul></nav>
+</div>
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../index.html"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+      <p>Evidence-preserving, temporal memory infrastructure for long-lived AI systems. Pre-alpha research software by Varun S V. MIT licence.</p>
+    </div>
+    <ul><li><a href="../docs/getting-started.html">Getting started</a></li><li><a href="../docs/concepts.html">Core concepts</a></li><li><a href="../docs/api-guide.html">API guide</a></li></ul>
+    <ul><li><a href="../docs/architecture.html">Architecture</a></li><li><a href="../docs/benchmarking.html">Benchmarking</a></li><li><a href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener">Source on GitHub</a></li></ul>
+    <div class="big" aria-hidden="true">EviCortex</div>
+  </div>
+</footer>
+<div class="search" role="dialog" aria-modal="true" aria-label="Search documentation">
+  <div class="box glass"><input type="search" placeholder="Search the docs…" aria-label="Search the docs"><ul></ul></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/ev-ui.js"></script>
+<script type="module" src="../assets/ev-scene.js"></script>
+</body>
+</html>

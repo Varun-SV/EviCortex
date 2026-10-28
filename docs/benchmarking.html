@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Benchmarking and reproducibility · EviCortex docs</title>
+<meta name="description" content="EviCortex documentation: Benchmarking and reproducibility">
+<meta name="theme-color" content="#04050d">
+<meta property="og:title" content="Benchmarking and reproducibility · EviCortex docs">
+<meta property="og:description" content="EviCortex documentation: Benchmarking and reproducibility">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2304050d'/><circle cx='11' cy='12' r='4.5' fill='%23f6b84a'/><circle cx='22' cy='21' r='3.6' fill='none' stroke='%23ea6f95' stroke-width='1.8'/><circle cx='23' cy='8.5' r='2.4' fill='%23a9b1ff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/ev.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="docs-page" data-root="../" data-scene="docs">
+<a class="skip" href="#main">Skip to content</a>
+<canvas id="ev-canvas" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+<header class="hdr">
+  <div class="bar">
+    <a class="brand" href="../index.html" aria-label="EviCortex home"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+    <ul class="nav" id="nav"><li><a href="../index.html#how">How it works</a></li><li><a href="../index.html#results">Results</a></li><li><a href="../index.html#roadmap">Roadmap</a></li><li><a href="../docs/index.html" aria-current="page">Docs</a></li></ul>
+    <button class="search-btn" type="button" aria-label="Search the docs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>⌘K</kbd></button>
+    <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false">Menu</button>
+    <a class="gh" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    <span class="prog" aria-hidden="true"></span>
+  </div>
+</header>
+<div class="docs-shell">
+<aside class="side glass" aria-label="Documentation"><h4>Start here</h4><a href="../docs/index.html">Overview</a><a href="../docs/getting-started.html">Getting started</a><a href="../docs/concepts.html">Core concepts</a><a href="../docs/api-guide.html">API guide</a><a href="../docs/faq.html">FAQ and limitations</a><h4>Benchmarking</h4><a href="../docs/benchmarking.html" aria-current="page">Benchmarking</a><a href="../docs/benchmark-contract.html">Benchmark contract</a><h4>Research notes</h4><a href="../docs/architecture.html">Architecture</a><a href="../docs/phase-b.html">Phase B plan</a><a href="../docs/phase-c.html">Phase C evaluation</a><a href="../docs/decisions/0001-local-first-python-sqlite.html">ADR 0001: Python + SQLite</a><h4>Results</h4><a href="../docs/results/prototype-a.html">Prototype A</a><a href="../docs/results/prototype-b-diagnostic.html">Prototype B diagnostic</a><a href="../docs/results/prototype-c-semantic-smoke.html">Prototype C smoke</a></aside>
+<main id="main" class="article glass">
+  <button class="menu-btn side-btn" type="button">☰ All docs</button>
+  <p class="crumbs"><a href="../docs/index.html">Docs</a> / Benchmarking</p>
+  <article class="prose"><h1 id="benchmarking-and-reproducibility" data-split>Benchmarking and reproducibility</h1>
+<p>EviCortex treats benchmark configuration as part of every result. A number without its
+dataset, source digest, context budget, provider identity, comparator, hardware, and query
+count is not a supported project claim.</p>
+<p>The binding rules are in the <a href="benchmark-contract.html">benchmark contract</a>. This guide shows
+how to run the implemented checks and how to interpret the retained artifacts.</p>
+<h2 id="validation-levels">Validation levels<a class="hl" href="#validation-levels" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Purpose</th>
+<th>What it can establish</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unit and integration tests</td>
+<td>Detect implementation regressions</td>
+<td>The tested invariants pass in the current checkout</td>
+</tr>
+<tr>
+<td>Bundled examples</td>
+<td>Human-readable API smoke</td>
+<td>The local embedded flow executes</td>
+</tr>
+<tr>
+<td>Prototype A synthetic suite</td>
+<td>Compare deterministic temporal representation with mechanical lexical chunks</td>
+<td>Results only for the named synthetic workload</td>
+</tr>
+<tr>
+<td>Prototype B diagnostic</td>
+<td>Exercise extraction and exact-vector lifecycle with feature hashing</td>
+<td>Wiring and cost shape, not semantic quality</td>
+</tr>
+<tr>
+<td>Phase C semantic smoke</td>
+<td>Exercise a pinned real encoder on three synthetic LongMemEval-schema cases</td>
+<td>Offline semantic integration, not official benchmark quality</td>
+</tr>
+<tr>
+<td>Official external evaluation</td>
+<td>Planned strong comparison with shared reader and controls</td>
+<td>Not yet completed</td>
+</tr>
+</tbody>
+</table>
+<h2 id="prepare-the-checkout">Prepare the checkout<a class="hl" href="#prepare-the-checkout" aria-label="Link to this section">#</a></h2>
+<p>Use Python 3.12 and install the package in an isolated environment:</p>
+<div class="codehilite codewrap"><pre><span></span><code><span class="n">py</span> <span class="p">-</span><span class="n">3</span><span class="p">.</span><span class="n">12</span> <span class="n">-m</span> <span class="n">venv</span> <span class="p">.</span><span class="n">venv</span>
+<span class="p">.\.</span><span class="n">venv</span><span class="p">\</span><span class="n">Scripts</span><span class="p">\</span><span class="n">Activate</span><span class="p">.</span><span class="n">ps1</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="p">-</span><span class="n">-upgrade</span> <span class="n">pip</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">-e</span> <span class="p">.</span>
+</code></pre></div>
+
+<p>Record the commit and worktree state before retaining a result:</p>
+<div class="codehilite codewrap"><pre><span></span><code><span class="n">git</span> <span class="n">rev-parse</span> <span class="n">HEAD</span>
+<span class="n">git</span> <span class="n">status</span> <span class="p">-</span><span class="n">-short</span>
+<span class="n">python</span> <span class="p">-</span><span class="n">-version</span>
+</code></pre></div>
+
+<p>The benchmark reports also calculate a deterministic path-and-content digest over declared
+runtime files. When the worktree is dirty, that digest—not Git HEAD alone—is the executable
+code identity.</p>
+<h2 id="run-tests-and-examples">Run tests and examples<a class="hl" href="#run-tests-and-examples" aria-label="Link to this section">#</a></h2>
+<div class="codehilite codewrap"><pre><span></span><code><span class="n">python</span> <span class="n">-m</span> <span class="n">unittest</span> <span class="n">discover</span> <span class="n">-s</span> <span class="n">tests</span> <span class="n">-v</span>
+<span class="n">python</span> <span class="n">examples</span><span class="p">/</span><span class="n">quickstart</span><span class="p">.</span><span class="n">py</span>
+<span class="n">python</span> <span class="n">examples</span><span class="p">/</span><span class="n">phase_b_diagnostic</span><span class="p">.</span><span class="n">py</span>
+</code></pre></div>
+
+<p>The optional cached-model integration test skips when its local model requirements are not
+available. A skip is not proof that dense integration works on that machine; use the Phase C
+smoke when validating that path.</p>
+<p>If you do not install the package, set <code>PYTHONPATH=src</code> before the commands instead:</p>
+<div class="codehilite codewrap"><pre><span></span><code><span class="nv">$env:PYTHONPATH</span> <span class="p">=</span> <span class="s2">"src"</span>
+</code></pre></div>
+
+<h2 id="reproduce-prototype-a">Reproduce Prototype A<a class="hl" href="#reproduce-prototype-a" aria-label="Link to this section">#</a></h2>
+<p>Single retained configuration:</p>
+<div class="codehilite codewrap"><pre><span></span><code><span class="n">python</span> <span class="n">-m</span> <span class="n">benchmarks</span><span class="p">.</span><span class="n">run</span> <span class="p">-</span><span class="n">-events</span> <span class="n">1000</span> <span class="p">-</span><span class="n">-seed</span> <span class="n">7</span> <span class="p">-</span><span class="n">-budget-tokens</span> <span class="n">512</span> <span class="p">-</span><span class="n">-json</span>
+</code></pre></div>
+
+<p>Three-seed scale check:</p>
+<div class="codehilite codewrap"><pre><span></span><code><span class="n">python</span> <span class="n">-m</span> <span class="n">benchmarks</span><span class="p">.</span><span class="n">sweep</span> <span class="p">-</span><span class="n">-seeds</span> <span class="n">7</span><span class="p">,</span><span class="n">11</span><span class="p">,</span><span class="n">19</span> <span class="p">-</span><span class="n">-events</span> <span class="n">1000</span> <span class="p">-</span><span class="n">-budget-tokens</span> <span class="n">512</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-bootstrap-samples</span> <span class="n">2000</span> <span class="p">-</span><span class="n">-bootstrap-seed</span> <span class="n">20260721</span>
+</code></pre></div>
+
+<p>This compares EviCortex with a fixed-size SQLite FTS5 chunk baseline. It isolates the
+deterministic representation and retrieval path; it is not a comparison with dense, hybrid,
+GraphRAG, agentic, or production RAG.</p>
+<p>See <a href="results/prototype-a.html">the retained Prototype A result</a> for configuration, metrics,
+gates, and limitations.</p>
+<h2 id="reproduce-the-prototype-b-diagnostic">Reproduce the Prototype B diagnostic<a class="hl" href="#reproduce-the-prototype-b-diagnostic" aria-label="Link to this section">#</a></h2>
+<div class="codehilite codewrap"><pre><span></span><code><span class="n">python</span> <span class="n">-m</span> <span class="n">benchmarks</span><span class="p">.</span><span class="n">run_phase_b</span> <span class="p">-</span><span class="n">-events</span> <span class="n">100</span> <span class="p">-</span><span class="n">-seed</span> <span class="n">7</span> <span class="p">-</span><span class="n">-budget-tokens</span> <span class="n">512</span> <span class="p">-</span><span class="n">-json</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">benchmarks</span><span class="p">.</span><span class="n">run_phase_b</span> <span class="p">-</span><span class="n">-events</span> <span class="n">1000</span> <span class="p">-</span><span class="n">-seed</span> <span class="n">7</span> <span class="p">-</span><span class="n">-budget-tokens</span> <span class="n">512</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-semantic-scan-cap</span> <span class="n">4096</span> <span class="p">-</span><span class="n">-json</span>
+</code></pre></div>
+
+<p>Both systems use the same deterministic <code>HashingEmbedder</code>. The comparator combines BM25 and
+exact cosine over multi-granularity chunks, while EviCortex combines its evidence and claim
+projections. Feature hashing does not understand language, so label this a “BM25 + hashing
+diagnostic,” never a dense or strong-RAG result.</p>
+<p>See <a href="phase-b.html">the Phase B plan</a> and
+<a href="results/prototype-b-diagnostic.html">retained diagnostic result</a>.</p>
+<h2 id="reproduce-the-phase-c-semantic-smoke">Reproduce the Phase C semantic smoke<a class="hl" href="#reproduce-the-phase-c-semantic-smoke" aria-label="Link to this section">#</a></h2>
+<p>Install optional model dependencies:</p>
+<div class="codehilite codewrap"><pre><span></span><code><span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">-e</span> <span class="s2">".[local-transformers]"</span>
+</code></pre></div>
+
+<p>The exact pinned model must already be present in the local Transformers cache because the
+runner forces offline loading:</p>
+<div class="codehilite codewrap"><pre><span></span><code><span class="n">python</span> <span class="n">-m</span> <span class="n">benchmarks</span><span class="p">.</span><span class="n">run_phase_c</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-dataset</span> <span class="n">benchmarks</span><span class="p">/</span><span class="n">fixtures</span><span class="p">/</span><span class="n">longmemeval_semantic_smoke</span><span class="p">.</span><span class="n">json</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-model</span> <span class="n">unsloth</span><span class="p">/</span><span class="n">bge-small-en-v1</span><span class="p">.</span><span class="n">5</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-revision</span> <span class="n">7382f1122c10708a1faa0bbe548674a14b1ffe7e</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-pooling</span> <span class="nb">cls </span><span class="p">`</span>
+  <span class="p">-</span><span class="n">-query-prefix</span><span class="p">=</span><span class="s2">"Represent this sentence for searching relevant passages: "</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-document-prefix</span><span class="p">=</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-max-length</span> <span class="n">128</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-budget-tokens</span> <span class="n">256</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-cutoffs</span> <span class="n">1</span><span class="p">,</span><span class="n">2</span>
+</code></pre></div>
+
+<p>The fixture has three hand-written questions and no reader model. Passing it establishes
+that pinned model loading, asymmetric encoding, persistent projections, temporal filtering,
+ranking, and budget packing connect end to end. It cannot establish semantic superiority,
+answer correctness, statistical significance, or LongMemEval performance.</p>
+<p>See <a href="phase-c.html">Phase C</a>, the
+<a href="results/prototype-c-semantic-smoke.html">concise smoke interpretation</a>, and the
+<a href="results/prototype-c-semantic-smoke.json">machine-readable record</a>.</p>
+<h2 id="reading-the-metrics">Reading the metrics<a class="hl" href="#reading-the-metrics" aria-label="Link to this section">#</a></h2>
+<p>Key retrieval-stage metrics include:</p>
+<ul>
+<li><strong>Evidence Recall@Budget:</strong> fraction of gold evidence IDs present after prompt packing.</li>
+<li><strong>Evidence Precision@Budget:</strong> fraction of returned evidence belonging to the gold support
+  set.</li>
+<li><strong>Supported-answer rate:</strong> questions whose packed context contains the required gold
+  evidence; this is not generated-answer accuracy.</li>
+<li><strong>Current/historical accuracy:</strong> whether the selected valid-time claim is correct.</li>
+<li><strong>Stale-fact leakage:</strong> obsolete evidence presented as current.</li>
+<li><strong>Retrieval no-evidence abstention:</strong> unsupported questions for which retrieval packs no
+  evidence. This is not calibrated reader refusal.</li>
+<li><strong>Context tokens:</strong> the built-in UTF-8-bytes/3 estimate unless an exact tokenizer is named.</li>
+<li><strong>Latency percentiles:</strong> meaningful only with query count, warm/cold policy, hardware, and
+  concurrency. On tiny suites, p99 is close to a descriptive maximum.</li>
+<li><strong>Lifecycle cost:</strong> ingestion, maintenance, retrieval, reader use, and storage must be
+  reported separately.</li>
+</ul>
+<p>Metrics are measured after hard-budget packing. A system does not get credit for a candidate
+that would not fit in the reader context.</p>
+<h2 id="fair-comparison-checklist">Fair-comparison checklist<a class="hl" href="#fair-comparison-checklist" aria-label="Link to this section">#</a></h2>
+<p>Before comparing another system, hold constant:</p>
+<ul>
+<li>source events, ingestion order, namespaces, and query stream;</li>
+<li>train/development/test split and frozen hyperparameters;</li>
+<li>embedding model and exact query/document preprocessing;</li>
+<li>reranking and query-expansion compute;</li>
+<li>reader model, full reader prompt, and maximum context budget;</li>
+<li>hardware, concurrency, and cache policy; and</li>
+<li>compaction, database-size, token-accounting, and latency methodology.</li>
+</ul>
+<p>Gold annotations should point to original source evidence, not system-specific chunks or
+graph nodes. Report no-memory, full-history-when-it-fits, dense-only, and oracle-evidence
+controls where applicable; oracle evidence separates retrieval failures from reader failures.</p>
+<h2 id="language-for-results">Language for results<a class="hl" href="#language-for-results" aria-label="Link to this section">#</a></h2>
+<p>Appropriate:</p>
+<blockquote>
+<p>On the named dataset and configuration, system A changed Evidence Recall@Budget by X under
+an N-token budget.</p>
+</blockquote>
+<p>Not supported without broader evidence:</p>
+<ul>
+<li>“EviCortex is better or more efficient than RAG.”</li>
+<li>“EviCortex never forgets.”</li>
+<li>“The system has human-like memory.”</li>
+<li>“Retrieval recall proves answer accuracy.”</li>
+</ul>
+<p>Current retained results identify useful successes and failures, especially temporal update
+handling, higher ingestion cost in the diagnostic path, and inadequate retrieval-level
+abstention. Preserve those tradeoffs when summarizing the project.</p>
+<h2 id="before-retaining-a-new-result">Before retaining a new result<a class="hl" href="#before-retaining-a-new-result" aria-label="Link to this section">#</a></h2>
+<ol>
+<li>Confirm the worktree scope and record Git HEAD plus dirty state.</li>
+<li>Save the complete command, configuration, seed, dependency versions, platform, and data
+   digest.</li>
+<li>Use the same evidence and hard prompt budget for every compared system.</li>
+<li>Close and symmetrically compact SQLite databases before byte measurement when following
+   the existing policy; exclude and label compaction time consistently.</li>
+<li>Report per-workload results and paired uncertainty over independent streams or
+   conversations, not correlated questions treated as independent samples.</li>
+<li>Retain machine-readable output alongside a concise interpretation with explicit claim
+   boundaries.</li>
+</ol></article>
+  <p class="crumbs" style="margin-top:40px"><a href="https://github.com/Varun-SV/EviCortex/blob/main/docs/benchmarking.md" target="_blank" rel="noopener">View this page’s source ↗</a></p>
+  <nav class="pager" aria-label="Previous and next"><a href="../docs/faq.html"><small>Previous</small>FAQ and limitations</a><a class="nx" href="../docs/benchmark-contract.html"><small>Next</small>Benchmark contract</a></nav>
+</main>
+<nav class="toc" aria-label="On this page"><h4>On this page</h4><ul><li><a href="#validation-levels">Validation levels</a></li><li><a href="#prepare-the-checkout">Prepare the checkout</a></li><li><a href="#run-tests-and-examples">Run tests and examples</a></li><li><a href="#reproduce-prototype-a">Reproduce Prototype A</a></li><li><a href="#reproduce-the-prototype-b-diagnostic">Reproduce the Prototype B diagnostic</a></li><li><a href="#reproduce-the-phase-c-semantic-smoke">Reproduce the Phase C semantic smoke</a></li><li><a href="#reading-the-metrics">Reading the metrics</a></li><li><a href="#fair-comparison-checklist">Fair-comparison checklist</a></li><li><a href="#language-for-results">Language for results</a></li><li><a href="#before-retaining-a-new-result">Before retaining a new result</a></li></ul></nav>
+</div>
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../index.html"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+      <p>Evidence-preserving, temporal memory infrastructure for long-lived AI systems. Pre-alpha research software by Varun S V. MIT licence.</p>
+    </div>
+    <ul><li><a href="../docs/getting-started.html">Getting started</a></li><li><a href="../docs/concepts.html">Core concepts</a></li><li><a href="../docs/api-guide.html">API guide</a></li></ul>
+    <ul><li><a href="../docs/architecture.html">Architecture</a></li><li><a href="../docs/benchmarking.html">Benchmarking</a></li><li><a href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener">Source on GitHub</a></li></ul>
+    <div class="big" aria-hidden="true">EviCortex</div>
+  </div>
+</footer>
+<div class="search" role="dialog" aria-modal="true" aria-label="Search documentation">
+  <div class="box glass"><input type="search" placeholder="Search the docs…" aria-label="Search the docs"><ul></ul></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/ev-ui.js"></script>
+<script type="module" src="../assets/ev-scene.js"></script>
+</body>
+</html>

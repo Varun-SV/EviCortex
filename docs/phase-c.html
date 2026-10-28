@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase C: pinned semantic retrieval and external evaluation · EviCortex docs</title>
+<meta name="description" content="EviCortex documentation: Phase C: pinned semantic retrieval and external evaluation">
+<meta name="theme-color" content="#04050d">
+<meta property="og:title" content="Phase C: pinned semantic retrieval and external evaluation · EviCortex docs">
+<meta property="og:description" content="EviCortex documentation: Phase C: pinned semantic retrieval and external evaluation">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2304050d'/><circle cx='11' cy='12' r='4.5' fill='%23f6b84a'/><circle cx='22' cy='21' r='3.6' fill='none' stroke='%23ea6f95' stroke-width='1.8'/><circle cx='23' cy='8.5' r='2.4' fill='%23a9b1ff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/ev.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="docs-page" data-root="../" data-scene="docs">
+<a class="skip" href="#main">Skip to content</a>
+<canvas id="ev-canvas" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+<header class="hdr">
+  <div class="bar">
+    <a class="brand" href="../index.html" aria-label="EviCortex home"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+    <ul class="nav" id="nav"><li><a href="../index.html#how">How it works</a></li><li><a href="../index.html#results">Results</a></li><li><a href="../index.html#roadmap">Roadmap</a></li><li><a href="../docs/index.html" aria-current="page">Docs</a></li></ul>
+    <button class="search-btn" type="button" aria-label="Search the docs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>⌘K</kbd></button>
+    <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false">Menu</button>
+    <a class="gh" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    <span class="prog" aria-hidden="true"></span>
+  </div>
+</header>
+<div class="docs-shell">
+<aside class="side glass" aria-label="Documentation"><h4>Start here</h4><a href="../docs/index.html">Overview</a><a href="../docs/getting-started.html">Getting started</a><a href="../docs/concepts.html">Core concepts</a><a href="../docs/api-guide.html">API guide</a><a href="../docs/faq.html">FAQ and limitations</a><h4>Benchmarking</h4><a href="../docs/benchmarking.html">Benchmarking</a><a href="../docs/benchmark-contract.html">Benchmark contract</a><h4>Research notes</h4><a href="../docs/architecture.html">Architecture</a><a href="../docs/phase-b.html">Phase B plan</a><a href="../docs/phase-c.html" aria-current="page">Phase C evaluation</a><a href="../docs/decisions/0001-local-first-python-sqlite.html">ADR 0001: Python + SQLite</a><h4>Results</h4><a href="../docs/results/prototype-a.html">Prototype A</a><a href="../docs/results/prototype-b-diagnostic.html">Prototype B diagnostic</a><a href="../docs/results/prototype-c-semantic-smoke.html">Prototype C smoke</a></aside>
+<main id="main" class="article glass">
+  <button class="menu-btn side-btn" type="button">☰ All docs</button>
+  <p class="crumbs"><a href="../docs/index.html">Docs</a> / Research notes</p>
+  <article class="prose"><h1 id="phase-c-pinned-semantic-retrieval-and-external-evaluation" data-split>Phase C: pinned semantic retrieval and external evaluation</h1>
+<p>Status: the offline dense-embedding path, core reranker seam, strict LongMemEval adapter,
+and reader-free comparison runner are implemented. A cached-model semantic smoke passes;
+the official LongMemEval-S artifact, shared reader, cross-encoder adapter, and ANN scale gates
+have not yet been run.</p>
+<h2 id="purpose">Purpose<a class="hl" href="#purpose" aria-label="Link to this section">#</a></h2>
+<p>Phase C tests whether the evidence-ledger/context-compiler design still helps when EviCortex
+and a metadata-aware hybrid chunk comparator use the same real semantic encoder. It is an
+evaluation phase, not a claim that EviCortex has replaced retrieval-augmented generation.</p>
+<p>The comparison unit is original evidence. Both systems receive the same conversation turns,
+timestamps, namespace, encoder, query, candidate limits, and hard prompt budget. Metrics are
+computed after prompt packing so a system does not receive credit for evidence that would not
+actually fit in the reader context.</p>
+<h2 id="implemented-checkpoint">Implemented checkpoint<a class="hl" href="#implemented-checkpoint" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>Role-aware document/query embedding dispatch with backward-compatible symmetric providers.</li>
+<li>Offline <code>TransformersEmbedder</code> with explicit pooling and prefixes, finite capacity checks,
+  bounded overlength detection, and no silent truncation by default.</li>
+<li>Safetensors-only model loading with pinned 40-character model commits. Custom repository
+  code additionally requires its own 40-character <code>code_revision</code>.</li>
+<li>Local filesystem models require a verified content digest over every file; mutable paths and
+  links escaping the artifact root fail closed.</li>
+<li>Durable embedding identity includes preprocessing, model/tokenizer commits, float32 precision,
+  implementation versions/classes, capacity, and normalization behavior.</li>
+<li>An opt-in reranker seam over at most 16 filtered, temporally valid, deduplicated candidates.
+  Raw provider scores are recorded but used only to derive ordinal RRF contributions.</li>
+<li>Strict LongMemEval timestamps, gold/session-label alignment, abstention invariants, official
+  cleaned-artifact SHA-256 recognition, and exact released <code>recall_all</code>/<code>ndcg_any</code> behavior.</li>
+<li>An offline JSON/JSON.GZ runner comparing EviCortex with the metadata-aware hybrid comparator,
+  using label-free turn evidence and separate retrieval-only abstention reporting.</li>
+</ul>
+<h2 id="reproduction">Reproduction<a class="hl" href="#reproduction" aria-label="Link to this section">#</a></h2>
+<p>The bundled smoke fixture is deliberately synthetic and is never labelled as the official
+LongMemEval dataset:</p>
+<div class="codehilite codewrap"><pre><span></span><code><span class="nv">$env:PYTHONPATH</span> <span class="p">=</span> <span class="s2">"src"</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">benchmarks</span><span class="p">.</span><span class="n">run_phase_c</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-dataset</span> <span class="n">benchmarks</span><span class="p">/</span><span class="n">fixtures</span><span class="p">/</span><span class="n">longmemeval_semantic_smoke</span><span class="p">.</span><span class="n">json</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-model</span> <span class="n">unsloth</span><span class="p">/</span><span class="n">bge-small-en-v1</span><span class="p">.</span><span class="n">5</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-revision</span> <span class="n">7382f1122c10708a1faa0bbe548674a14b1ffe7e</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-pooling</span> <span class="nb">cls </span><span class="p">`</span>
+  <span class="p">-</span><span class="n">-query-prefix</span><span class="p">=</span><span class="s2">"Represent this sentence for searching relevant passages: "</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-document-prefix</span><span class="p">=</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-max-length</span> <span class="n">128</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-budget-tokens</span> <span class="n">256</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-cutoffs</span> <span class="n">1</span><span class="p">,</span><span class="n">2</span>
+</code></pre></div>
+
+<p>For a local filesystem model, compute and pin
+<code>local_transformers_artifact_sha256(path)</code> and pass the result as
+<code>--local-artifact-sha256</code>. For a provider that executes custom code, pass both
+<code>--trust-remote-code</code> and an audited <code>--code-revision</code>; a model commit alone is insufficient
+when <code>auto_map</code> points at another repository.</p>
+<p>The machine-readable smoke report is
+<a href="results/prototype-c-semantic-smoke.json">prototype-c-semantic-smoke.json</a>, with a concise
+<a href="results/prototype-c-semantic-smoke.html">result interpretation</a>.</p>
+<h2 id="remaining-evidence-gates">Remaining evidence gates<a class="hl" href="#remaining-evidence-gates" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>Download and byte-verify the official 277 MB cleaned LongMemEval-S artifact, then run a
+  preregistered development/test configuration rather than tuning on the reported cases.</li>
+<li>Batch semantic ingestion; the current per-turn path is correct but inefficient for the full
+  500-question corpus on CPU.</li>
+<li>Add a pinned cross-encoder adapter and compare no-reranker/top-16 reranker conditions.</li>
+<li>Add a shared reader and exact reader-tokenizer accounting. Retrieval recall is not answer
+  correctness.</li>
+<li>Add no-memory, full-history, oracle-evidence, dense-only, and official strong-retriever controls.</li>
+<li>Calibrate unsupported-query refusal on a development split. Current score thresholds are not
+  calibrated probabilities, and both smoke systems retrieve distractors for the abstention case.</li>
+<li>Introduce an audited ANN candidate layer and measure its recall against exact cosine before the
+  10k/100k scale claims.</li>
+</ul>
+<p>Until those gates pass, the only allowed claim is that the pinned local semantic plumbing and
+reader-free benchmark path execute end to end on the named fixture and configuration.</p></article>
+  <p class="crumbs" style="margin-top:40px"><a href="https://github.com/Varun-SV/EviCortex/blob/main/docs/phase-c.md" target="_blank" rel="noopener">View this page’s source ↗</a></p>
+  <nav class="pager" aria-label="Previous and next"><a href="../docs/phase-b.html"><small>Previous</small>Phase B plan</a><a class="nx" href="../docs/decisions/0001-local-first-python-sqlite.html"><small>Next</small>ADR 0001: Python + SQLite</a></nav>
+</main>
+<nav class="toc" aria-label="On this page"><h4>On this page</h4><ul><li><a href="#purpose">Purpose</a></li><li><a href="#implemented-checkpoint">Implemented checkpoint</a></li><li><a href="#reproduction">Reproduction</a></li><li><a href="#remaining-evidence-gates">Remaining evidence gates</a></li></ul></nav>
+</div>
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../index.html"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+      <p>Evidence-preserving, temporal memory infrastructure for long-lived AI systems. Pre-alpha research software by Varun S V. MIT licence.</p>
+    </div>
+    <ul><li><a href="../docs/getting-started.html">Getting started</a></li><li><a href="../docs/concepts.html">Core concepts</a></li><li><a href="../docs/api-guide.html">API guide</a></li></ul>
+    <ul><li><a href="../docs/architecture.html">Architecture</a></li><li><a href="../docs/benchmarking.html">Benchmarking</a></li><li><a href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener">Source on GitHub</a></li></ul>
+    <div class="big" aria-hidden="true">EviCortex</div>
+  </div>
+</footer>
+<div class="search" role="dialog" aria-modal="true" aria-label="Search documentation">
+  <div class="box glass"><input type="search" placeholder="Search the docs…" aria-label="Search the docs"><ul></ul></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/ev-ui.js"></script>
+<script type="module" src="../assets/ev-scene.js"></script>
+</body>
+</html>

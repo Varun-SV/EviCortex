@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ and limitations · EviCortex docs</title>
+<meta name="description" content="EviCortex documentation: FAQ and limitations">
+<meta name="theme-color" content="#04050d">
+<meta property="og:title" content="FAQ and limitations · EviCortex docs">
+<meta property="og:description" content="EviCortex documentation: FAQ and limitations">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2304050d'/><circle cx='11' cy='12' r='4.5' fill='%23f6b84a'/><circle cx='22' cy='21' r='3.6' fill='none' stroke='%23ea6f95' stroke-width='1.8'/><circle cx='23' cy='8.5' r='2.4' fill='%23a9b1ff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/ev.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="docs-page" data-root="../" data-scene="docs">
+<a class="skip" href="#main">Skip to content</a>
+<canvas id="ev-canvas" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+<header class="hdr">
+  <div class="bar">
+    <a class="brand" href="../index.html" aria-label="EviCortex home"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+    <ul class="nav" id="nav"><li><a href="../index.html#how">How it works</a></li><li><a href="../index.html#results">Results</a></li><li><a href="../index.html#roadmap">Roadmap</a></li><li><a href="../docs/index.html" aria-current="page">Docs</a></li></ul>
+    <button class="search-btn" type="button" aria-label="Search the docs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>⌘K</kbd></button>
+    <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false">Menu</button>
+    <a class="gh" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    <span class="prog" aria-hidden="true"></span>
+  </div>
+</header>
+<div class="docs-shell">
+<aside class="side glass" aria-label="Documentation"><h4>Start here</h4><a href="../docs/index.html">Overview</a><a href="../docs/getting-started.html">Getting started</a><a href="../docs/concepts.html">Core concepts</a><a href="../docs/api-guide.html">API guide</a><a href="../docs/faq.html" aria-current="page">FAQ and limitations</a><h4>Benchmarking</h4><a href="../docs/benchmarking.html">Benchmarking</a><a href="../docs/benchmark-contract.html">Benchmark contract</a><h4>Research notes</h4><a href="../docs/architecture.html">Architecture</a><a href="../docs/phase-b.html">Phase B plan</a><a href="../docs/phase-c.html">Phase C evaluation</a><a href="../docs/decisions/0001-local-first-python-sqlite.html">ADR 0001: Python + SQLite</a><h4>Results</h4><a href="../docs/results/prototype-a.html">Prototype A</a><a href="../docs/results/prototype-b-diagnostic.html">Prototype B diagnostic</a><a href="../docs/results/prototype-c-semantic-smoke.html">Prototype C smoke</a></aside>
+<main id="main" class="article glass">
+  <button class="menu-btn side-btn" type="button">☰ All docs</button>
+  <p class="crumbs"><a href="../docs/index.html">Docs</a> / Start here</p>
+  <article class="prose"><h1 id="faq-and-limitations" data-split>FAQ and limitations</h1>
+<h2 id="is-evicortex-production-ready">Is EviCortex production-ready?<a class="hl" href="#is-evicortex-production-ready" aria-label="Link to this section">#</a></h2>
+<p>No. It is a pre-alpha embedded research library. The current implementation is useful for
+experiments and local integration work, but it does not provide a network service,
+authentication, authorization, encryption, distributed storage, mature migrations for
+unattended production fleets, or operational service-level guarantees.</p>
+<h2 id="does-evicortex-replace-rag-or-prove-it-is-better-than-rag">Does EviCortex replace RAG or prove it is better than RAG?<a class="hl" href="#does-evicortex-replace-rag-or-prove-it-is-better-than-rag" aria-label="Link to this section">#</a></h2>
+<p>No. EviCortex still retrieves evidence for a downstream model and is retrieval-augmented in
+the broad technical sense. Its research question concerns whether evidence-preserving,
+temporal structure and budget-aware compilation improve a quality/cost tradeoff relative to
+named baselines.</p>
+<p>The retained Prototype A comparison uses a mechanical lexical chunk baseline. Prototype B
+uses diagnostic feature hashing. Phase C uses a real encoder on three synthetic questions.
+None establishes superiority over a tuned dense, hybrid, graph, agentic, or production RAG
+system. See <a href="benchmarking.html">Benchmarking and reproducibility</a>.</p>
+<h2 id="is-a-namespace-a-security-boundary">Is a namespace a security boundary?<a class="hl" href="#is-a-namespace-a-security-boundary" aria-label="Link to this section">#</a></h2>
+<p>No. A namespace is a caller-selected logical scope that EviCortex filters before ranking.
+The host application must authenticate the caller, determine authorized namespaces, and
+prevent untrusted clients from selecting arbitrary scopes. The local SQLite file is not
+encrypted.</p>
+<h2 id="can-i-store-sensitive-or-regulated-data">Can I store sensitive or regulated data?<a class="hl" href="#can-i-store-sensitive-or-regulated-data" aria-label="Link to this section">#</a></h2>
+<p>Only after designing the missing controls outside this library. At minimum, consider access
+control, encryption at rest and in transit, secrets management, audit logging, retention,
+backup deletion, filesystem permissions, incident response, and jurisdiction-specific
+requirements.</p>
+<p><code>purge_memory()</code> removes a scoped logical record and cascading derived rows. It cannot promise
+forensic erasure from copied databases, SQLite journals, filesystem snapshots, backups, or
+storage media.</p>
+<h2 id="is-evidence-truly-immutable">Is evidence truly immutable?<a class="hl" href="#is-evidence-truly-immutable" aria-label="Link to this section">#</a></h2>
+<p>Normal indexing and claim revisions do not rewrite stored evidence. New information appends a
+new record and can supersede an older claim while preserving both sources. Authorized purge
+is the deliberate exception: privacy and retention requirements take precedence over an
+append-only design.</p>
+<h2 id="does-as_of-provide-full-bitemporal-querying">Does <code>as_of</code> provide full bitemporal querying?<a class="hl" href="#does-as_of-provide-full-bitemporal-querying" aria-label="Link to this section">#</a></h2>
+<p>No. EviCortex stores occurrence and recording time and supports valid-time claim selection
+through <code>as_of</code>. It does not yet expose a transaction-time <code>known_at</code> query asking what the
+system knew at a past ingestion time. Do not describe the current API as fully bitemporal.</p>
+<h2 id="does-evicortex-extract-facts-from-ordinary-text">Does EviCortex extract facts from ordinary text?<a class="hl" href="#does-evicortex-extract-facts-from-ordinary-text" aria-label="Link to this section">#</a></h2>
+<p>Not by itself. Applications can pass explicit <code>ClaimInput</code> values or configure a provider
+implementing <code>ClaimExtractor</code>. EviCortex validates exact span provenance and persists the
+audit record.</p>
+<p>The bundled <code>CanonicalClaimExtractor</code> recognizes only the explicit synthetic benchmark
+grammar. It is intentionally not natural-language understanding. Any production extractor
+needs separate held-out evaluation for false positives, missed facts, temporal boundaries,
+contradictions, cost, and latency.</p>
+<h2 id="are-semantic-embeddings-required">Are semantic embeddings required?<a class="hl" href="#are-semantic-embeddings-required" aria-label="Link to this section">#</a></h2>
+<p>No. The deterministic kernel uses SQLite FTS5 and structured retrieval without third-party
+runtime dependencies. An optional embedder adds exact-semantic channels and persistent
+projections.</p>
+<p><code>HashingEmbedder</code> is a deterministic, non-semantic diagnostic. <code>TransformersEmbedder</code> is an
+optional pinned local dense adapter, but choosing and validating a model remains the
+application's responsibility.</p>
+<h2 id="what-happens-when-embedding-fails-after-a-write">What happens when embedding fails after a write?<a class="hl" href="#what-happens-when-embedding-fails-after-a-write" aria-label="Link to this section">#</a></h2>
+<p>With automatic semantic indexing enabled, exact evidence and claims commit before the
+provider projection. A provider failure raises <code>SemanticProjectionError</code> containing the
+memory ID and <code>evidence_committed=True</code>. Do not blindly write the observation again. Restore
+a compatible provider and use <code>index_semantic(record)</code> or <code>sync_semantic(namespace)</code>.</p>
+<h2 id="why-does-rebuild_indexes-not-rebuild-embeddings">Why does <code>rebuild_indexes()</code> not rebuild embeddings?<a class="hl" href="#why-does-rebuild_indexes-not-rebuild-embeddings" aria-label="Link to this section">#</a></h2>
+<p>Deterministic FTS and claim-status views can be reconstructed locally without external
+effects. Embeddings depend on a specific provider profile and can be expensive or
+non-deterministic across unpinned versions. <code>rebuild_indexes()</code> therefore preserves semantic
+rows and never invokes a provider; <code>sync_semantic(namespace)</code> is explicit, scoped, and
+profile-aware.</p>
+<h2 id="does-semantic-retrieval-scale-to-100000-or-millions-of-records">Does semantic retrieval scale to 100,000 or millions of records?<a class="hl" href="#does-semantic-retrieval-scale-to-100000-or-millions-of-records" aria-label="Link to this section">#</a></h2>
+<p>That has not been established. The current semantic path uses exact cosine scoring after SQL
+namespace/time filtering and enforces a scan cap. An audited approximate-nearest-neighbor
+candidate layer, with recall measured against exact cosine, remains open work.</p>
+<p>SQLite also limits write concurrency and distributed deployment. A future storage adapter
+must pass the same evidence, temporal, isolation, expansion, and traceability conformance
+tests.</p>
+<h2 id="does-a-hard-capsule-budget-guarantee-my-model-context-limit">Does a hard capsule budget guarantee my model context limit?<a class="hl" href="#does-a-hard-capsule-budget-guarantee-my-model-context-limit" aria-label="Link to this section">#</a></h2>
+<p>No. EviCortex mechanically bounds <code>MemoryCapsule.to_prompt()</code> using a deterministic estimate
+of one token per three UTF-8 bytes. That is not the exact tokenizer for a reader model, and
+it covers only the capsule—not system instructions, tools, conversation messages, response
+space, or transport wrappers.</p>
+<p>Measure the complete prompt with the deployed model tokenizer and reserve headroom in the
+application.</p>
+<h2 id="does-an-empty-or-non-empty-capsule-tell-me-whether-a-question-is-answerable">Does an empty or non-empty capsule tell me whether a question is answerable?<a class="hl" href="#does-an-empty-or-non-empty-capsule-tell-me-whether-a-question-is-answerable" aria-label="Link to this section">#</a></h2>
+<p>Not reliably. Current tests show inadequate retrieval-level abstention on partial out-of-
+distribution and semantic-smoke questions. A non-empty capsule can contain only distractors,
+and an empty capsule can reflect a retrieval miss. Support verification, calibrated
+thresholds, reader refusal evaluation, and application policy remain required.</p>
+<h2 id="are-conflicts-and-confidence-values-probabilities">Are conflicts and confidence values probabilities?<a class="hl" href="#are-conflicts-and-confidence-values-probabilities" aria-label="Link to this section">#</a></h2>
+<p>No. EviCortex can surface incompatible claim values and carries caller/provider confidence,
+but it does not currently calibrate those scores into probabilities of truth. Authority and
+confidence are evidence for application policy, not a replacement for it.</p>
+<h2 id="can-i-use-recorded_at-for-imports">Can I use <code>recorded_at</code> for imports?<a class="hl" href="#can-i-use-recorded_at-for-imports" aria-label="Link to this section">#</a></h2>
+<p>Yes, but treat it as a trusted field. The default is the actual ingestion time. Supplying a
+historical value is appropriate for controlled replay or migration, but letting an untrusted
+caller choose it can damage audit semantics.</p>
+<p>Naive timestamps are currently interpreted as UTC. Prefer timezone-aware datetimes or ISO
+8601 strings with <code>Z</code> or an explicit offset.</p>
+<h2 id="is-the-package-available-from-pypi">Is the package available from PyPI?<a class="hl" href="#is-the-package-available-from-pypi" aria-label="Link to this section">#</a></h2>
+<p>The source distribution is named <code>evicortex-research</code>, but the repository does not claim
+that a public PyPI namespace has been reserved or released. Install from a source checkout
+and pin a commit until a release process is documented.</p>
+<h2 id="is-the-evicortex-name-legally-cleared">Is the EviCortex name legally cleared?<a class="hl" href="#is-the-evicortex-name-legally-cleared" aria-label="Link to this section">#</a></h2>
+<p>No formal trademark clearance is claimed. The code and documentation use EviCortex as the
+selected project identity; legal name clearance is a separate step before commercial use.</p>
+<h2 id="where-should-i-start-when-something-goes-wrong">Where should I start when something goes wrong?<a class="hl" href="#where-should-i-start-when-something-goes-wrong" aria-label="Link to this section">#</a></h2>
+<ol>
+<li>Run <code>verify_integrity()</code> for the affected namespace.</li>
+<li>Inspect <code>MemoryCapsule.trace</code> and <code>diagnostics</code> without exposing sensitive content in logs.</li>
+<li>Check <code>semantic_status(namespace)</code> when an embedder is configured.</li>
+<li>Use <code>rebuild_indexes()</code> for deterministic projections and <code>sync_semantic(namespace)</code> for
+   provider-derived projections.</li>
+<li>Reproduce the issue with the exact commit, database copy, provider identity, configuration,
+   and query budget.</li>
+</ol>
+<p>For method details, see the <a href="api-guide.html">API guide</a>. For evaluation issues, see the
+<a href="benchmark-contract.html">benchmark contract</a>.</p></article>
+  <p class="crumbs" style="margin-top:40px"><a href="https://github.com/Varun-SV/EviCortex/blob/main/docs/faq.md" target="_blank" rel="noopener">View this page’s source ↗</a></p>
+  <nav class="pager" aria-label="Previous and next"><a href="../docs/api-guide.html"><small>Previous</small>API guide</a><a class="nx" href="../docs/benchmarking.html"><small>Next</small>Benchmarking</a></nav>
+</main>
+<nav class="toc" aria-label="On this page"><h4>On this page</h4><ul><li><a href="#is-evicortex-production-ready">Is EviCortex production-ready?</a></li><li><a href="#does-evicortex-replace-rag-or-prove-it-is-better-than-rag">Does EviCortex replace RAG or prove it is better than RAG?</a></li><li><a href="#is-a-namespace-a-security-boundary">Is a namespace a security boundary?</a></li><li><a href="#can-i-store-sensitive-or-regulated-data">Can I store sensitive or regulated data?</a></li><li><a href="#is-evidence-truly-immutable">Is evidence truly immutable?</a></li><li><a href="#does-as_of-provide-full-bitemporal-querying">Does as_of provide full bitemporal querying?</a></li><li><a href="#does-evicortex-extract-facts-from-ordinary-text">Does EviCortex extract facts from ordinary text?</a></li><li><a href="#are-semantic-embeddings-required">Are semantic embeddings required?</a></li><li><a href="#what-happens-when-embedding-fails-after-a-write">What happens when embedding fails after a write?</a></li><li><a href="#why-does-rebuild_indexes-not-rebuild-embeddings">Why does rebuild_indexes() not rebuild embeddings?</a></li><li><a href="#does-semantic-retrieval-scale-to-100000-or-millions-of-records">Does semantic retrieval scale to 100,000 or millions of records?</a></li><li><a href="#does-a-hard-capsule-budget-guarantee-my-model-context-limit">Does a hard capsule budget guarantee my model context limit?</a></li><li><a href="#does-an-empty-or-non-empty-capsule-tell-me-whether-a-question-is-answerable">Does an empty or non-empty capsule tell me whether a question is answerable?</a></li><li><a href="#are-conflicts-and-confidence-values-probabilities">Are conflicts and confidence values probabilities?</a></li><li><a href="#can-i-use-recorded_at-for-imports">Can I use recorded_at for imports?</a></li><li><a href="#is-the-package-available-from-pypi">Is the package available from PyPI?</a></li><li><a href="#is-the-evicortex-name-legally-cleared">Is the EviCortex name legally cleared?</a></li><li><a href="#where-should-i-start-when-something-goes-wrong">Where should I start when something goes wrong?</a></li></ul></nav>
+</div>
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../index.html"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+      <p>Evidence-preserving, temporal memory infrastructure for long-lived AI systems. Pre-alpha research software by Varun S V. MIT licence.</p>
+    </div>
+    <ul><li><a href="../docs/getting-started.html">Getting started</a></li><li><a href="../docs/concepts.html">Core concepts</a></li><li><a href="../docs/api-guide.html">API guide</a></li></ul>
+    <ul><li><a href="../docs/architecture.html">Architecture</a></li><li><a href="../docs/benchmarking.html">Benchmarking</a></li><li><a href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener">Source on GitHub</a></li></ul>
+    <div class="big" aria-hidden="true">EviCortex</div>
+  </div>
+</footer>
+<div class="search" role="dialog" aria-modal="true" aria-label="Search documentation">
+  <div class="box glass"><input type="search" placeholder="Search the docs…" aria-label="Search the docs"><ul></ul></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/ev-ui.js"></script>
+<script type="module" src="../assets/ev-scene.js"></script>
+</body>
+</html>

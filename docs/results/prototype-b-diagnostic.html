@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype B diagnostic benchmark result · EviCortex docs</title>
+<meta name="description" content="EviCortex documentation: Prototype B diagnostic benchmark result">
+<meta name="theme-color" content="#04050d">
+<meta property="og:title" content="Prototype B diagnostic benchmark result · EviCortex docs">
+<meta property="og:description" content="EviCortex documentation: Prototype B diagnostic benchmark result">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2304050d'/><circle cx='11' cy='12' r='4.5' fill='%23f6b84a'/><circle cx='22' cy='21' r='3.6' fill='none' stroke='%23ea6f95' stroke-width='1.8'/><circle cx='23' cy='8.5' r='2.4' fill='%23a9b1ff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../assets/ev.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="docs-page" data-root="../../" data-scene="docs">
+<a class="skip" href="#main">Skip to content</a>
+<canvas id="ev-canvas" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+<header class="hdr">
+  <div class="bar">
+    <a class="brand" href="../../index.html" aria-label="EviCortex home"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+    <ul class="nav" id="nav"><li><a href="../../index.html#how">How it works</a></li><li><a href="../../index.html#results">Results</a></li><li><a href="../../index.html#roadmap">Roadmap</a></li><li><a href="../../docs/index.html" aria-current="page">Docs</a></li></ul>
+    <button class="search-btn" type="button" aria-label="Search the docs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>⌘K</kbd></button>
+    <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false">Menu</button>
+    <a class="gh" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    <span class="prog" aria-hidden="true"></span>
+  </div>
+</header>
+<div class="docs-shell">
+<aside class="side glass" aria-label="Documentation"><h4>Start here</h4><a href="../../docs/index.html">Overview</a><a href="../../docs/getting-started.html">Getting started</a><a href="../../docs/concepts.html">Core concepts</a><a href="../../docs/api-guide.html">API guide</a><a href="../../docs/faq.html">FAQ and limitations</a><h4>Benchmarking</h4><a href="../../docs/benchmarking.html">Benchmarking</a><a href="../../docs/benchmark-contract.html">Benchmark contract</a><h4>Research notes</h4><a href="../../docs/architecture.html">Architecture</a><a href="../../docs/phase-b.html">Phase B plan</a><a href="../../docs/phase-c.html">Phase C evaluation</a><a href="../../docs/decisions/0001-local-first-python-sqlite.html">ADR 0001: Python + SQLite</a><h4>Results</h4><a href="../../docs/results/prototype-a.html">Prototype A</a><a href="../../docs/results/prototype-b-diagnostic.html" aria-current="page">Prototype B diagnostic</a><a href="../../docs/results/prototype-c-semantic-smoke.html">Prototype C smoke</a></aside>
+<main id="main" class="article glass">
+  <button class="menu-btn side-btn" type="button">☰ All docs</button>
+  <p class="crumbs"><a href="../../docs/index.html">Docs</a> / Results</p>
+  <article class="prose"><h1 id="prototype-b-diagnostic-benchmark-result" data-split>Prototype B diagnostic benchmark result</h1>
+<p>Status: verified local diagnostic checkpoint, 2026-07-21. This is not a dense-RAG,
+reader-model, external-benchmark, or publication-quality comparison.</p>
+<h2 id="claim-boundary">Claim boundary<a class="hl" href="#claim-boundary" aria-label="Link to this section">#</a></h2>
+<p>This experiment asks whether the Phase B wiring is mechanically sound when both systems use
+the same deterministic projection provider. It does <strong>not</strong> ask whether feature hashing
+understands language. <code>HashingEmbedder</code> is explicitly non-semantic, and the comparator is a
+local BM25 + exact-cosine diagnostic—not a validated strong RAG system.</p>
+<p>The candidate is EviCortex with exact evidence, versioned claims, durable extraction
+provenance, persistent memory/claim vectors, lexical/entity/graph/time channels, and a bounded
+capsule compiler. The comparator stores the same sources and temporal version metadata, uses
+boundary-aware chunks at 192 and 576 characters, namespace-local BM25, exact cosine over the
+same provider, reciprocal-rank fusion, deduplication/MMR, neighbor expansion, and the same
+context budget.</p>
+<h2 id="reproduction">Reproduction<a class="hl" href="#reproduction" aria-label="Link to this section">#</a></h2>
+<div class="codehilite codewrap"><pre><span></span><code><span class="nv">$env:PYTHONPATH</span> <span class="p">=</span> <span class="s2">"src"</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">benchmarks</span><span class="p">.</span><span class="n">run_phase_b</span> <span class="p">-</span><span class="n">-events</span> <span class="n">100</span> <span class="p">-</span><span class="n">-seed</span> <span class="n">7</span> <span class="p">-</span><span class="n">-budget-tokens</span> <span class="n">512</span> <span class="p">-</span><span class="n">-json</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">benchmarks</span><span class="p">.</span><span class="n">run_phase_b</span> <span class="p">-</span><span class="n">-events</span> <span class="n">1000</span> <span class="p">-</span><span class="n">-seed</span> <span class="n">7</span> <span class="p">-</span><span class="n">-budget-tokens</span> <span class="n">512</span> <span class="p">`</span>
+  <span class="p">-</span><span class="n">-semantic-scan-cap</span> <span class="n">4096</span> <span class="p">-</span><span class="n">-json</span>
+</code></pre></div>
+
+<p>Both databases are cleanly closed, symmetrically SQLite <code>VACUUM</code>-compacted, closed again,
+and then measured. Compaction time is excluded from ingestion. No persistent table is omitted;
+EviCortex's extraction runs, derivations, diagnostics, and vectors remain in its byte count.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th style="text-align: right;">100-event smoke</th>
+<th style="text-align: right;">1,000-event scale point</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Queries</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr>
+<td>Unanswerable probes</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>Source bytes</td>
+<td style="text-align: right;">21,798</td>
+<td style="text-align: right;">221,586</td>
+</tr>
+<tr>
+<td>Dataset SHA-256</td>
+<td style="text-align: right;"><code>98898858c5d4621f44fa6a01b37f1d50955f687c5897f13755b450ba2e9a2b6e</code></td>
+<td style="text-align: right;"><code>109c196d585532bf6ee7f9f1f96d8b33a1d8cd57f0f1c17ec042b37fc6b59f7a</code></td>
+</tr>
+<tr>
+<td>Exact scan cap</td>
+<td style="text-align: right;">2,048</td>
+<td style="text-align: right;">4,096</td>
+</tr>
+<tr>
+<td>Embedding dimensions</td>
+<td style="text-align: right;">256</td>
+<td style="text-align: right;">256</td>
+</tr>
+<tr>
+<td>Reader model</td>
+<td style="text-align: right;">None</td>
+<td style="text-align: right;">None</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td style="text-align: right;">Python 3.12.0 / SQLite 3.42.0</td>
+<td style="text-align: right;">Python 3.12.0 / SQLite 3.42.0</td>
+</tr>
+</tbody>
+</table>
+<p>The final runtime-source digest is
+<code>8f5a4cc0f922eedba3a6a7d1f5be757925684fb085ea7e46fbc9a64b7c0ea4f7</code> over the
+18 runtime files declared by the report. The worktree was dirty, so the digest—not Git HEAD
+alone—is the exact code identity.</p>
+<h2 id="results">Results<a class="hl" href="#results" aria-label="Link to this section">#</a></h2>
+<h3 id="100-events-seed-7">100 events, seed 7<a class="hl" href="#100-events-seed-7" aria-label="Link to this section">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th style="text-align: right;">Hybrid diagnostic</th>
+<th style="text-align: right;">EviCortex</th>
+<th style="text-align: right;">Candidate / hybrid</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Evidence Recall@Budget</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">equal</td>
+</tr>
+<tr>
+<td>Supported-answer rate</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">100%</td>
+<td style="text-align: right;">equal</td>
+</tr>
+<tr>
+<td>Current / historical accuracy</td>
+<td style="text-align: right;">100% / 100%</td>
+<td style="text-align: right;">100% / 100%</td>
+<td style="text-align: right;">equal</td>
+</tr>
+<tr>
+<td>Stale leakage</td>
+<td style="text-align: right;">0%</td>
+<td style="text-align: right;">0%</td>
+<td style="text-align: right;">equal</td>
+</tr>
+<tr>
+<td>Retrieval-level no-evidence abstention</td>
+<td style="text-align: right;">33.3%</td>
+<td style="text-align: right;">33.3%</td>
+<td style="text-align: right;">equal, inadequate</td>
+</tr>
+<tr>
+<td>Namespace isolation / budget compliance</td>
+<td style="text-align: right;">100% / 100%</td>
+<td style="text-align: right;">100% / 100%</td>
+<td style="text-align: right;">equal</td>
+</tr>
+<tr>
+<td>Query errors</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">equal</td>
+</tr>
+<tr>
+<td>Estimated context tokens, total</td>
+<td style="text-align: right;">3,388</td>
+<td style="text-align: right;">2,216</td>
+<td style="text-align: right;">0.654x</td>
+</tr>
+<tr>
+<td>Retrieval p50 / p95 / p99</td>
+<td style="text-align: right;">144.01 / 166.54 / 173.32 ms</td>
+<td style="text-align: right;">94.50 / 127.31 / 132.12 ms</td>
+<td style="text-align: right;">0.656x / 0.764x / 0.762x</td>
+</tr>
+<tr>
+<td>Ingestion</td>
+<td style="text-align: right;">1,146.42 ms</td>
+<td style="text-align: right;">2,297.90 ms</td>
+<td style="text-align: right;">2.004x</td>
+</tr>
+<tr>
+<td>Compacted database</td>
+<td style="text-align: right;">778,240 B</td>
+<td style="text-align: right;">831,488 B</td>
+<td style="text-align: right;">1.068x</td>
+</tr>
+<tr>
+<td>Ingestion projection texts</td>
+<td style="text-align: right;">293</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">0.683x</td>
+</tr>
+</tbody>
+</table>
+<p>Three 100-event streams (seeds 7, 11, and 19) retained equal supported quality and the same
+1/3 abstention result. Their arithmetic mean candidate/hybrid ratios were 0.654 for context,
+0.645 for p50, 0.710 for p95, 0.699 for p99, 2.000 for ingestion, and 1.068 for compacted
+storage. These are three small,
+template-sharing streams and have no inferential confidence interval.</p>
+<h3 id="1000-events-seed-7">1,000 events, seed 7<a class="hl" href="#1000-events-seed-7" aria-label="Link to this section">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th style="text-align: right;">Hybrid diagnostic</th>
+<th style="text-align: right;">EviCortex</th>
+<th style="text-align: right;">Candidate / hybrid</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Evidence recall / supported-answer rate</td>
+<td style="text-align: right;">100% / 100%</td>
+<td style="text-align: right;">100% / 100%</td>
+<td style="text-align: right;">equal</td>
+</tr>
+<tr>
+<td>Current / historical accuracy</td>
+<td style="text-align: right;">100% / 100%</td>
+<td style="text-align: right;">100% / 100%</td>
+<td style="text-align: right;">equal</td>
+</tr>
+<tr>
+<td>Stale leakage</td>
+<td style="text-align: right;">0%</td>
+<td style="text-align: right;">0%</td>
+<td style="text-align: right;">equal</td>
+</tr>
+<tr>
+<td>Retrieval-level no-evidence abstention</td>
+<td style="text-align: right;">33.3%</td>
+<td style="text-align: right;">33.3%</td>
+<td style="text-align: right;">equal, inadequate</td>
+</tr>
+<tr>
+<td>Estimated context tokens, total</td>
+<td style="text-align: right;">3,388</td>
+<td style="text-align: right;">2,216</td>
+<td style="text-align: right;">0.654x</td>
+</tr>
+<tr>
+<td>Retrieval p50 / p95 / p99</td>
+<td style="text-align: right;">1,625.83 / 1,669.50 / 1,676.48 ms</td>
+<td style="text-align: right;">1,001.22 / 1,129.43 / 1,175.15 ms</td>
+<td style="text-align: right;">0.616x / 0.677x / 0.701x</td>
+</tr>
+<tr>
+<td>Ingestion</td>
+<td style="text-align: right;">12,120.37 ms</td>
+<td style="text-align: right;">24,845.42 ms</td>
+<td style="text-align: right;">2.050x</td>
+</tr>
+<tr>
+<td>Compacted database</td>
+<td style="text-align: right;">7,147,520 B</td>
+<td style="text-align: right;">6,094,848 B</td>
+<td style="text-align: right;">0.853x</td>
+</tr>
+<tr>
+<td>Persisted projection rows/texts</td>
+<td style="text-align: right;">2,993 chunks</td>
+<td style="text-align: right;">1,000 memories + 1,000 claims</td>
+<td style="text-align: right;">0.668x</td>
+</tr>
+<tr>
+<td>Query errors / scan truncations</td>
+<td style="text-align: right;">0 / 0</td>
+<td style="text-align: right;">0 / 0</td>
+<td style="text-align: right;">equal</td>
+</tr>
+</tbody>
+</table>
+<p>The 4,096 cap is symmetric but bounds different representations. The hybrid had 2,993 chunk
+vectors and scored at most 2,989 eligible candidates for one query; EviCortex had 1,000 memory
+and 1,000 claim vectors in separate exact channels. This helps explain the candidate's lower
+retrieval latency and storage at 1,000 events. The explicit <code>not an accessory</code> constraint also
+removed 988 memory and 988 claim distractors before fusion, making the result independent of
+generated-ID tie order. This is not evidence about ANN behavior at scale.</p>
+<h2 id="extraction-and-provenance">Extraction and provenance<a class="hl" href="#extraction-and-provenance" aria-label="Link to this section">#</a></h2>
+<p>At 1,000 events, <code>remember_extracted</code> invoked the canonical-grammar extractor exactly 1,000
+times and durably stored 1,000 extraction runs, 1,000 claim-derivation rows, 1,000 generated
+claim-ID mappings, and zero diagnostics or abstentions. Every run's provider identity, source
+digest, exact span, canonical text, and resulting claim ID was read back and checked. The
+extractor's p95 was 0.103 ms because it parses an explicit synthetic grammar; this is not an
+estimate for LLM extraction from natural language.</p>
+<h2 id="the-useful-failure-partial-ood-abstention">The useful failure: partial-OOD abstention<a class="hl" href="#the-useful-failure-partial-ood-abstention" aria-label="Link to this section">#</a></h2>
+<p>The original zero-overlap probe combined an unknown entity with an unseen predicate; both
+systems returned no evidence. Two harder probes revealed the limitation:</p>
+<ul>
+<li>known person + unseen <code>xylophonic_allergy</code>: both systems returned unrelated records about
+  that person;</li>
+<li>unknown <code>Zephyr-999</code> + seen <code>home_city</code>: both systems returned records matching the known
+  relation but belonging to other people.</li>
+</ul>
+<p>Accordingly, <code>abstention_accuracy</code> is precisely defined as retrieval-level no-evidence
+abstention and is 1/3. It does not measure whether a downstream reader could refuse to answer.
+Relation-aware query planning, calibrated support verification, and reader-level evaluation
+are required before claiming robust abstention.</p>
+<p>The current query parser also treats phrases such as “not an accessory” as literal exclusion
+syntax across every candidate channel. This prevents excluded-candidate floods, but it will
+also reject a truthful source that itself says “the device is not an accessory.” A future
+constraint parser or negation-aware reranker must replace this lexical approximation; a real
+semantic provider is not, by itself, permission to ignore an explicit query constraint.</p>
+<h2 id="what-this-establishesand-what-it-does-not">What this establishes—and what it does not<a class="hl" href="#what-this-establishesand-what-it-does-not" aria-label="Link to this section">#</a></h2>
+<p>This checkpoint establishes that durable extraction, semantic projection lifecycle,
+namespace/time filtering, fusion, budgeting, provenance audit, failure diagnostics, and the
+metadata-aware comparator run end to end without errors at 1,000 events. Within this exact
+hashing diagnostic, EviCortex used fewer prompt tokens and projection rows, traded roughly 2x
+ingestion time for lower retrieval latency, and crossed from slightly higher storage at 100
+events to lower storage at 1,000 events.</p>
+<p>It does not establish semantic recall, reader answer quality, statistical significance,
+10k/100k scaling, ANN recall, extraction accuracy on ordinary text, or superiority over dense,
+hybrid, graph, agentic, or production RAG. Those remain explicit gates.</p></article>
+  <p class="crumbs" style="margin-top:40px"><a href="https://github.com/Varun-SV/EviCortex/blob/main/docs/results/prototype-b-diagnostic.md" target="_blank" rel="noopener">View this page’s source ↗</a></p>
+  <nav class="pager" aria-label="Previous and next"><a href="../../docs/results/prototype-a.html"><small>Previous</small>Prototype A</a><a class="nx" href="../../docs/results/prototype-c-semantic-smoke.html"><small>Next</small>Prototype C smoke</a></nav>
+</main>
+<nav class="toc" aria-label="On this page"><h4>On this page</h4><ul><li><a href="#claim-boundary">Claim boundary</a></li><li><a href="#reproduction">Reproduction</a></li><li><a href="#results">Results</a><ul><li><a href="#100-events-seed-7">100 events, seed 7</a></li><li><a href="#1000-events-seed-7">1,000 events, seed 7</a></li></ul></li><li><a href="#extraction-and-provenance">Extraction and provenance</a></li><li><a href="#the-useful-failure-partial-ood-abstention">The useful failure: partial-OOD abstention</a></li><li><a href="#what-this-establishesand-what-it-does-not">What this establishes—and what it does not</a></li></ul></nav>
+</div>
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../../index.html"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+      <p>Evidence-preserving, temporal memory infrastructure for long-lived AI systems. Pre-alpha research software by Varun S V. MIT licence.</p>
+    </div>
+    <ul><li><a href="../../docs/getting-started.html">Getting started</a></li><li><a href="../../docs/concepts.html">Core concepts</a></li><li><a href="../../docs/api-guide.html">API guide</a></li></ul>
+    <ul><li><a href="../../docs/architecture.html">Architecture</a></li><li><a href="../../docs/benchmarking.html">Benchmarking</a></li><li><a href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener">Source on GitHub</a></li></ul>
+    <div class="big" aria-hidden="true">EviCortex</div>
+  </div>
+</footer>
+<div class="search" role="dialog" aria-modal="true" aria-label="Search documentation">
+  <div class="box glass"><input type="search" placeholder="Search the docs…" aria-label="Search the docs"><ul></ul></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="../../assets/search-index.js"></script>
+<script src="../../assets/ev-ui.js"></script>
+<script type="module" src="../../assets/ev-scene.js"></script>
+</body>
+</html>

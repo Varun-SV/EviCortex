@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype B: semantic and extraction plan · EviCortex docs</title>
+<meta name="description" content="EviCortex documentation: Prototype B: semantic and extraction plan">
+<meta name="theme-color" content="#04050d">
+<meta property="og:title" content="Prototype B: semantic and extraction plan · EviCortex docs">
+<meta property="og:description" content="EviCortex documentation: Prototype B: semantic and extraction plan">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2304050d'/><circle cx='11' cy='12' r='4.5' fill='%23f6b84a'/><circle cx='22' cy='21' r='3.6' fill='none' stroke='%23ea6f95' stroke-width='1.8'/><circle cx='23' cy='8.5' r='2.4' fill='%23a9b1ff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/ev.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="docs-page" data-root="../" data-scene="docs">
+<a class="skip" href="#main">Skip to content</a>
+<canvas id="ev-canvas" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+<header class="hdr">
+  <div class="bar">
+    <a class="brand" href="../index.html" aria-label="EviCortex home"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+    <ul class="nav" id="nav"><li><a href="../index.html#how">How it works</a></li><li><a href="../index.html#results">Results</a></li><li><a href="../index.html#roadmap">Roadmap</a></li><li><a href="../docs/index.html" aria-current="page">Docs</a></li></ul>
+    <button class="search-btn" type="button" aria-label="Search the docs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>⌘K</kbd></button>
+    <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false">Menu</button>
+    <a class="gh" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    <span class="prog" aria-hidden="true"></span>
+  </div>
+</header>
+<div class="docs-shell">
+<aside class="side glass" aria-label="Documentation"><h4>Start here</h4><a href="../docs/index.html">Overview</a><a href="../docs/getting-started.html">Getting started</a><a href="../docs/concepts.html">Core concepts</a><a href="../docs/api-guide.html">API guide</a><a href="../docs/faq.html">FAQ and limitations</a><h4>Benchmarking</h4><a href="../docs/benchmarking.html">Benchmarking</a><a href="../docs/benchmark-contract.html">Benchmark contract</a><h4>Research notes</h4><a href="../docs/architecture.html">Architecture</a><a href="../docs/phase-b.html" aria-current="page">Phase B plan</a><a href="../docs/phase-c.html">Phase C evaluation</a><a href="../docs/decisions/0001-local-first-python-sqlite.html">ADR 0001: Python + SQLite</a><h4>Results</h4><a href="../docs/results/prototype-a.html">Prototype A</a><a href="../docs/results/prototype-b-diagnostic.html">Prototype B diagnostic</a><a href="../docs/results/prototype-c-semantic-smoke.html">Prototype C smoke</a></aside>
+<main id="main" class="article glass">
+  <button class="menu-btn side-btn" type="button">☰ All docs</button>
+  <p class="crumbs"><a href="../docs/index.html">Docs</a> / Research notes</p>
+  <article class="prose"><h1 id="prototype-b-semantic-and-extraction-plan" data-split>Prototype B: semantic and extraction plan</h1>
+<p>Status: the provider-neutral diagnostic slice is implemented and verified. A pinned local dense
+provider and external-dataset runner now exist and pass an integration smoke. The official
+dataset, reader-model, ANN, and strong-comparator gates remain open; no result from this phase
+may be called a strong-RAG comparison yet.</p>
+<h2 id="purpose">Purpose<a class="hl" href="#purpose" aria-label="Link to this section">#</a></h2>
+<p>Prototype A showed that explicit temporal structure can improve a small fixed-chunk lexical
+comparison. Prototype B must determine whether that advantage survives when both systems get
+the same query/document embedder, metadata, query compute, reranking allowance, and context
+budget. It must also account for the cost and errors of producing structured claims from raw
+evidence.</p>
+<p>The phase separates three questions:</p>
+<ol>
+<li>Does EviCortex's representation improve retrieval when the semantic provider is held fixed?</li>
+<li>Does automatic claim extraction improve enough queries to repay its latency, token, and
+   error costs?</li>
+<li>Does the complete system beat a tuned hybrid chunk pipeline on external data and a shared
+   reader model?</li>
+</ol>
+<h2 id="provider-boundary">Provider boundary<a class="hl" href="#provider-boundary" aria-label="Link to this section">#</a></h2>
+<p>Optional components implement narrow, versioned contracts:</p>
+<ul>
+<li><code>Embedder</code>: stable identity and dimensions plus order-preserving batch embeddings.</li>
+<li><code>ClaimExtractor</code>: evidence-bound claims, exact source spans, and abstention diagnostics.</li>
+<li><code>Reranker</code>: scores only known candidates and returns a validated subset.</li>
+</ul>
+<p>Provider outputs are untrusted until their cardinality, dimensions, finite values, IDs, and
+normalization promises are validated. Provider identity is part of every derived index so a
+model or preprocessing change cannot silently mix incompatible vectors.</p>
+<p>The bundled feature-hashing embedder and canonical-grammar extractor exist for deterministic
+tests and lifecycle benchmarks. Feature hashing is not a neural semantic model, and the
+canonical parser is not natural-language understanding.</p>
+<p>Implemented public boundaries include <code>Embedder</code>, <code>ClaimExtractor</code>, <code>Reranker</code>,
+<code>EvidenceContext</code>, validated float32 embedding batches, immutable embedding profiles, and
+defensive validation of provider identity, cardinality, dimensions, finite values, exact
+source spans, content digests, claim ordering, and diagnostics.</p>
+<h2 id="semantic-projection">Semantic projection<a class="hl" href="#semantic-projection" aria-label="Link to this section">#</a></h2>
+<p>Exact evidence and claims remain the source of truth. Embeddings are replaceable projections
+containing the provider profile, canonical input digest, item/evidence ID, namespace, and a
+portable vector encoding. Purge cascades through them; index regeneration never rewrites
+evidence.</p>
+<p>The first executable diagnostic uses exact cosine scoring after SQL applies namespace and time
+filters. A hard scan cap must produce an explicit diagnostic when exceeded; it must never
+silently present an incomplete scan as exact retrieval. This provides a deterministic oracle
+at 1k-10k items. It is intentionally not the 100k+ design.</p>
+<p>That exact scorer is now persisted in schema v5. Memory and claim projections retain provider
+profile and canonical-input hashes, survive reopen/rebuild, cascade on purge, report missing
+or stale rows, and can be repaired explicitly with <code>sync_semantic(namespace)</code>. Deterministic
+claim/FTS rebuilds do not invoke a provider or cross namespace boundaries.</p>
+<p>Before the 100k scale gate, EviCortex needs a provider-neutral approximate-neighbor candidate
+interface backed by an audited vector extension or service. That candidate layer must report
+its own recall against the exact scorer. A custom LSH implementation is deferred because its
+tuning and recall loss could otherwise be mistaken for a representation result.</p>
+<h2 id="raw-text-extraction">Raw-text extraction<a class="hl" href="#raw-text-extraction" aria-label="Link to this section">#</a></h2>
+<p>An extractor runs before the atomic evidence write. If it fails, no partial claims are stored.
+If it abstains, the exact evidence is still retained as a claimless observation. Every emitted
+claim must persist:</p>
+<ul>
+<li>extractor identity and configuration revision;</li>
+<li>evidence content digest;</li>
+<li>exact character span or an explicit whole-evidence marker;</li>
+<li>confidence and authority;</li>
+<li>the resulting claim ID; and</li>
+<li>diagnostics for rejected or unresolved spans.</li>
+</ul>
+<p>The deterministic benchmark parser accepts only the explicit canonical grammar already present
+in the synthetic source stream. A real extractor must be evaluated on held-out human-labelled
+text, including false-positive, contradiction, temporal-boundary, and supersession errors.</p>
+<p><code>EviCortex.remember_extracted</code> now owns this lifecycle. It invokes one configured or per-call
+extractor, validates the complete result before writing, then atomically stores evidence,
+claims, extractor identity, content digest, ordered span derivations, generated claim IDs, and
+diagnostics. <code>get_extraction</code> provides a namespace-scoped audit record. Semantic indexing is a
+post-commit projection; a provider failure reports that evidence was committed and an
+idempotent retry repairs it.</p>
+<h2 id="hybrid-comparator">Hybrid comparator<a class="hl" href="#hybrid-comparator" aria-label="Link to this section">#</a></h2>
+<p>The local diagnostic comparator will include:</p>
+<ul>
+<li>append-only source/session records and version metadata;</li>
+<li>sentence-aware child chunks at two granularities;</li>
+<li>FTS5 BM25 and the same embedder used by EviCortex;</li>
+<li>weighted reciprocal-rank fusion;</li>
+<li>duplicate removal, source diversity, and neighboring/parent expansion;</li>
+<li>namespace and <code>as_of</code> filtering before both ranking channels; and</li>
+<li>the same serialized-context estimated-token accounting and hard budget.</li>
+</ul>
+<p>With the bundled hashing provider this is labelled <strong>BM25 + hashing diagnostic</strong>, not strong
+hybrid RAG. The headline comparator requires a pinned dense encoder, query/document encoding
+rules, exact model revision, optional shared cross-encoder, and equivalent compute accounting.</p>
+<p>The diagnostic comparator is implemented with boundary-aware chunks at two granularities,
+namespace/time/version filtering before ranking, namespace-local BM25, exact cosine, reciprocal
+rank fusion, deduplication/MMR, neighbor expansion, and the same hard estimated-token context budget. Exact-scan
+overflow fails closed. Diagnostic hashing collisions cannot become evidence without informative
+literal query overlap; that safeguard is not applied to providers that declare real semantic
+capability.</p>
+<p>Explicit phrases such as “not an accessory” currently use literal token exclusion across all
+channels and providers. This is deterministic and prevents a negated distractor flood, but it
+can reject a source that mentions the same term while linguistically negating it. Structured
+constraint parsing and negation-aware reranking remain open work.</p>
+<h2 id="implemented-checkpoint">Implemented checkpoint<a class="hl" href="#implemented-checkpoint" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Provider-neutral embedding/extraction/reranking contracts</td>
+<td>Implemented and tested</td>
+</tr>
+<tr>
+<td>Durable extraction spans, identity, diagnostics, and generated claim-ID mapping</td>
+<td>Implemented in schema v5</td>
+</tr>
+<tr>
+<td>Persistent memory/claim embeddings and namespace-scoped repair</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>Bounded lexical + exact-semantic fusion with non-prompt diagnostics</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>Metadata-aware BM25 + hashing comparator</td>
+<td>Implemented, diagnostic only</td>
+</tr>
+<tr>
+<td>Multi-seed 100-event diagnostic smoke</td>
+<td>Run for seeds 7, 11, and 19</td>
+</tr>
+<tr>
+<td>1,000-event exact-vector scale point</td>
+<td>Run with a symmetric 4,096-row cap</td>
+</tr>
+<tr>
+<td>Pinned dense encoder adapter and real-model integration</td>
+<td>Implemented; cached BGE smoke passed</td>
+</tr>
+<tr>
+<td>Core bounded reranker seam</td>
+<td>Implemented; production cross-encoder adapter not yet added</td>
+</tr>
+<tr>
+<td>Shared reader and exact reader-tokenizer accounting</td>
+<td>Not started</td>
+</tr>
+<tr>
+<td>10k exact-vector and 100k ANN scale gates</td>
+<td>Not run</td>
+</tr>
+<tr>
+<td>Strict LongMemEval adapter/runner</td>
+<td>Implemented and tested on a synthetic schema fixture</td>
+</tr>
+<tr>
+<td>Official external benchmark split</td>
+<td>Not run; official artifact download is still required</td>
+</tr>
+</tbody>
+</table>
+<p>The retained diagnostic result is in
+<a href="results/prototype-b-diagnostic.html">Prototype B diagnostic benchmark result</a>.</p>
+<h2 id="evidence-gates">Evidence gates<a class="hl" href="#evidence-gates" aria-label="Link to this section">#</a></h2>
+<p>The broader Prototype B research phase is not complete until it reports:</p>
+<ul>
+<li>multi-seed synthetic curves at 512, 1k, 2k, 4k, and 8k context budgets;</li>
+<li>1k and 10k exact-vector scale points plus the 100k ANN crossover;</li>
+<li>extraction accuracy and cost separately from retrieval accuracy and cost;</li>
+<li>paired representation/retriever crossover ablations;</li>
+<li>exact tokenizer counts and a shared reader-model answer metric;</li>
+<li>tuned dense-hybrid, no-memory, full-history-when-it-fits, and oracle-evidence controls; and</li>
+<li>at least one external conversation-memory benchmark using its official split.</li>
+</ul>
+<p>Until those gates pass, allowed wording is limited to the named configuration and workload.
+“More efficient than RAG” remains an unverified research hypothesis.</p></article>
+  <p class="crumbs" style="margin-top:40px"><a href="https://github.com/Varun-SV/EviCortex/blob/main/docs/phase-b.md" target="_blank" rel="noopener">View this page’s source ↗</a></p>
+  <nav class="pager" aria-label="Previous and next"><a href="../docs/architecture.html"><small>Previous</small>Architecture</a><a class="nx" href="../docs/phase-c.html"><small>Next</small>Phase C evaluation</a></nav>
+</main>
+<nav class="toc" aria-label="On this page"><h4>On this page</h4><ul><li><a href="#purpose">Purpose</a></li><li><a href="#provider-boundary">Provider boundary</a></li><li><a href="#semantic-projection">Semantic projection</a></li><li><a href="#raw-text-extraction">Raw-text extraction</a></li><li><a href="#hybrid-comparator">Hybrid comparator</a></li><li><a href="#implemented-checkpoint">Implemented checkpoint</a></li><li><a href="#evidence-gates">Evidence gates</a></li></ul></nav>
+</div>
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../index.html"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+      <p>Evidence-preserving, temporal memory infrastructure for long-lived AI systems. Pre-alpha research software by Varun S V. MIT licence.</p>
+    </div>
+    <ul><li><a href="../docs/getting-started.html">Getting started</a></li><li><a href="../docs/concepts.html">Core concepts</a></li><li><a href="../docs/api-guide.html">API guide</a></li></ul>
+    <ul><li><a href="../docs/architecture.html">Architecture</a></li><li><a href="../docs/benchmarking.html">Benchmarking</a></li><li><a href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener">Source on GitHub</a></li></ul>
+    <div class="big" aria-hidden="true">EviCortex</div>
+  </div>
+</footer>
+<div class="search" role="dialog" aria-modal="true" aria-label="Search documentation">
+  <div class="box glass"><input type="search" placeholder="Search the docs…" aria-label="Search the docs"><ul></ul></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/ev-ui.js"></script>
+<script type="module" src="../assets/ev-scene.js"></script>
+</body>
+</html>
