@@ -207,6 +207,26 @@ const state = { mode: document.body.dataset.scene || 'hero', p: 0, mx: 0, my: 0,
 const desired = { pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 55 };
 const look = new THREE.Vector3(0, 0, -4);
 let dive = null; // {target, t0}
+// A mode change can move the camera's target a long way: leaving the pipeline
+// pulls it from the far end of the gate corridor back out to the overview
+// orbit, ~150 units. The per-frame exponential follow below covers most of any
+// gap in its first few frames, so a jump that long reads as a snap. Long jumps
+// glide instead: eased in and out, over a time that grows with the distance.
+// `glide` holds the pose the camera left from; the end is the live target, so
+// scrolling and the cursor still steer it while it travels.
+let glide = null; // {pos, look, fov, t0, dur} once measured; {pending: true} until the next frame
+const GLIDE_MIN_DIST = 24, GLIDE_MS_PER_UNIT = 20, GLIDE_MIN_MS = 1200, GLIDE_MAX_MS = 3200;
+// Sine in-out: its top speed is ~1.6x the average, where a cubic's is 3x.
+const easeInOut = k => (1 - Math.cos(Math.PI * k)) / 2;
+/** Aim at this frame's target; a pending glide is sized now, or dropped when the move is short. */
+function measureGlide(t) {
+  direct(t);
+  if (!glide.pending) return glide;
+  const dist = camera.position.distanceTo(desired.pos);
+  if (dist < GLIDE_MIN_DIST) return null;
+  const dur = Math.min(GLIDE_MAX_MS, Math.max(GLIDE_MIN_MS, dist * GLIDE_MS_PER_UNIT));
+  return { pos: camera.position.clone(), look: look.clone(), fov: camera.fov, t0: performance.now(), dur };
+}
 
 function direct(t) {
   const P = desired.pos, L = desired.look; let fov = 55;
@@ -249,6 +269,13 @@ function frame() {
     camera.position.lerpVectors(dive.from, dive.target, e * .97);
     camera.fov = 55 - 40 * e; bloom.strength = 1.05 + 2.2 * e;
     look.lerp(dive.target, .2); camera.lookAt(look);
+  } else if (glide && (glide = measureGlide(t))) {
+    const k = Math.min(1, (performance.now() - glide.t0) / glide.dur), e = easeInOut(k);
+    camera.position.lerpVectors(glide.pos, desired.pos, e);
+    look.lerpVectors(glide.look, desired.look, e); camera.lookAt(look);
+    camera.fov = glide.fov + (desired.fov - glide.fov) * e;
+    bloom.strength += ((calm ? .7 : 1.05) - bloom.strength) * (1 - Math.exp(-dt0 * 2.2));
+    if (k >= 1) glide = null;
   } else {
     direct(t);
     const k = 1 - Math.exp(-dt0 * 2.2);
@@ -283,7 +310,9 @@ function frame() {
 
   // pipeline gates
   const pipeOn = state.mode === 'pipeline' ? 1 : 0;
-  stMat.uniforms.uOn.value += (pipeOn - stMat.uniforms.uOn.value) * (1 - Math.exp(-dt0 * 3));
+  // The corridor appears quickly but fades slowly, so the rings stay in view
+  // while the camera glides back out past them.
+  stMat.uniforms.uOn.value += (pipeOn - stMat.uniforms.uOn.value) * (1 - Math.exp(-dt0 * (pipeOn ? 3 : 1.1)));
   gates.forEach((g, i) => {
     const target = pipeOn && state.p * 6.6 >= i - .3 ? 1 : 0;
     g.lit += (target - g.lit) * (1 - Math.exp(-dt0 * 4));
@@ -318,7 +347,7 @@ frame();
 /* ---------- public API for the UI layer ---------- */
 window.EV = Object.assign(window.EV || {}, {
   sceneReady: true,
-  setMode(mode, p = 0) { state.mode = mode; state.p = p; },
+  setMode(mode, p = 0) { if (mode !== state.mode && !dive) glide = { pending: true }; state.mode = mode; state.p = p; },
   setProgress(p) { state.p = p; },
   setStory(step, staleFade) { U.uStory.value = step; U.uStaleFade.value = staleFade; },
   pulse(n = 6) { for (let i = 0; i < n; i++) nodes[Math.floor(rnd() * N)].lit = 1; },
