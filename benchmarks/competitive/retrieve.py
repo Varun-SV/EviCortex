@@ -159,6 +159,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--mem0-llm", default="claude-cli:claude-haiku-5-5")
     parser.add_argument("--mem0-dir", default=None)
     parser.add_argument("--workers", type=int, default=8)
+    parser.add_argument("--tag", default=None, help="suffix for the output file names")
+    parser.add_argument(
+        "--question-ids", default=None,
+        help="sample.json from the read stage; only those questions are retrieved",
+    )
     parser.add_argument(
         "--shard", default="0/1",
         help="k/n: process conversations whose index is k modulo n (parallel runs)",
@@ -185,6 +190,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         item for index, item in enumerate(conversations) if index % shard_count == shard_index
     ]
     suffix = "" if shard_count == 1 else f".shard-{shard_index}-of-{shard_count}"
+    if arguments.tag:
+        suffix = f".{arguments.tag}{suffix}"
+    only_questions = (
+        set(json.loads(Path(arguments.question_ids).read_text(encoding="utf-8"))["question_ids"])
+        if arguments.question_ids
+        else None
+    )
 
     needs_embedder = any(
         name in ("dense_rag", "hybrid_rag", "evicortex", "evicortex_claims") for name in names
@@ -206,6 +218,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                     for system in systems:
                         system.ingest(conversation)
                     for question in conversation.questions:
+                        if only_questions is not None and question.question_id not in only_questions:
+                            continue
                         for system in systems:
                             done_exempt = False
                             for budget in budgets:
@@ -269,6 +283,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "budgets": budgets,
         "seed": arguments.seed,
         "shard": arguments.shard,
+        "question_subset": arguments.question_ids is not None,
         "conversations_processed": len(conversations),
         "rows": rows_written,
         "token_estimator": "evicortex.budget.estimate_tokens (UTF-8 bytes / 3, rounded up)",
