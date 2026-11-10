@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase D: answer-level comparison against other memory systems · EviCortex docs</title>
+<meta name="description" content="EviCortex documentation: Phase D: answer-level comparison against other memory systems">
+<meta name="theme-color" content="#04050d">
+<meta property="og:title" content="Phase D: answer-level comparison against other memory systems · EviCortex docs">
+<meta property="og:description" content="EviCortex documentation: Phase D: answer-level comparison against other memory systems">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2304050d'/><circle cx='11' cy='12' r='4.5' fill='%23f6b84a'/><circle cx='22' cy='21' r='3.6' fill='none' stroke='%23ea6f95' stroke-width='1.8'/><circle cx='23' cy='8.5' r='2.4' fill='%23a9b1ff'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/ev.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="docs-page" data-root="../" data-scene="docs">
+<a class="skip" href="#main">Skip to content</a>
+<canvas id="ev-canvas" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="focus" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+<header class="hdr">
+  <div class="bar">
+    <a class="brand" href="../index.html" aria-label="EviCortex home"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+    <ul class="nav" id="nav"><li><a href="../index.html#how">How it works</a></li><li><a href="../index.html#results">Results</a></li><li><a href="../index.html#roadmap">Roadmap</a></li><li><a href="../docs/index.html" aria-current="page">Docs</a></li></ul>
+    <button class="search-btn" type="button" aria-label="Search the docs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><kbd>⌘K</kbd></button>
+    <button class="menu-btn" type="button" aria-controls="mnav" aria-expanded="false">Menu</button>
+    <a class="gh" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    <span class="prog" aria-hidden="true"></span>
+  </div>
+</header>
+<nav class="mnav" id="mnav" aria-label="Menu">
+  <ul><li style="--i:0"><a href="../index.html"><small>01</small>Home</a></li><li style="--i:1"><a href="../index.html#how"><small>02</small>How it works</a></li><li style="--i:2"><a href="../index.html#results"><small>03</small>Results</a></li><li style="--i:3"><a href="../index.html#roadmap"><small>04</small>Roadmap</a></li><li style="--i:4"><a href="../docs/index.html"><small>05</small>Docs</a></li></ul>
+  <div class="mfoot"><a class="btn btn-p" href="../docs/getting-started.html"><span class="lbl">Get started</span></a><a class="btn btn-g" href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener"><span class="lbl">GitHub</span></a></div>
+</nav>
+<div class="docs-shell">
+<aside class="side glass" aria-label="Documentation"><h4>Start here</h4><a href="../docs/index.html">Overview</a><a href="../docs/getting-started.html">Getting started</a><a href="../docs/concepts.html">Core concepts</a><a href="../docs/api-guide.html">API guide</a><a href="../docs/faq.html">FAQ and limitations</a><h4>Benchmarking</h4><a href="../docs/benchmarking.html">Benchmarking</a><a href="../docs/benchmark-contract.html">Benchmark contract</a><h4>Research notes</h4><a href="../docs/architecture.html">Architecture</a><a href="../docs/phase-b.html">Phase B plan</a><a href="../docs/phase-c.html">Phase C evaluation</a><a href="../docs/phase-d.html" aria-current="page">Phase D protocol</a><a href="../docs/decisions/0001-local-first-python-sqlite.html">ADR 0001: Python + SQLite</a><h4>Results</h4><a href="../docs/results/prototype-a.html">Prototype A</a><a href="../docs/results/prototype-b-diagnostic.html">Prototype B diagnostic</a><a href="../docs/results/prototype-c-semantic-smoke.html">Prototype C smoke</a><a href="../docs/results/phase-d.html">Phase D: vs other systems</a></aside>
+<div class="side-scrim" aria-hidden="true"></div>
+<main id="main" class="article glass">
+  <button class="menu-btn side-btn" type="button">☰ All docs</button>
+  <p class="crumbs"><a href="../docs/index.html">Docs</a> / Research notes</p>
+  <article class="prose"><h1 id="phase-d-answer-level-comparison-against-other-memory-systems" data-split>Phase D: answer-level comparison against other memory systems</h1>
+<p>Status: implemented and run once. Results are in
+<a href="results/phase-d.html">the Phase D result page</a>. This page is the protocol.</p>
+<h2 id="purpose">Purpose<a class="hl" href="#purpose" aria-label="Link to this section">#</a></h2>
+<p>Earlier phases measured which source records each system packed into a context. They did not
+measure whether a model could answer from that context, and they compared EviCortex only with
+baselines written in this repository. Phase D closes both gaps on public data:</p>
+<ul>
+<li>every system's packed context is read by the same model with the same prompt;</li>
+<li>every answer is graded by the same judge, which never sees which system produced it;</li>
+<li>the comparison includes a real external memory system (Mem0) and the two controls that
+  bound the problem: no memory and the full conversation history.</li>
+</ul>
+<h2 id="what-is-held-constant">What is held constant<a class="hl" href="#what-is-held-constant" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Source turns</td>
+<td>Identical rendered turns, <code>[session date] speaker: text</code>, in the same order</td>
+</tr>
+<tr>
+<td>Evidence unit</td>
+<td>One conversation turn. Gold labels are never ingested</td>
+</tr>
+<tr>
+<td>Encoder</td>
+<td><code>unsloth/bge-small-en-v1.5</code> at commit <code>7382f112…</code>, CLS pooling, BGE query prefix, 256-token truncation. Mem0 uses the same weights through its own <code>BAAI/bge-small-en-v1.5</code> loader</td>
+</tr>
+<tr>
+<td>Evidence budget</td>
+<td>Hard cap on <code>estimate_tokens(context)</code> (UTF-8 bytes / 3), checked for every row</td>
+</tr>
+<tr>
+<td>Reader</td>
+<td>One model and one prompt for all systems</td>
+</tr>
+<tr>
+<td>Judge</td>
+<td>One model, blinded to system and budget, items from all systems shuffled together</td>
+</tr>
+<tr>
+<td>Hardware</td>
+<td>One 4-vCPU container, CPU only</td>
+</tr>
+</tbody>
+</table>
+<p>Each system packs its own native prompt format. EviCortex emits its JSON capsule, the chunk
+baselines emit their JSON evidence lists, and Mem0 emits a dated list of memories. Format
+overhead counts against the budget, because that is what a reader would actually receive.</p>
+<h2 id="systems">Systems<a class="hl" href="#systems" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>What it is</th>
+<th>LLM at ingestion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>evicortex</code></td>
+<td>EviCortex through <code>remember</code> and <code>recall</code> only. No claims are supplied, so the capsule holds exact-evidence episodes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>evicortex_claims</code></td>
+<td>The same store, plus temporal claims proposed by an LLM once per session and written with explicit supersession (<a href="https://github.com/Varun-SV/EviCortex/blob/main/benchmarks/competitive/claims.py"><code>claims.py</code></a>)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>mem0</code></td>
+<td>The open-source <code>mem0ai</code> package, unmodified, with embedded Qdrant. Its LLM calls go through the same provider-neutral client</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>hybrid_rag</code></td>
+<td>The repository's BM25 + dense comparator with rank fusion, MMR, and neighbor expansion</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>dense_rag</code></td>
+<td>Cosine top-k over fixed 600-character chunks</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>bm25_chunks</code></td>
+<td>SQLite FTS5 BM25 over fixed 600-character chunks</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>no_memory</code></td>
+<td>The reader sees only the question</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>full_history</code></td>
+<td>The reader sees every turn. Ignores the budget</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>oracle</code></td>
+<td>The reader sees only the gold evidence. Ignores the budget</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>Not run: Graphiti/Zep, HippoRAG 2, MemMachine, and hosted memory products. Graphiti and
+HippoRAG 2 need several LLM calls per turn plus a graph database or a large embedding model,
+which was outside this run's compute. Published scores for those systems use different
+readers, judges, and prompts and are <strong>not</strong> comparable with the numbers here, so none are
+quoted.</p>
+<h2 id="datasets">Datasets<a class="hl" href="#datasets" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>LoCoMo-10</strong> (<code>snap-research/locomo</code>, CC BY-NC 4.0): 10 two-person conversations,
+  5,882 turns, 1,986 questions with turn-level evidence labels. Category 5 ("adversarial")
+  questions are treated as unanswerable: the correct behaviour is to decline.</li>
+<li><strong>LongMemEval-S, cleaned release</strong> (MIT): 500 questions, each with its own haystack of
+  roughly 50 sessions. Each question is a separate namespace, and retrieval may only see
+  turns dated on or before the question date.</li>
+</ul>
+<p>Neither dataset is redistributed here. The loaders verify the SHA-256 of the local file
+against the pinned public artifact.</p>
+<h2 id="stages">Stages<a class="hl" href="#stages" aria-label="Link to this section">#</a></h2>
+<div class="codehilite codewrap"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">".[local-transformers,benchmark]"</span>
+
+<span class="c1"># 1. Ingest and pack contexts for every question, system, and budget (no LLM for most systems)</span>
+python<span class="w"> </span>-m<span class="w"> </span>benchmarks.competitive.retrieve<span class="w"> </span>--dataset<span class="w"> </span>locomo<span class="w"> </span>--data<span class="w"> </span>locomo10.json<span class="w"> </span>--out<span class="w"> </span>runs/locomo
+
+<span class="c1"># 2. Shared reader on a seeded stratified sample</span>
+python<span class="w"> </span>-m<span class="w"> </span>benchmarks.competitive.evaluate<span class="w"> </span><span class="nb">read</span><span class="w">  </span>--run<span class="w"> </span>runs/locomo<span class="w"> </span>--reader<span class="w"> </span>claude-cli:claude-haiku-5-5
+
+<span class="c1"># 3. Blinded judge, then an independent audit of the judge</span>
+python<span class="w"> </span>-m<span class="w"> </span>benchmarks.competitive.evaluate<span class="w"> </span>judge<span class="w"> </span>--run<span class="w"> </span>runs/locomo<span class="w"> </span>--judge<span class="w"> </span>claude-cli:claude-sonnet-5-5
+python<span class="w"> </span>-m<span class="w"> </span>benchmarks.competitive.evaluate<span class="w"> </span>audit<span class="w"> </span>--run<span class="w"> </span>runs/locomo<span class="w"> </span>--auditor<span class="w"> </span>claude-cli:claude-opus-5-5
+
+<span class="c1"># 4. Statistics, machine-readable summary, figures</span>
+python<span class="w"> </span>-m<span class="w"> </span>benchmarks.competitive.report<span class="w"> </span>--run<span class="w"> </span>runs/locomo<span class="w"> </span>--out<span class="w"> </span>docs/results/phase-d
+</code></pre></div>
+
+<p>Every LLM call is cached on disk by a digest of provider, prompts, and output limit, so an
+interrupted run resumes without repeating paid calls.</p>
+<h2 id="use-any-llm">Use any LLM<a class="hl" href="#use-any-llm" aria-label="Link to this section">#</a></h2>
+<p>The reader, judge, auditor, claim extractor, and Mem0's internal LLM are all selected by a
+<code>provider:model</code> string, implemented with the standard library only:</p>
+<table>
+<thead>
+<tr>
+<th>Spec</th>
+<th>Provider</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude-cli:&lt;model&gt;</code></td>
+<td>Claude Code CLI in headless mode; no API key needed when the CLI is signed in</td>
+</tr>
+<tr>
+<td><code>anthropic:&lt;model&gt;</code></td>
+<td>Anthropic Messages API (<code>ANTHROPIC_API_KEY</code>)</td>
+</tr>
+<tr>
+<td><code>openai:&lt;model&gt;</code></td>
+<td>OpenAI Chat Completions (<code>OPENAI_API_KEY</code>)</td>
+</tr>
+<tr>
+<td><code>openai-compatible:&lt;base_url&gt;#&lt;model&gt;</code></td>
+<td>Any Chat Completions server: Ollama, vLLM, LM Studio, llama.cpp, Groq, Together, OpenRouter, and others</td>
+</tr>
+</tbody>
+</table>
+<p>For example, <code>--reader openai-compatible:http://localhost:11434/v1#llama3.1</code> reruns the
+answer stage with a local model. Results depend on the reader, so a result is only
+comparable with another that used the same reader and judge.</p>
+<h2 id="metrics">Metrics<a class="hl" href="#metrics" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>Answer accuracy:</strong> share of answers the judge marks correct. An exact "I don't know." is
+  graded by rule: wrong when an answer exists, right when the question is unanswerable.</li>
+<li><strong>Answerable and unanswerable accuracy</strong> are reported separately, because a system that
+  retrieves nothing scores perfectly on unanswerable questions.</li>
+<li><strong>Evidence recall:</strong> share of gold turns (LoCoMo) or gold sessions (LongMemEval) present in
+  the packed context. Mem0's memories map back to the two-turn batch they were extracted
+  from, so its turn recall is an upper bound and is flagged as such.</li>
+<li><strong>Context tokens, reader input tokens, ingestion LLM calls/tokens/cost, ingestion wall
+  time, and retrieval latency.</strong> Latency is descriptive only: the machine was shared between
+  concurrent jobs.</li>
+</ul>
+<p>Uncertainty is a percentile bootstrap (2,000 resamples) over independent units: conversations
+for LoCoMo, questions for LongMemEval. Differences against EviCortex are paired on the same
+resampled units.</p>
+<h2 id="known-limits-of-this-protocol">Known limits of this protocol<a class="hl" href="#known-limits-of-this-protocol" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>LLM judge.</strong> The benchmark contract asks for a judge calibrated on human-reviewed
+  answers. This run substitutes agreement with a second, stronger model on a seeded sample.
+  That detects an inconsistent judge; it does not detect a bias both models share.</li>
+<li><strong>One reader.</strong> Accuracy and the ranking of systems can change with a different reader.</li>
+<li><strong>Sampled answers.</strong> Retrieval metrics cover every question; answers cover a stratified
+  sample, with fixed per-category quotas, so the pooled accuracy is not the accuracy of the
+  full question set.</li>
+<li><strong>LoCoMo has 10 conversations.</strong> Intervals resample those 10 and are wide.</li>
+<li><strong>Mem0 dates.</strong> Open-source Mem0's <code>add</code> takes no timestamp, so its extraction prompt
+  resolves "today" to the wall-clock date of the run. The session date is present in every
+  message it receives, but some relative dates still resolve wrongly. This is Mem0 as
+  shipped; it is a disadvantage for Mem0 on temporal questions.</li>
+<li><strong>Token budgets are estimates</strong> (UTF-8 bytes / 3), not reader-tokenizer counts. Reader
+  input tokens are reported separately from the provider's own usage data.</li>
+<li><strong>Comparator speed.</strong> The hybrid comparator's pure-Python cosine was replaced inside the
+  adapter by a NumPy equivalent, with a test that rankings are unchanged. Its latency here
+  is therefore not the latency of the comparator as written.</li>
+</ul></article>
+  <p class="crumbs" style="margin-top:40px"><a href="https://github.com/Varun-SV/EviCortex/blob/main/docs/phase-d.md" target="_blank" rel="noopener">View this page’s source ↗</a></p>
+  <nav class="pager" aria-label="Previous and next"><a href="../docs/phase-c.html"><small>Previous</small>Phase C evaluation</a><a class="nx" href="../docs/decisions/0001-local-first-python-sqlite.html"><small>Next</small>ADR 0001: Python + SQLite</a></nav>
+</main>
+<nav class="toc" aria-label="On this page"><h4>On this page</h4><ul><li><a href="#purpose">Purpose</a></li><li><a href="#what-is-held-constant">What is held constant</a></li><li><a href="#systems">Systems</a></li><li><a href="#datasets">Datasets</a></li><li><a href="#stages">Stages</a></li><li><a href="#use-any-llm">Use any LLM</a></li><li><a href="#metrics">Metrics</a></li><li><a href="#known-limits-of-this-protocol">Known limits of this protocol</a></li></ul></nav>
+</div>
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../index.html"><span class="mk" aria-hidden="true"><i></i><i></i><i></i></span>EviCortex</a>
+      <p>Evidence-preserving, temporal memory infrastructure for long-lived AI systems. Pre-alpha research software by Varun S V. MIT licence.</p>
+    </div>
+    <ul><li><a href="../docs/getting-started.html">Getting started</a></li><li><a href="../docs/concepts.html">Core concepts</a></li><li><a href="../docs/api-guide.html">API guide</a></li></ul>
+    <ul><li><a href="../docs/architecture.html">Architecture</a></li><li><a href="../docs/benchmarking.html">Benchmarking</a></li><li><a href="https://github.com/Varun-SV/EviCortex" target="_blank" rel="noopener">Source on GitHub</a></li></ul>
+    <div class="big" aria-hidden="true">EviCortex</div>
+  </div>
+</footer>
+<div class="search" role="dialog" aria-modal="true" aria-label="Search documentation">
+  <div class="box glass"><input type="search" placeholder="Search the docs…" aria-label="Search the docs"><ul></ul></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="../assets/search-index.js"></script>
+<script src="../assets/ev-ui.js"></script>
+<script type="module" src="../assets/ev-scene.js"></script>
+</body>
+</html>
