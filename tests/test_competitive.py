@@ -13,7 +13,7 @@ from evicortex import HashingEmbedder
 from evicortex.budget import estimate_tokens
 
 from benchmarks.competitive import evaluate, report
-from benchmarks.competitive.data import ABSTENTION_GOLD, load_locomo
+from benchmarks.competitive.data import ABSTENTION_GOLD, load_locomo, load_longmemeval_s
 from benchmarks.competitive.llm import CachedLLM, LLMResponse, make_client
 from benchmarks.competitive.retrieve import evidence_metrics
 from benchmarks.competitive.systems import (
@@ -114,6 +114,47 @@ class DataTests(unittest.TestCase):
         self.assertEqual(adversarial.gold_unit_ids, ())
         # Gold answers never appear in what a system can ingest.
         self.assertFalse(any("he loved it" in unit.rendered for unit in conversation.units))
+
+
+class LongMemEvalDataTests(unittest.TestCase):
+    def test_duplicate_session_ids_are_kept_as_distinct_sessions(self) -> None:
+        def case(question_id: str, question_type: str) -> dict:
+            return {
+                "question_id": question_id,
+                "question_type": question_type,
+                "question": "Which city did I move to?",
+                "answer": "Lisbon",
+                "question_date": "2023/05/03 (Wed) 10:00",
+                "haystack_session_ids": ["s1", "s2", "s1"],
+                "haystack_dates": [
+                    "2023/05/01 (Mon) 09:00", "2023/05/02 (Tue) 09:00", "2023/05/04 (Thu) 09:00",
+                ],
+                "haystack_sessions": [
+                    [{"role": "user", "content": "I like tea."},
+                     {"role": "assistant", "content": ""}],
+                    [{"role": "user", "content": "I moved to Lisbon.", "has_answer": True}],
+                    [{"role": "user", "content": "A later, different session."}],
+                ],
+                "answer_session_ids": [] if question_id.endswith("_abs") else ["s2"],
+            }
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "lme.json"
+            path.write_text(
+                json.dumps([case("q1", "knowledge-update"), case("q2_abs", "multi-session")]),
+                encoding="utf-8",
+            )
+            conversations, info = load_longmemeval_s(path, per_type=None, seed=1)
+        self.assertEqual(info["duplicate_session_ids_renamed_in_release"], 2)
+        self.assertFalse(info["pinned_artifact_verified"])
+        first, second = conversations
+        self.assertEqual([unit.session_id for unit in first.units], ["s1", "s2", "s1#dup2"])
+        self.assertEqual(first.questions[0].gold_unit_ids, ("s2:t0",))
+        self.assertEqual(first.questions[0].gold_session_ids, ("s2",))
+        # The session dated after the question must be invisible to retrieval.
+        self.assertGreater(first.units[-1].occurred_at, first.questions[0].question_date)
+        self.assertTrue(second.questions[0].is_abstention)
+        self.assertEqual(second.questions[0].answer, ABSTENTION_GOLD)
 
 
 class SystemTests(unittest.TestCase):

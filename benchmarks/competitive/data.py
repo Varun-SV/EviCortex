@@ -11,6 +11,7 @@ never be ingested by a memory system.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 import hashlib
 import json
@@ -19,7 +20,7 @@ import random
 import re
 from typing import Any
 
-from ..longmemeval import load_longmemeval, parse_longmemeval_timestamp
+from ..longmemeval import LONGMEMEVAL_ARTIFACT_SHA256, parse_longmemeval_timestamp
 from .types import Conversation, Question, Unit
 
 LOCOMO_SOURCE = "https://github.com/snap-research/locomo (data/locomo10.json)"
@@ -36,6 +37,24 @@ ABSTENTION_GOLD = "The conversation does not contain this information."
 
 _DIA_ID = re.compile(r"D\d+:\d+")
 _SESSION_KEY = re.compile(r"session_(\d+)")
+
+
+@dataclass(frozen=True, slots=True)
+class _Session:
+    session_id: str
+    date: str
+    turns: tuple[tuple[str, str, bool], ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _Case:
+    question_id: str
+    question_type: str
+    question: str
+    answer: str
+    question_date: str
+    sessions: tuple[_Session, ...]
+    answer_session_ids: tuple[str, ...]
 
 
 def file_sha256(path: str | Path) -> str:
@@ -161,11 +180,51 @@ def load_longmemeval_s(
     released question type (``None`` keeps all 500).
     """
 
-    dataset = load_longmemeval(path)
-    cases = list(dataset.cases)
+    source = Path(path)
+    sha256 = file_sha256(source)
+    raw_cases = json.loads(source.read_text(encoding="utf-8"))
+    renamed_sessions = 0
+    cases: list[_Case] = []
+    for item in raw_cases:
+        # The official release repeats a session ID inside 13 haystacks, each time
+        # for a different, non-answer session. They are kept as distinct sessions
+        # by suffixing later occurrences; answer sessions are never affected.
+        seen: dict[str, int] = {}
+        sessions: list[_Session] = []
+        for session_id, date, turns in zip(
+            item["haystack_session_ids"], item["haystack_dates"], item["haystack_sessions"],
+            strict=True,
+        ):
+            count = seen.get(session_id, 0) + 1
+            seen[session_id] = count
+            if count > 1:
+                renamed_sessions += 1
+                session_id = f"{session_id}#dup{count}"
+            sessions.append(
+                _Session(
+                    session_id=str(session_id),
+                    date=str(date),
+                    turns=tuple(
+                        (str(turn["role"]), str(turn["content"]), bool(turn.get("has_answer", False)))
+                        for turn in turns
+                    ),
+                )
+            )
+        cases.append(
+            _Case(
+                question_id=str(item["question_id"]),
+                question_type=str(item["question_type"]),
+                question=str(item["question"]),
+                answer=str(item["answer"]),
+                question_date=str(item["question_date"]),
+                sessions=tuple(sessions),
+                answer_session_ids=tuple(str(value) for value in item["answer_session_ids"]),
+            )
+        )
+    total_cases = len(cases)
     if per_type is not None:
         rng = random.Random(seed)
-        by_type: dict[str, list[Any]] = {}
+        by_type: dict[str, list[_Case]] = {}
         for case in cases:
             by_type.setdefault(case.question_type, []).append(case)
         selected = []
@@ -186,8 +245,8 @@ def load_longmemeval_s(
         )
         for session in ordered:
             started = parse_longmemeval_timestamp(session.date)
-            for index, turn in enumerate(session.turns):
-                if not turn.content.strip():
+            for index, (role, content, has_answer) in enumerate(session.turns):
+                if not content.strip():
                     continue
                 unit_id = f"{session.session_id}:t{index}"
                 units.append(
@@ -196,25 +255,26 @@ def load_longmemeval_s(
                         session_id=session.session_id,
                         occurred_at=_iso(started + timedelta(seconds=index)),
                         date_text=session.date,
-                        speaker=turn.role,
-                        text=turn.content,
+                        speaker=role,
+                        text=content,
                         turn_index=index,
                     )
                 )
-                if turn.has_answer:
+                if has_answer:
                     gold_units.append(unit_id)
         question_time = parse_longmemeval_timestamp(case.question_date)
+        is_abstention = case.question_id.endswith("_abs")
         question = Question(
             question_id=case.question_id,
             namespace=namespace,
             text=case.question,
-            answer=ABSTENTION_GOLD if case.is_abstention else str(case.answer),
+            answer=ABSTENTION_GOLD if is_abstention else str(case.answer),
             category=case.question_type,
             gold_unit_ids=tuple(gold_units),
             gold_session_ids=tuple(case.answer_session_ids),
             question_date=_iso(question_time + timedelta(hours=23, minutes=59)),
             question_date_text=case.question_date,
-            is_abstention=case.is_abstention,
+            is_abstention=is_abstention,
         )
         conversations.append(
             Conversation(namespace=namespace, units=tuple(units), questions=(question,))
@@ -223,9 +283,9 @@ def load_longmemeval_s(
         "name": "LongMemEval-S (cleaned)",
         "source": "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned",
         "license": "MIT",
-        "sha256": dataset.sha256,
-        "pinned_artifact_verified": True,  # load_longmemeval rejects unknown bytes below
-        "total_questions_in_release": len(dataset.cases),
+        "sha256": sha256,
+        "pinned_artifact_verified": sha256 in LONGMEMEVAL_ARTIFACT_SHA256.values(),
+        "total_questions_in_release": total_cases,
         "selected_questions": len(cases),
         "sampling": (
             "all questions"
@@ -234,8 +294,6 @@ def load_longmemeval_s(
         ),
         "units": sum(len(item.units) for item in conversations),
         "evidence_unit": "one conversation turn; gold session = answer_session_ids",
+        "duplicate_session_ids_renamed_in_release": renamed_sessions,
     }
-    from ..longmemeval import official_longmemeval_variant
-
-    info["pinned_artifact_verified"] = official_longmemeval_variant(dataset.sha256) is not None
     return conversations, info
