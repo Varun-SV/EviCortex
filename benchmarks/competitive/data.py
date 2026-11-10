@@ -272,7 +272,7 @@ def load_longmemeval_s(
             category=case.question_type,
             gold_unit_ids=tuple(gold_units),
             gold_session_ids=tuple(case.answer_session_ids),
-            question_date=_iso(question_time + timedelta(hours=23, minutes=59)),
+            question_date=_iso(question_time),
             question_date_text=case.question_date,
             is_abstention=is_abstention,
         )
