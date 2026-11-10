@@ -151,8 +151,10 @@ class LongMemEvalDataTests(unittest.TestCase):
         self.assertEqual([unit.session_id for unit in first.units], ["s1", "s2", "s1#dup2"])
         self.assertEqual(first.questions[0].gold_unit_ids, ("s2:t0",))
         self.assertEqual(first.questions[0].gold_session_ids, ("s2",))
-        # The session dated after the question must be invisible to retrieval.
-        self.assertGreater(first.units[-1].occurred_at, first.questions[0].question_date)
+        # The release dates some gold sessions after the question, so the loader
+        # sets no retrieval cutoff and passes the date to the reader only.
+        self.assertIsNone(first.questions[0].question_date)
+        self.assertEqual(first.questions[0].question_date_text, "2023/05/03 (Wed) 10:00")
         self.assertTrue(second.questions[0].is_abstention)
         self.assertEqual(second.questions[0].answer, ABSTENTION_GOLD)
 

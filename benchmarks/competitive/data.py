@@ -262,7 +262,7 @@ def load_longmemeval_s(
                 )
                 if has_answer:
                     gold_units.append(unit_id)
-        question_time = parse_longmemeval_timestamp(case.question_date)
+        parse_longmemeval_timestamp(case.question_date)  # validate the format only
         is_abstention = case.question_id.endswith("_abs")
         question = Question(
             question_id=case.question_id,
@@ -272,7 +272,10 @@ def load_longmemeval_s(
             category=case.question_type,
             gold_unit_ids=tuple(gold_units),
             gold_session_ids=tuple(case.answer_session_ids),
-            question_date=_iso(question_time),
+            # No retrieval cutoff: in the release, 44 of 500 questions have a gold
+            # answer session dated after the question date, and the official
+            # protocol searches the whole haystack. The reader still gets the date.
+            question_date=None,
             question_date_text=case.question_date,
             is_abstention=is_abstention,
         )
@@ -295,5 +298,8 @@ def load_longmemeval_s(
         "units": sum(len(item.units) for item in conversations),
         "evidence_unit": "one conversation turn; gold session = answer_session_ids",
         "duplicate_session_ids_renamed_in_release": renamed_sessions,
+        "retrieval_time_cutoff": (
+            "none; the release dates some gold sessions after the question date"
+        ),
     }
     return conversations, info
