@@ -7,8 +7,9 @@
 
 Evidence-preserving, temporal memory infrastructure for long-lived AI systems.
 
-> **Project status:** pre-alpha research software. The kernel is executable and tested,
-> but the central comparative hypothesis is not yet proven on the official benchmark.
+> **Project status:** pre-alpha research software. The kernel is executable and tested.
+> In the first answer-level comparison on public data, EviCortex matched but did not beat
+> dense RAG and Mem0; the central comparative hypothesis is not supported so far.
 
 EviCortex is exploring a narrower, testable claim than “memory that replaces RAG”:
 
@@ -108,6 +109,8 @@ with EviCortex.open("memory.db") as memory:
 - [Prototype B diagnostic benchmark result](docs/results/prototype-b-diagnostic.md)
 - [Phase C pinned semantic evaluation](docs/phase-c.md)
 - [Phase C semantic smoke result](docs/results/prototype-c-semantic-smoke.md)
+- [Phase D protocol: answer-level comparison against other systems](docs/phase-d.md)
+- [Phase D result](docs/results/phase-d.md)
 
 Contributions are welcome within the current research scope. Read
 [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request, report security issues as
@@ -133,6 +136,16 @@ LongMemEval-schema questions. Both systems retrieved all answerable gold session
 both failed the single retrieval-level abstention, and EviCortex packed 199.0 estimated tokens
 on average versus 211.7 for the hybrid comparator. This verifies wiring only: it is not the
 official LongMemEval dataset, is far too small for a quality claim, and has no reader model.
+
+Phase D compared EviCortex with Mem0, dense RAG, hybrid RAG, and BM25 at the answer level,
+using one reader and a blinded judge on LoCoMo-10 and a 60-question LongMemEval-S sample.
+EviCortex did not beat the baselines. On LoCoMo at a 4,000-token evidence budget it answered
+66.7% of 297 sampled questions, against 66.3% for Mem0, 65.7% for dense RAG, and 65.0% for
+hybrid RAG, all within the uncertainty; at 1,000 tokens it trailed Mem0 by 7 points. On the
+LongMemEval-S sample it trailed dense RAG by 13 to 22 points. Giving the reader the full
+conversation scored 73.1% on LoCoMo. EviCortex needed no LLM calls at ingestion, where Mem0
+needed 3,011. See the [Phase D result](docs/results/phase-d.md) for the numbers, the places
+EviCortex loses, and the claim boundaries.
 
 EviCortex is now the project and Python namespace. This engineering rename is not formal
 trademark clearance; that remains a separate requirement before a commercial release.

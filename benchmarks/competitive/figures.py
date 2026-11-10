@@ -52,34 +52,50 @@ def _budget_axis(axis: Any, budgets: list[int]) -> None:
     axis.set_xticklabels([f"{budget:,}" for budget in budgets])
     axis.minorticks_off()
     axis.set_xlabel("Evidence budget (estimated tokens)", color=SECONDARY, fontsize=9)
-    axis.set_xlim(budgets[0] * 0.85, budgets[-1] * 1.9)
+    axis.set_xlim(budgets[0] * 0.85, budgets[-1] * 1.15)
 
 
-def _lines(axis: Any, series: dict[str, dict[int, float]], *, percent: bool = True) -> None:
+def _lines(
+    axis: Any,
+    series: dict[str, dict[int, float]],
+    controls: dict[str, float] | None = None,
+) -> None:
+    """Draw one line per system and label every line and control at the right edge."""
+
     ends: list[tuple[float, str, str]] = []
     for system, (label, colour, marker) in SERIES.items():
         points = series.get(system)
         if not points:
             continue
         budgets = sorted(points)
-        values = [points[budget] * (100 if percent else 1) for budget in budgets]
+        values = [points[budget] * 100 for budget in budgets]
         axis.plot(budgets, values, color=colour, linewidth=2, marker=marker, markersize=7,
                   markeredgecolor=SURFACE, markeredgewidth=1.5, label=label, zorder=3)
-        ends.append((values[-1], f"{label}  {values[-1]:.0f}%", colour))
-    # Direct labels at the right end, nudged apart so they never overlap.
+        ends.append((values[-1], f"{label}  {values[-1]:.0f}%", INK))
+    for system, (label, dashes) in CONTROLS.items():
+        if controls and system in controls:
+            value = controls[system] * 100
+            axis.axhline(value, color=MUTED, linewidth=1.2, linestyle=dashes, zorder=2,
+                         label=f"{label} (control)")
+            ends.append((value, f"{label}  {value:.0f}%", SECONDARY))
+    # Labels sit in the right margin in value order, nudged apart so none overlap.
     ends.sort()
     low, high = axis.get_ylim()
-    gap = (high - low) * 0.045
+    gap = (high - low) * 0.05
     placed: list[float] = []
-    for value, text, colour in ends:
-        position = value if not placed else max(value, placed[-1] + gap)
-        placed.append(position)
-        axis.annotate(text, xy=(1.0, position), xycoords=("axes fraction", "data"),
-                      xytext=(-4, 0), textcoords="offset points", ha="right", va="center",
-                      fontsize=8.5, color=INK,
-                      bbox={"facecolor": SURFACE, "edgecolor": "none", "pad": 1.0})
-    axis.legend(loc="upper left", bbox_to_anchor=(0, -0.16), ncol=6, frameon=False,
-                fontsize=8.5, labelcolor=SECONDARY, handlelength=1.6, columnspacing=1.2)
+    for value, _, _ in ends:
+        placed.append(value if not placed else max(value, placed[-1] + gap))
+    # Centre the stack on the values it labels instead of letting it drift upward.
+    shift = sum(position - value for position, (value, _, _) in zip(placed, ends)) / len(ends)
+    for position, (value, text, colour) in zip(placed, ends):
+        position -= shift
+        axis.annotate(text, xy=(1.0, value), xycoords=("axes fraction", "data"),
+                      xytext=(1.07, position), textcoords=("axes fraction", "data"),
+                      ha="left", va="center", fontsize=8.5, color=colour,
+                      arrowprops={"arrowstyle": "-", "color": GRID, "linewidth": 0.8},
+                      annotation_clip=False)
+    axis.legend(loc="upper left", bbox_to_anchor=(0, -0.16), ncol=5, frameon=False,
+                fontsize=8.5, labelcolor=SECONDARY, handlelength=2.2, columnspacing=1.2)
 
 
 def write_figures(payload: dict[str, Any], out: Path) -> None:
@@ -89,7 +105,8 @@ def write_figures(payload: dict[str, Any], out: Path) -> None:
     import matplotlib.pyplot as plt
 
     plt.rcParams["font.family"] = "DejaVu Sans"
-    for name, run in payload["runs"].items():
+    for full_name, run in payload["runs"].items():
+        name = full_name.split(" (")[0]
         slug = "locomo" if "locomo" in name.lower() else "longmemeval"
         answers = run["answers"]["cells"]
         if answers:
@@ -106,30 +123,28 @@ def write_figures(payload: dict[str, Any], out: Path) -> None:
                    title=f"{name}: answer accuracy by evidence budget")
             axis.set_ylim(0, 100)
             _budget_axis(axis, budgets)
-            for system, (label, dashes) in CONTROLS.items():
-                if system in controls:
-                    value = controls[system] * 100
-                    axis.axhline(value, color=MUTED, linewidth=1.2, linestyle=dashes, zorder=2)
-                    axis.annotate(f"{label}  {value:.0f}%", xy=(0.0, value),
-                                  xycoords=("axes fraction", "data"), xytext=(4, 4),
-                                  textcoords="offset points", fontsize=8.5, color=SECONDARY)
-            _lines(axis, accuracy)
+            _lines(axis, accuracy, controls)
             figure.text(0.01, 0.01,
                         f"n = {run['answers']['questions']} questions; reader {run['answers']['reader']}; "
                         "grey lines are controls that ignore the budget.",
                         fontsize=7.5, color=MUTED)
-            figure.tight_layout(rect=(0, 0.03, 1, 1))
+            figure.tight_layout(rect=(0, 0.03, 0.8, 1))
             figure.savefig(out / f"{slug}-accuracy-by-budget.png", dpi=160, facecolor=SURFACE)
             plt.close(figure)
 
             top = max(budgets)
             categories = sorted({category for cell in answers for category in cell["accuracy_by_category"]})
-            figure, axis = plt.subplots(figsize=(8.6, 0.62 * len(categories) + 2.2), facecolor=SURFACE)
-            _style(axis, ylabel="", title=f"{name}: accuracy by question type at {top:,} tokens")
+            figure, axis = plt.subplots(figsize=(8.6, 0.95 * len(categories) + 2.0), facecolor=SURFACE)
+            _style(axis, ylabel="", title="")
+            figure.suptitle(f"{name}: accuracy by question type at {top:,} tokens",
+                            x=0.02, ha="left", fontsize=12, color=INK, fontweight="bold")
+            for row in range(len(categories) - 1):
+                axis.axhline(row + 0.5, color=GRID, linewidth=0.8, zorder=1)
             axis.grid(axis="y", visible=False)
             axis.grid(axis="x", color=GRID, linewidth=0.8)
+            shown = [system for system in SERIES
+                     if any(cell["system"] == system and cell["budget"] == top for cell in answers)]
             for row, category in enumerate(categories):
-                axis.plot([0, 100], [row, row], color=GRID, linewidth=0.8, zorder=1)
                 for cell in answers:
                     if cell["budget"] != top or cell["system"] not in SERIES:
                         continue
@@ -137,18 +152,24 @@ def write_figures(payload: dict[str, Any], out: Path) -> None:
                     if not entry or entry["mean"] is None:
                         continue
                     label, colour, marker = SERIES[cell["system"]]
-                    axis.scatter(entry["mean"] * 100, row, color=colour, marker=marker, s=70,
+                    # Each system has its own lane inside the row, so equal values
+                    # never hide one another.
+                    lane = shown.index(cell["system"]) - (len(shown) - 1) / 2
+                    axis.scatter(entry["mean"] * 100, row + lane * 0.13, color=colour,
+                                 marker=marker, s=55,
                                  edgecolors=SURFACE, linewidths=1.5, zorder=3,
                                  label=label if row == 0 else None)
             counts = run["answers"]["category_counts"]
             axis.set_yticks(range(len(categories)))
             axis.set_yticklabels([f"{category}  (n={counts.get(category, 0)})" for category in categories],
                                  color=INK)
-            axis.set_xlim(0, 100)
+            axis.set_xlim(-3, 103)
+            axis.set_ylim(-0.5, len(categories) - 0.5)
             axis.set_xlabel("Answers judged correct (%)", color=SECONDARY, fontsize=9)
             axis.invert_yaxis()
-            axis.legend(loc="upper left", bbox_to_anchor=(0, -0.22), ncol=6, frameon=False,
-                        fontsize=8.5, labelcolor=SECONDARY, columnspacing=1.2)
+            axis.legend(loc="upper left", bbox_to_anchor=(-0.2, -0.12), ncol=6, frameon=False,
+                        fontsize=8.5, labelcolor=SECONDARY, columnspacing=0.9,
+                        handletextpad=0.2)
             figure.tight_layout()
             figure.savefig(out / f"{slug}-accuracy-by-type.png", dpi=160, facecolor=SURFACE)
             plt.close(figure)
@@ -171,6 +192,6 @@ def write_figures(payload: dict[str, Any], out: Path) -> None:
                         f"n = {run['retrieval']['questions']} questions (answerable ones scored); "
                         "measured after hard-budget packing.",
                         fontsize=7.5, color=MUTED)
-            figure.tight_layout(rect=(0, 0.03, 1, 1))
+            figure.tight_layout(rect=(0, 0.03, 0.8, 1))
             figure.savefig(out / f"{slug}-evidence-recall.png", dpi=160, facecolor=SURFACE)
             plt.close(figure)

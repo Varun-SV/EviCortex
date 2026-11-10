@@ -43,14 +43,510 @@
   <button class="menu-btn side-btn" type="button">☰ All docs</button>
   <p class="crumbs"><a href="../../docs/index.html">Docs</a> / Results</p>
   <article class="prose"><h1 id="phase-d-result-comparison-against-other-memory-systems" data-split>Phase D result: comparison against other memory systems</h1>
-<p>Status: <strong>runs in progress; no results yet.</strong> The protocol is in
-<a href="../phase-d.html">Phase D</a>. This page will hold the retained numbers, their
-configuration, and their claim boundaries once the runs finish. Until then, no
-Phase D result exists and none should be quoted.</p></article>
+<p>Status: single run, 10 November 2026. Protocol and known limits are in
+<a href="../phase-d.html">Phase D</a>. Every number below comes from
+<a href="phase-d/summary.json">summary.json</a>; per-answer verdicts are in
+<a href="phase-d/judgments.jsonl">judgments.jsonl</a>.</p>
+<h2 id="what-this-run-shows">What this run shows<a class="hl" href="#what-this-run-shows" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>EviCortex did not beat the baselines.</strong> On LoCoMo at a 4,000-token evidence budget,
+  EviCortex, Mem0, dense RAG, and hybrid RAG all answer 65–67% of questions correctly, and
+  the differences are inside the uncertainty. At 1,000 tokens EviCortex is behind Mem0 and
+  dense RAG.</li>
+<li><strong>On the LongMemEval-S sample EviCortex is behind dense RAG</strong> by 22 points at 1,000 tokens
+  and 13 points at 4,000 tokens.</li>
+<li><strong>Adding LLM-extracted claims made EviCortex worse</strong> on LoCoMo, by 9 to 12 points.</li>
+<li><strong>Giving the reader the whole conversation beat every memory system</strong> on LoCoMo (73%), at
+  about nine times the evidence tokens of the 4,000-token budget.</li>
+<li>EviCortex matched Mem0's accuracy at 4,000 tokens with no LLM calls at ingestion; Mem0
+  needed 3,011.</li>
+</ul>
+<p>The project's central hypothesis — a better evidence-quality/context-cost trade-off than
+RAG — is therefore <strong>not supported</strong> by this run. The sections below give the numbers and
+the specific places EviCortex loses.</p>
+<h2 id="configuration">Configuration<a class="hl" href="#configuration" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>Datasets:</strong> LoCoMo-10 (SHA-256 <code>79fa87e9…</code>, verified) and the cleaned LongMemEval-S
+  release (SHA-256 <code>d6f21ea9…</code>, verified).</li>
+<li><strong>Encoder:</strong> <code>unsloth/bge-small-en-v1.5</code> at <code>7382f112…</code>, CLS pooling, BGE query prefix,
+  256-token truncation, CPU.</li>
+<li><strong>Reader:</strong> Claude Haiku 5.5. <strong>Judge:</strong> Claude Sonnet 5.5, blinded. <strong>Judge audit:</strong>
+  Claude Opus 5.5. All through the Claude Code CLI 2.1.322 in headless mode.</li>
+<li><strong>Mem0:</strong> <code>mem0ai</code> 2.2.1 with embedded Qdrant 1.20.0, Haiku 5.5 as its LLM, turns added
+  two at a time.</li>
+<li><strong>Runtime:</strong> Python 3.13.18, SQLite 3.53.1, Torch 2.15.0, Transformers 5.22.2, one 4-vCPU
+  container shared by concurrent jobs. Transformers 5 is above the <code>&lt;5</code> pin in
+  <code>pyproject.toml</code>; installing Mem0 upgraded it, and the encoder loaded and ran.</li>
+<li><strong>Budgets:</strong> evidence recall at 500, 1,000, 2,000, and 4,000 estimated tokens; answers at
+  1,000 and 4,000.</li>
+<li><strong>Answer sample:</strong> LoCoMo, 297 questions (seeded quota per conversation: 10 single-hop,
+  6 multi-hop, 6 temporal, up to 3 open-domain, 5 adversarial). LongMemEval-S, 60 questions
+  (seeded, 10 per question type; one of them is an abstention question).</li>
+</ul>
+<h2 id="locomo-answer-accuracy">LoCoMo: answer accuracy<a class="hl" href="#locomo-answer-accuracy" aria-label="Link to this section">#</a></h2>
+<p><img alt="LoCoMo answer accuracy by evidence budget" src="phase-d/locomo-accuracy-by-budget.png" /></p>
+<p>297 questions across 10 conversations. Intervals are 95% bootstrap intervals over
+conversations. "vs EviCortex" is the paired difference in percentage points at the same
+budget.</p>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th style="text-align: right;">1,000 tokens</th>
+<th style="text-align: right;">vs EviCortex</th>
+<th style="text-align: right;">4,000 tokens</th>
+<th style="text-align: right;">vs EviCortex</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EviCortex</td>
+<td style="text-align: right;">55.6% [51.3, 59.6]</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">66.7% [62.3, 71.4]</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>Mem0</td>
+<td style="text-align: right;">62.6% [60.0, 65.7]</td>
+<td style="text-align: right;">+7.1 [+2.7, +11.9]</td>
+<td style="text-align: right;">66.3% [64.6, 68.4]</td>
+<td style="text-align: right;">−0.3 [−4.7, +3.4]</td>
+</tr>
+<tr>
+<td>Dense RAG</td>
+<td style="text-align: right;">58.9% [55.6, 62.3]</td>
+<td style="text-align: right;">+3.4 [+0.4, +6.4]</td>
+<td style="text-align: right;">65.7% [61.3, 69.4]</td>
+<td style="text-align: right;">−1.0 [−3.7, +1.7]</td>
+</tr>
+<tr>
+<td>Hybrid RAG</td>
+<td style="text-align: right;">54.5% [50.3, 58.6]</td>
+<td style="text-align: right;">−1.0 [−5.1, +3.3]</td>
+<td style="text-align: right;">65.0% [62.0, 68.0]</td>
+<td style="text-align: right;">−1.7 [−8.4, +4.8]</td>
+</tr>
+<tr>
+<td>BM25 chunks</td>
+<td style="text-align: right;">51.5% [47.5, 55.0]</td>
+<td style="text-align: right;">−4.0 [−7.1, −0.7]</td>
+<td style="text-align: right;">55.6% [51.2, 59.7]</td>
+<td style="text-align: right;">−11.1 [−16.2, −6.1]</td>
+</tr>
+<tr>
+<td>EviCortex + claims</td>
+<td style="text-align: right;">46.1% [39.8, 52.0]</td>
+<td style="text-align: right;">−9.4 [−15.5, −5.0]</td>
+<td style="text-align: right;">55.2% [49.0, 61.0]</td>
+<td style="text-align: right;">−11.5 [−18.6, −5.3]</td>
+</tr>
+</tbody>
+</table>
+<p>Controls, which ignore the budget:</p>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th style="text-align: right;">Accuracy</th>
+<th style="text-align: right;">Mean evidence tokens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full history</td>
+<td style="text-align: right;">73.1% [69.7, 76.3]</td>
+<td style="text-align: right;">34,536</td>
+</tr>
+<tr>
+<td>Oracle evidence (gold turns only)</td>
+<td style="text-align: right;">71.4% [66.7, 75.7]</td>
+<td style="text-align: right;">127</td>
+</tr>
+<tr>
+<td>No memory</td>
+<td style="text-align: right;">16.8%</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>No memory scores 16.8% because it declines every question, which is correct for the 50
+unanswerable ones and wrong for the rest.</p>
+<h3 id="by-question-type-at-4000-tokens">By question type at 4,000 tokens<a class="hl" href="#by-question-type-at-4000-tokens" aria-label="Link to this section">#</a></h3>
+<p><img alt="LoCoMo accuracy by question type" src="phase-d/locomo-accuracy-by-type.png" /></p>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th style="text-align: right;">Single-hop (100)</th>
+<th style="text-align: right;">Multi-hop (60)</th>
+<th style="text-align: right;">Temporal (60)</th>
+<th style="text-align: right;">Open-domain (27)</th>
+<th style="text-align: right;">Unanswerable (50)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EviCortex</td>
+<td style="text-align: right;">76%</td>
+<td style="text-align: right;">47%</td>
+<td style="text-align: right;">80%</td>
+<td style="text-align: right;">37%</td>
+<td style="text-align: right;">72%</td>
+</tr>
+<tr>
+<td>Mem0</td>
+<td style="text-align: right;">83%</td>
+<td style="text-align: right;">48%</td>
+<td style="text-align: right;">80%</td>
+<td style="text-align: right;">26%</td>
+<td style="text-align: right;">60%</td>
+</tr>
+<tr>
+<td>Dense RAG</td>
+<td style="text-align: right;">74%</td>
+<td style="text-align: right;">55%</td>
+<td style="text-align: right;">80%</td>
+<td style="text-align: right;">37%</td>
+<td style="text-align: right;">60%</td>
+</tr>
+<tr>
+<td>Hybrid RAG</td>
+<td style="text-align: right;">75%</td>
+<td style="text-align: right;">48%</td>
+<td style="text-align: right;">75%</td>
+<td style="text-align: right;">37%</td>
+<td style="text-align: right;">68%</td>
+</tr>
+<tr>
+<td>BM25 chunks</td>
+<td style="text-align: right;">65%</td>
+<td style="text-align: right;">35%</td>
+<td style="text-align: right;">68%</td>
+<td style="text-align: right;">30%</td>
+<td style="text-align: right;">60%</td>
+</tr>
+<tr>
+<td>EviCortex + claims</td>
+<td style="text-align: right;">61%</td>
+<td style="text-align: right;">35%</td>
+<td style="text-align: right;">55%</td>
+<td style="text-align: right;">30%</td>
+<td style="text-align: right;">82%</td>
+</tr>
+<tr>
+<td>Full history</td>
+<td style="text-align: right;">85%</td>
+<td style="text-align: right;">62%</td>
+<td style="text-align: right;">92%</td>
+<td style="text-align: right;">41%</td>
+<td style="text-align: right;">58%</td>
+</tr>
+</tbody>
+</table>
+<p>Per-type cells have 27 to 100 questions each and are not individually significant.
+Two patterns are consistent across systems: multi-hop and open-domain questions are hard
+for every retrieval system, and systems that retrieve less decline more often, which
+raises their score on unanswerable questions.</p>
+<h2 id="locomo-evidence-recall">LoCoMo: evidence recall<a class="hl" href="#locomo-evidence-recall" aria-label="Link to this section">#</a></h2>
+<p><img alt="LoCoMo evidence recall by budget" src="phase-d/locomo-evidence-recall.png" /></p>
+<p>Share of gold turns present in the packed context, all 1,986 questions (the 1,535 with gold
+turns are scored):</p>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th style="text-align: right;">500</th>
+<th style="text-align: right;">1,000</th>
+<th style="text-align: right;">2,000</th>
+<th style="text-align: right;">4,000</th>
+<th style="text-align: right;">Turns packed at 4,000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dense RAG</td>
+<td style="text-align: right;">54.0%</td>
+<td style="text-align: right;">64.9%</td>
+<td style="text-align: right;">73.4%</td>
+<td style="text-align: right;">82.7%</td>
+<td style="text-align: right;">60.6</td>
+</tr>
+<tr>
+<td>Hybrid RAG</td>
+<td style="text-align: right;">55.3%</td>
+<td style="text-align: right;">64.0%</td>
+<td style="text-align: right;">71.6%</td>
+<td style="text-align: right;">81.4%</td>
+<td style="text-align: right;">47.0</td>
+</tr>
+<tr>
+<td>EviCortex</td>
+<td style="text-align: right;">52.2%</td>
+<td style="text-align: right;">62.1%</td>
+<td style="text-align: right;">71.0%</td>
+<td style="text-align: right;">78.4%</td>
+<td style="text-align: right;">35.1</td>
+</tr>
+<tr>
+<td>BM25 chunks</td>
+<td style="text-align: right;">51.2%</td>
+<td style="text-align: right;">59.5%</td>
+<td style="text-align: right;">65.5%</td>
+<td style="text-align: right;">70.5%</td>
+<td style="text-align: right;">50.6</td>
+</tr>
+<tr>
+<td>EviCortex + claims</td>
+<td style="text-align: right;">42.7%</td>
+<td style="text-align: right;">48.2%</td>
+<td style="text-align: right;">53.3%</td>
+<td style="text-align: right;">58.6%</td>
+<td style="text-align: right;">42.4</td>
+</tr>
+</tbody>
+</table>
+<p>Mem0 was retrieved only for the 297 sampled questions: 72.7% at 1,000 and 89.6% at 4,000.
+Each Mem0 memory maps back to the two-turn batch it was extracted from, so these two
+figures are upper bounds and are not comparable with the rows above.</p>
+<h2 id="longmemeval-s-sample">LongMemEval-S sample<a class="hl" href="#longmemeval-s-sample" aria-label="Link to this section">#</a></h2>
+<p><img alt="LongMemEval-S answer accuracy by evidence budget" src="phase-d/longmemeval-accuracy-by-budget.png" /></p>
+<p>60 questions, each with its own haystack of about 500 turns. Intervals resample questions
+and are wide.</p>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th style="text-align: right;">1,000 tokens</th>
+<th style="text-align: right;">vs EviCortex</th>
+<th style="text-align: right;">4,000 tokens</th>
+<th style="text-align: right;">vs EviCortex</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EviCortex</td>
+<td style="text-align: right;">45.0% [33.3, 56.7]</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">70.0% [58.3, 81.7]</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>Dense RAG</td>
+<td style="text-align: right;">66.7% [55.0, 78.3]</td>
+<td style="text-align: right;">+21.7 [+8.3, +35.0]</td>
+<td style="text-align: right;">83.3% [73.3, 91.7]</td>
+<td style="text-align: right;">+13.3 [+1.7, +25.0]</td>
+</tr>
+<tr>
+<td>BM25 chunks</td>
+<td style="text-align: right;">60.0% [48.3, 71.7]</td>
+<td style="text-align: right;">+15.0 [+3.3, +26.7]</td>
+<td style="text-align: right;">75.0% [63.3, 85.0]</td>
+<td style="text-align: right;">+5.0 [−5.0, +15.0]</td>
+</tr>
+<tr>
+<td>Oracle (gold sessions, 7,360 tokens)</td>
+<td style="text-align: right;">71.7% [60.0, 83.3]</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+<tr>
+<td>No memory</td>
+<td style="text-align: right;">1.7%</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+</tbody>
+</table>
+<p>Gold-session recall at 4,000 tokens is high for all three (EviCortex 99%, dense 98%, BM25
+94%), so EviCortex usually reaches the right session and still answers less often.</p>
+<p><img alt="LongMemEval-S accuracy by question type" src="phase-d/longmemeval-accuracy-by-type.png" /></p>
+<p>The largest gap is on questions about what the assistant said earlier
+(single-session-assistant): EviCortex answers 3 of 10 at both budgets, while dense RAG and
+BM25 answer 9 of 10. Assistant turns in this dataset are long. EviCortex embeds only the
+first 256 tokens of a turn and packs excerpts of long turns, whereas the chunk baselines
+index and return every 600-character window. That is the likely cause; it was not isolated
+by an ablation.</p>
+<p>Mem0, hybrid RAG, full history, and the claims configuration were not run on LongMemEval-S.
+A first attempt that included hybrid RAG took about seven minutes per question on this
+machine, so hybrid RAG was dropped;
+Mem0 and claim extraction would have needed LLM calls over roughly 30,000 long turns.</p>
+<h2 id="cost">Cost<a class="hl" href="#cost" aria-label="Link to this section">#</a></h2>
+<p>Ingestion, LoCoMo (5,882 turns):</p>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th style="text-align: right;">LLM calls</th>
+<th style="text-align: right;">LLM tokens in / out</th>
+<th style="text-align: right;">LLM cost</th>
+<th style="text-align: right;">Wall time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EviCortex</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">$0</td>
+<td style="text-align: right;">943 s</td>
+</tr>
+<tr>
+<td>Hybrid RAG</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">$0</td>
+<td style="text-align: right;">928 s</td>
+</tr>
+<tr>
+<td>Dense RAG</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">$0</td>
+<td style="text-align: right;">662 s</td>
+</tr>
+<tr>
+<td>BM25 chunks</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">$0</td>
+<td style="text-align: right;">163 s</td>
+</tr>
+<tr>
+<td>EviCortex + claims</td>
+<td style="text-align: right;">301</td>
+<td style="text-align: right;">1.35M / 0.67M</td>
+<td style="text-align: right;">$0.57</td>
+<td style="text-align: right;">1,279 s plus extraction</td>
+</tr>
+<tr>
+<td>Mem0</td>
+<td style="text-align: right;">3,011</td>
+<td style="text-align: right;">45.8M / 3.5M</td>
+<td style="text-align: right;">$3.91</td>
+<td style="text-align: right;">37,706 s summed over 10 parallel processes</td>
+</tr>
+</tbody>
+</table>
+<p>Wall times were measured while several jobs shared four CPUs, so they are indicative only.
+Mem0 stored 6,676 memories; one of its 3,011 batches failed to parse and stored nothing.</p>
+<p>Reader input per question on LoCoMo, from the provider's own token counts:</p>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th style="text-align: right;">Mean reader input tokens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Oracle evidence</td>
+<td style="text-align: right;">1,656</td>
+</tr>
+<tr>
+<td>Mem0, 1,000-token budget</td>
+<td style="text-align: right;">2,581</td>
+</tr>
+<tr>
+<td>EviCortex, 1,000-token budget</td>
+<td style="text-align: right;">2,838</td>
+</tr>
+<tr>
+<td>Mem0, 4,000-token budget</td>
+<td style="text-align: right;">5,813</td>
+</tr>
+<tr>
+<td>Dense RAG, 4,000-token budget</td>
+<td style="text-align: right;">6,327</td>
+</tr>
+<tr>
+<td>EviCortex, 4,000-token budget</td>
+<td style="text-align: right;">6,907</td>
+</tr>
+<tr>
+<td>Full history</td>
+<td style="text-align: right;">41,621</td>
+</tr>
+</tbody>
+</table>
+<p>About 1,500 of those tokens are the fixed prompt and CLI overhead. At the same estimated
+budget EviCortex's capsule costs the reader more real tokens than Mem0's plain text or the
+dense baseline's JSON, because of its per-item identifiers and timestamps.</p>
+<p>Evaluation cost for this run: reader $6.78, judge $3.95, audit $0.69.</p>
+<h2 id="judge-audit">Judge audit<a class="hl" href="#judge-audit" aria-label="Link to this section">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th style="text-align: right;">Answers re-graded by Opus 5.5</th>
+<th style="text-align: right;">Agreement with Sonnet 5.5</th>
+<th style="text-align: right;">Cohen's kappa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LoCoMo</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: right;">95.0%</td>
+<td style="text-align: right;">0.88</td>
+</tr>
+<tr>
+<td>LongMemEval-S</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">96.0%</td>
+<td style="text-align: right;">0.78</td>
+</tr>
+</tbody>
+</table>
+<p>Agreement was between 90% and 100% for every system, so the judge does not appear to favour
+one system. This is agreement between two models, not human calibration.</p>
+<h2 id="what-the-run-says-about-evicortex">What the run says about EviCortex<a class="hl" href="#what-the-run-says-about-evicortex" aria-label="Link to this section">#</a></h2>
+<ol>
+<li><strong>Capsule overhead costs evidence.</strong> At 4,000 tokens EviCortex packs 35 turns where
+   dense RAG packs 61. Each capsule item carries a 36-character evidence ID, a full
+   timestamp, and a source field. Recall and low-budget accuracy both trail dense RAG by
+   about that margin.</li>
+<li><strong>Long turns are handled poorly.</strong> See the LongMemEval-S assistant-turn result above.</li>
+<li><strong>Claims crowd out evidence.</strong> With claims present, the compiler filled the capsule
+   almost entirely with facts (45.2 facts and 0.1 episodes on average at 4,000 tokens). The reader then saw paraphrases without the original wording, and
+   declined 30% of answerable questions against 19% without claims. The extractor is a
+   minimal one written for this benchmark, so this result reflects both the extractor and
+   the compiler's fact-first packing.</li>
+<li><strong>Retrieval ranking is on par with hybrid RAG</strong>, not better. The answer-level difference
+   between EviCortex and hybrid RAG is within noise at both budgets.</li>
+<li><strong>The useful property that did show up is cost at ingestion:</strong> equal accuracy to Mem0 at
+   4,000 tokens with no LLM calls, no extraction errors, and exact source attribution.</li>
+</ol>
+<h2 id="dataset-findings">Dataset findings<a class="hl" href="#dataset-findings" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>13 of the 500 LongMemEval-S haystacks reuse a session ID for a different session. The
+  strict loader in <code>benchmarks/longmemeval.py</code> rejects the official file for this reason;
+  the Phase D loader keeps them as distinct sessions.</li>
+<li>44 of the 500 LongMemEval-S questions have a gold answer session dated after the question
+  date. A retrieval cutoff at the question date hides required evidence, so Phase D applies
+  none. The Phase C runner passes the question date as <code>as_of</code> and is affected.</li>
+</ul>
+<h2 id="claim-boundaries">Claim boundaries<a class="hl" href="#claim-boundaries" aria-label="Link to this section">#</a></h2>
+<ul>
+<li>One run, one reader, one judge, one encoder, CPU only. No hyperparameters were tuned for
+  any system, and none were tuned on a development split.</li>
+<li>LoCoMo answers are a 297-question stratified sample with fixed quotas, so pooled accuracy
+  is not the accuracy over all 1,986 questions.</li>
+<li>The LongMemEval-S result is a 60-question sample, 12% of the release.</li>
+<li>No comparison is made with Graphiti/Zep, HippoRAG 2, MemMachine, or any hosted product,
+  and no published score is quoted.</li>
+<li>The judge is a model. Agreement with a second model is reported; human calibration is not.</li>
+<li>Allowed statement: "On LoCoMo-10 with Haiku 5.5 as reader and a 4,000-token evidence
+  budget, EviCortex, Mem0, dense RAG, and hybrid RAG were not distinguishable; full history
+  was 6 points better." Not supported: any statement that EviCortex outperforms RAG or Mem0.</li>
+</ul></article>
   <p class="crumbs" style="margin-top:40px"><a href="https://github.com/Varun-SV/EviCortex/blob/main/docs/results/phase-d.md" target="_blank" rel="noopener">View this page’s source ↗</a></p>
   <nav class="pager" aria-label="Previous and next"><a href="../../docs/results/prototype-c-semantic-smoke.html"><small>Previous</small>Prototype C smoke</a></nav>
 </main>
-<div></div>
+<nav class="toc" aria-label="On this page"><h4>On this page</h4><ul><li><a href="#what-this-run-shows">What this run shows</a></li><li><a href="#configuration">Configuration</a></li><li><a href="#locomo-answer-accuracy">LoCoMo: answer accuracy</a><ul><li><a href="#by-question-type-at-4000-tokens">By question type at 4,000 tokens</a></li></ul></li><li><a href="#locomo-evidence-recall">LoCoMo: evidence recall</a></li><li><a href="#longmemeval-s-sample">LongMemEval-S sample</a></li><li><a href="#cost">Cost</a></li><li><a href="#judge-audit">Judge audit</a></li><li><a href="#what-the-run-says-about-evicortex">What the run says about EviCortex</a></li><li><a href="#dataset-findings">Dataset findings</a></li><li><a href="#claim-boundaries">Claim boundaries</a></li></ul></nav>
 </div>
 <footer class="foot">
   <div class="wrap">
