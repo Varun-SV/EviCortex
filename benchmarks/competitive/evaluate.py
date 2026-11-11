@@ -262,11 +262,15 @@ def stage_judge(arguments: argparse.Namespace) -> int:
     answers = _read_jsonl(run / "answers.jsonl")
     judge = CachedLLM(make_client(arguments.judge), run / "judge_cache.jsonl")
     rule_based: dict[str, str] = {}
+    empty: set[str] = set()
     pending: list[dict[str, Any]] = []
     for item in answers:
         # An exact "I don't know." is graded by rule: wrong when an answer exists,
         # right when the question is unanswerable. Everything else goes to the judge.
-        if _DONT_KNOW.match(item["answer"]) or not item["answer"]:
+        if not item["answer"].strip():
+            # An empty completion is a failed read, never a refusal: always wrong.
+            empty.add(item["key"])
+        elif _DONT_KNOW.match(item["answer"]):
             rule_based[item["key"]] = "correct" if item["is_abstention"] else "incorrect"
         else:
             pending.append(item)
@@ -277,15 +281,17 @@ def stage_judge(arguments: argparse.Namespace) -> int:
         for item in answers:
             key = item["key"]
             abstained = key in rule_based
-            row = {
-                **item,
-                "abstained": abstained,
-                "verdict": rule_based[key] if abstained else verdicts[key],
-                "graded_by": "rule:exact-dont-know" if abstained else judge.identity,
-            }
+            if key in empty:
+                verdict, graded_by = "incorrect", "rule:empty-answer"
+            elif abstained:
+                verdict, graded_by = rule_based[key], "rule:exact-dont-know"
+            else:
+                verdict, graded_by = verdicts[key], judge.identity
+            row = {**item, "abstained": abstained, "verdict": verdict, "graded_by": graded_by}
             handle.write(json.dumps(row, ensure_ascii=False) + "\n")
     print(
-        f"graded {len(answers)} answers ({len(rule_based)} by rule, {len(pending)} by judge); "
+        f"graded {len(answers)} answers ({len(rule_based) + len(empty)} by rule, "
+        f"{len(pending)} by judge); "
         f"judge usage {judge.usage()}"
     )
     return 0
@@ -307,7 +313,11 @@ def stage_audit(arguments: argparse.Namespace) -> int:
     """Re-grade a seeded sample with an independent, stronger model."""
 
     run = Path(arguments.run)
-    judged = [row for row in _read_jsonl(run / "judgments.jsonl") if not row["abstained"]]
+    judged = [
+        row
+        for row in _read_jsonl(run / "judgments.jsonl")
+        if not row["graded_by"].startswith("rule:")
+    ]
     rng = random.Random(arguments.seed)
     by_system: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in judged:

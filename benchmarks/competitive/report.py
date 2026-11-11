@@ -244,7 +244,10 @@ def summarize_run(run: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:
                 for category in sorted({row["category"] for row in judgments})
             },
             "reader": judgments[0]["reader"] if judgments else None,
-            "judge": next((row["graded_by"] for row in judgments if not row["abstained"]), None),
+            "judge": next(
+                (row["graded_by"] for row in judgments if not row["graded_by"].startswith("rule:")),
+                None,
+            ),
             "cells": answer_summary,
         },
         "judge_audit": json.loads(audit_path.read_text(encoding="utf-8")) if audit_path.exists() else None,

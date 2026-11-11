@@ -401,6 +401,9 @@ class EvaluateTests(unittest.TestCase):
                 {"key": "q2|mem0|1000", "system": "mem0", "budget": 1000,
                  "question": "Q2?", "gold_answer": ABSTENTION_GOLD, "answer": "I don't know",
                  "is_abstention": True},
+                {"key": "q4|dense_rag|1000", "system": "dense_rag", "budget": 1000,
+                 "question": "Q4?", "gold_answer": ABSTENTION_GOLD, "answer": "  ",
+                 "is_abstention": True},
                 {"key": "q3|hybrid_rag|1000", "system": "hybrid_rag", "budget": 1000,
                  "question": "Q3?", "gold_answer": "G3", "answer": "G3 indeed",
                  "is_abstention": False},
@@ -421,6 +424,10 @@ class EvaluateTests(unittest.TestCase):
         self.assertEqual(graded["q2|mem0|1000"]["verdict"], "correct")
         self.assertEqual(graded["q3|hybrid_rag|1000"]["verdict"], "correct")
         self.assertTrue(graded["q1|evicortex|1000"]["abstained"])
+        # An empty completion is a failed read, not a refusal, even when unanswerable.
+        self.assertEqual(graded["q4|dense_rag|1000"]["verdict"], "incorrect")
+        self.assertEqual(graded["q4|dense_rag|1000"]["graded_by"], "rule:empty-answer")
+        self.assertFalse(graded["q4|dense_rag|1000"]["abstained"])
         self.assertEqual(len(seen), 1)
         for name in ("evicortex", "mem0", "hybrid_rag", "1000"):
             self.assertNotIn(name, seen[0])
