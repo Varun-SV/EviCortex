@@ -200,7 +200,9 @@ class LLMClaimSource:
         return result
 
     def cost(self) -> dict[str, Any]:
-        usage = self._llm.usage()
+        # Only the requests this run made: a shared, prefilled cache must not be
+        # charged in full to every shard.
+        usage = self._llm.usage(used_only=True)
         return {
             "llm": self._llm.identity,
             "llm_calls": usage["calls"],

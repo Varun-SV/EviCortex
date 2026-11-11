@@ -155,7 +155,7 @@ Ingestion, LoCoMo (5,882 turns):
 | Hybrid RAG | 0 | 0 | $0 | 928 s |
 | Dense RAG | 0 | 0 | $0 | 662 s |
 | BM25 chunks | 0 | 0 | $0 | 163 s |
-| EviCortex + claims | 301 | 1.35M / 0.67M | $0.57 | 1,279 s plus extraction |
+| EviCortex + claims | 272 | 1.21M / 0.61M | $0.52 | 1,279 s plus extraction |
 | Mem0 | 3,011 | 45.8M / 3.5M | $3.91 | 37,706 s summed over 10 parallel processes |
 
 Wall times were measured while several jobs shared four CPUs, so they are indicative only.

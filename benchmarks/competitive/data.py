@@ -287,7 +287,10 @@ def load_longmemeval_s(
         "source": "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned",
         "license": "MIT",
         "sha256": sha256,
-        "pinned_artifact_verified": sha256 in LONGMEMEVAL_ARTIFACT_SHA256.values(),
+        # Only the S release counts: the M and oracle files are different tasks.
+        "pinned_artifact_verified": (
+            sha256 == LONGMEMEVAL_ARTIFACT_SHA256["longmemeval_s_cleaned.json"]
+        ),
         "total_questions_in_release": total_cases,
         "selected_questions": len(cases),
         "sampling": (

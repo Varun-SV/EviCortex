@@ -293,6 +293,8 @@ class CachedLLM:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
         self._cache: dict[str, dict] = {}
+        self._in_flight: dict[str, threading.Event] = {}
+        self._used: set[str] = set()
         if self.path.exists():
             with self.path.open(encoding="utf-8") as handle:
                 for line in handle:
@@ -313,21 +315,46 @@ class CachedLLM:
 
     def complete(self, *, system: str, prompt: str, max_tokens: int = 512) -> LLMResponse:
         key = self._key(system, prompt, max_tokens)
-        with self._lock:
-            hit = self._cache.get(key)
-        if hit is not None:
-            return LLMResponse(**{**hit, "cached": True})
-        response = self.client.complete(system=system, prompt=prompt, max_tokens=max_tokens)
-        row = asdict(response)
-        with self._lock:
-            self._cache[key] = row
-            with self.path.open("a", encoding="utf-8") as handle:
-                handle.write(json.dumps({"key": key, "response": row}, ensure_ascii=False) + "\n")
-        return response
+        while True:
+            with self._lock:
+                self._used.add(key)
+                hit = self._cache.get(key)
+                if hit is not None:
+                    return LLMResponse(**{**hit, "cached": True})
+                pending = self._in_flight.get(key)
+                if pending is None:
+                    # This caller owns the provider call; identical concurrent
+                    # requests wait for it instead of paying for a second answer.
+                    self._in_flight[key] = threading.Event()
+                    break
+            pending.wait()
+        try:
+            response = self.client.complete(system=system, prompt=prompt, max_tokens=max_tokens)
+            row = asdict(response)
+            with self._lock:
+                self._cache[key] = row
+                with self.path.open("a", encoding="utf-8") as handle:
+                    handle.write(
+                        json.dumps({"key": key, "response": row}, ensure_ascii=False) + "\n"
+                    )
+            return response
+        finally:
+            # On failure nothing is cached, so a waiter retries the call itself.
+            with self._lock:
+                self._in_flight.pop(key).set()
 
-    def usage(self) -> dict[str, float | int]:
+    def usage(self, *, used_only: bool = False) -> dict[str, float | int]:
+        """Totals over the whole cache, or over the requests this instance served.
+
+        ``used_only`` is the logical cost of the current run: it counts each
+        distinct request once whether or not it was answered from the cache, and
+        ignores entries left by other shards or earlier configurations.
+        """
+
         with self._lock:
-            rows = list(self._cache.values())
+            rows = [
+                row for key, row in self._cache.items() if not used_only or key in self._used
+            ]
         return {
             "calls": len(rows),
             "input_tokens": sum(int(row["input_tokens"]) for row in rows),

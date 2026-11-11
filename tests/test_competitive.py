@@ -301,6 +301,53 @@ class LLMTests(unittest.TestCase):
             self.assertTrue(reopened.complete(system="s", prompt="p").cached)
             self.assertEqual(reopened.usage()["calls"], 1)
 
+    def test_identical_concurrent_requests_share_one_provider_call(self) -> None:
+        import threading
+        from concurrent.futures import ThreadPoolExecutor
+
+        release = threading.Event()
+
+        class Slow(_FakeClient):
+            def complete(self, *, system: str, prompt: str, max_tokens: int = 512) -> LLMResponse:
+                self.calls += 1
+                release.wait(timeout=5)
+                return LLMResponse(f"answer {self.calls}", "model", 1, 1, 0.0, 1.0)
+
+        with tempfile.TemporaryDirectory() as directory:
+            client = Slow()
+            cached = CachedLLM(client, Path(directory) / "cache.jsonl")
+            with ThreadPoolExecutor(max_workers=4) as pool:
+                futures = [pool.submit(cached.complete, system="s", prompt="p") for _ in range(4)]
+                release.set()
+                answers = {future.result().text for future in futures}
+        self.assertEqual(client.calls, 1)
+        self.assertEqual(answers, {"answer 1"})
+
+    def test_a_failed_call_is_not_cached_and_can_be_retried(self) -> None:
+        class Flaky(_FakeClient):
+            def complete(self, *, system: str, prompt: str, max_tokens: int = 512) -> LLMResponse:
+                self.calls += 1
+                if self.calls == 1:
+                    raise RuntimeError("provider down")
+                return LLMResponse("ok", "model", 1, 1, 0.0, 1.0)
+
+        with tempfile.TemporaryDirectory() as directory:
+            cached = CachedLLM(Flaky(), Path(directory) / "cache.jsonl")
+            with self.assertRaises(RuntimeError):
+                cached.complete(system="s", prompt="p")
+            self.assertEqual(cached.complete(system="s", prompt="p").text, "ok")
+
+    def test_usage_can_be_limited_to_requests_this_instance_made(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "cache.jsonl"
+            first = CachedLLM(_FakeClient(), path)
+            first.complete(system="s", prompt="one")
+            first.complete(system="s", prompt="two")
+            shard = CachedLLM(_FakeClient(), path)
+            shard.complete(system="s", prompt="one")
+            self.assertEqual(shard.usage()["calls"], 2)
+            self.assertEqual(shard.usage(used_only=True)["calls"], 1)
+
     def test_provider_specs(self) -> None:
         self.assertEqual(make_client("claude-cli:m").identity, "claude-cli:m")
         self.assertEqual(make_client("anthropic:m").identity, "anthropic:m")

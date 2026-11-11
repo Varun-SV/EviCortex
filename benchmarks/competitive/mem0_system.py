@@ -201,6 +201,16 @@ def _install_llm_provider(llm: CachedLLM, meter: _LLMMeter, max_tokens: int, key
     return provider
 
 
+def _batch_digest(batch: Sequence[Unit]) -> str:
+    import hashlib
+
+    digest = hashlib.sha256()
+    for unit in batch:
+        digest.update(unit.rendered.encode("utf-8"))
+        digest.update(b"\x00")
+    return digest.hexdigest()
+
+
 def _split_batches(units: Sequence[Unit], batch_turns: int) -> list[list[Unit]]:
     """Group consecutive units of the same session into batches of ``batch_turns``."""
 
@@ -247,6 +257,17 @@ class Mem0System:
         self._llm = CachedLLM(make_client(llm_spec), self.work_dir / "llm_cache.jsonl")
         self._progress_path = self.work_dir / "progress.json"
         self._progress = self._load_progress()
+        # A store is only reusable with the configuration that built it; otherwise
+        # old memories would be reported under the new settings.
+        fingerprint = {
+            "llm_spec": llm_spec, "embed_model": embed_model, "batch_turns": batch_turns,
+        }
+        if self._progress["batches"] and self._progress.get("config") != fingerprint:
+            raise RuntimeError(
+                f"{self._progress_path} was built with {self._progress.get('config')}, "
+                f"not {fingerprint}; use a fresh work_dir"
+            )
+        self._progress["config"] = fingerprint
         self._ingest_wall = 0.0
         self._closed = False
 
@@ -295,12 +316,13 @@ class Mem0System:
         for index, batch in enumerate(_split_batches(conversation.units, self.batch_turns)):
             key = f"{namespace}|{index}"
             unit_ids = [unit.unit_id for unit in batch]
+            content_sha256 = _batch_digest(batch)
             done = self._progress["batches"].get(key)
             if done is not None:
-                if done["unit_ids"] != unit_ids:
+                if done["unit_ids"] != unit_ids or done.get("content_sha256") != content_sha256:
                     raise RuntimeError(
-                        f"progress file disagrees with conversation at {key}: "
-                        f"{done['unit_ids']} != {unit_ids}; use a fresh work_dir"
+                        f"progress file disagrees with conversation at {key} (turn ids or "
+                        "turn text changed); use a fresh work_dir"
                     )
                 continue
             messages = [{"role": "user", "content": unit.rendered} for unit in batch]
@@ -321,6 +343,7 @@ class Mem0System:
             events = (result or {}).get("results", []) if isinstance(result, dict) else []
             self._progress["batches"][key] = {
                 "unit_ids": unit_ids,
+                "content_sha256": content_sha256,
                 "wall_seconds": round(wall, 3),
                 "memories_added": sum(1 for e in events if e.get("event") == "ADD"),
                 "llm_calls": int(after["calls"] - before["calls"]),
@@ -379,7 +402,8 @@ class Mem0System:
             unit_ids=tuple(unit_ids),
             # Memories carry the ids of the add() batch (<= batch_turns turns) they were
             # extracted from, a superset of the true source turn(s), not a per-turn link.
-            attributable=bool(unit_ids),
+            # An empty context covers no evidence, which is a known zero, not unknown.
+            attributable=bool(unit_ids) or not context,
             extra={
                 "memories": len(kept),
                 "candidates": len(results),
