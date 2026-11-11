@@ -333,6 +333,11 @@ def stage_audit(arguments: argparse.Namespace) -> int:
         auditor, sample, seed=arguments.seed + 1, batch_size=arguments.batch_size, workers=arguments.workers
     )
     pairs = [(row["verdict"], verdicts[row["key"]]) for row in sample]
+
+    def rate(count: int) -> float | None:
+        # Undefined, not an error, when every answer was graded by rule.
+        return count / len(pairs) if pairs else None
+
     disagreements = [
         {
             "key": row["key"],
@@ -359,10 +364,10 @@ def stage_audit(arguments: argparse.Namespace) -> int:
         "auditor": auditor.identity,
         "sampled_items": len(sample),
         "sampling": f"seeded, up to {per_system} judge-graded answers per system",
-        "agreement": sum(left == right for left, right in pairs) / len(pairs),
+        "agreement": rate(sum(left == right for left, right in pairs)),
         "cohen_kappa": cohen_kappa(pairs),
-        "judge_correct_rate": sum(left == "correct" for left, _ in pairs) / len(pairs),
-        "auditor_correct_rate": sum(right == "correct" for _, right in pairs) / len(pairs),
+        "judge_correct_rate": rate(sum(left == "correct" for left, _ in pairs)),
+        "auditor_correct_rate": rate(sum(right == "correct" for _, right in pairs)),
         "by_system": by_system_agreement,
         "disagreements": disagreements,
         "auditor_usage": auditor.usage(),

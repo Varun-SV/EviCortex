@@ -348,6 +348,17 @@ class LLMTests(unittest.TestCase):
             self.assertEqual(shard.usage()["calls"], 2)
             self.assertEqual(shard.usage(used_only=True)["calls"], 1)
 
+    def test_unknown_provider_cost_is_not_reported_as_zero(self) -> None:
+        class Unpriced(_FakeClient):
+            def complete(self, *, system: str, prompt: str, max_tokens: int = 512) -> LLMResponse:
+                return LLMResponse("ok", "model", 3, 1, None, 1.0)
+
+        with tempfile.TemporaryDirectory() as directory:
+            cached = CachedLLM(Unpriced(), Path(directory) / "cache.jsonl")
+            cached.complete(system="s", prompt="p")
+            self.assertIsNone(cached.usage()["cost_usd"])
+            self.assertEqual(cached.usage()["input_tokens"], 3)
+
     def test_provider_specs(self) -> None:
         self.assertEqual(make_client("claude-cli:m").identity, "claude-cli:m")
         self.assertEqual(make_client("anthropic:m").identity, "anthropic:m")
@@ -431,6 +442,26 @@ class EvaluateTests(unittest.TestCase):
         self.assertEqual(len(seen), 1)
         for name in ("evicortex", "mem0", "hybrid_rag", "1000"):
             self.assertNotIn(name, seen[0])
+
+    def test_audit_with_no_judge_graded_answers_reports_undefined_metrics(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            run = Path(directory)
+            row = {"key": "q1|no_memory|1000", "system": "no_memory", "category": "single-hop",
+                   "question": "Q?", "gold_answer": "G", "answer": "I don't know.",
+                   "is_abstention": False, "abstained": True, "verdict": "incorrect",
+                   "graded_by": "rule:exact-dont-know"}
+            (run / "judgments.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+            original = evaluate.make_client
+            evaluate.make_client = lambda spec: _FakeClient()
+            try:
+                evaluate.stage_audit(argparse.Namespace(
+                    run=str(run), auditor="fake:auditor", sample=10, seed=1, batch_size=10, workers=1))
+            finally:
+                evaluate.make_client = original
+            audit = json.loads((run / "audit.json").read_text(encoding="utf-8"))
+        self.assertEqual(audit["sampled_items"], 0)
+        self.assertIsNone(audit["agreement"])
+        self.assertIsNone(audit["cohen_kappa"])
 
     def test_cohen_kappa(self) -> None:
         agree = [("correct", "correct"), ("incorrect", "incorrect")] * 5

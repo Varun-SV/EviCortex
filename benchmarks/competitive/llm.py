@@ -343,7 +343,7 @@ class CachedLLM:
             with self._lock:
                 self._in_flight.pop(key).set()
 
-    def usage(self, *, used_only: bool = False) -> dict[str, float | int]:
+    def usage(self, *, used_only: bool = False) -> dict[str, float | int | None]:
         """Totals over the whole cache, or over the requests this instance served.
 
         ``used_only`` is the logical cost of the current run: it counts each
@@ -359,5 +359,10 @@ class CachedLLM:
             "calls": len(rows),
             "input_tokens": sum(int(row["input_tokens"]) for row in rows),
             "output_tokens": sum(int(row["output_tokens"]) for row in rows),
-            "cost_usd": round(sum(float(row["cost_usd"] or 0.0) for row in rows), 4),
+            # A provider that reports no price makes the total unknown, not zero.
+            "cost_usd": (
+                None
+                if any(row["cost_usd"] is None for row in rows)
+                else round(sum(float(row["cost_usd"]) for row in rows), 4)
+            ),
         }

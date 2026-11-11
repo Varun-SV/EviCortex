@@ -113,7 +113,8 @@ def write_figures(payload: dict[str, Any], out: Path) -> None:
             accuracy: dict[str, dict[int, float]] = {}
             controls: dict[str, float] = {}
             for cell in answers:
-                if cell["budget"] is None:
+                if cell["budget"] is None or cell["system"] in CONTROLS:
+                    # No memory is run per budget but is the same at every budget.
                     controls[cell["system"]] = cell["accuracy"]["mean"]
                 else:
                     accuracy.setdefault(cell["system"], {})[cell["budget"]] = cell["accuracy"]["mean"]

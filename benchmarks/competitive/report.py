@@ -133,7 +133,13 @@ def summarize_run(run: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:
                  "config": info["config"], "ingestion": {}},
             )
             for key, number in info["ingestion"].items():
+                if number is None and key.endswith("cost_usd"):
+                    # Unknown in one shard means unknown overall, never zero.
+                    entry["ingestion"][key] = None
+                    continue
                 if isinstance(number, bool) or not isinstance(number, (int, float)):
+                    continue
+                if key in entry["ingestion"] and entry["ingestion"][key] is None:
                     continue
                 entry["ingestion"][key] = round(entry["ingestion"].get(key, 0) + number, 4)
 
@@ -190,7 +196,11 @@ def summarize_run(run: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:
             "mean_reader_input_tokens": round(
                 statistics.fmean(row["reader_input_tokens"] for row in rows), 1
             ),
-            "reader_cost_usd": round(sum(row["reader_cost_usd"] or 0.0 for row in rows), 4),
+            "reader_cost_usd": (
+                None
+                if any(row["reader_cost_usd"] is None for row in rows)
+                else round(sum(row["reader_cost_usd"] for row in rows), 4)
+            ),
         }
         if system != REFERENCE_SYSTEM:
             # Budget-exempt controls are compared with EviCortex at every budget.

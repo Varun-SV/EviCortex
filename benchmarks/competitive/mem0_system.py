@@ -94,6 +94,7 @@ class _LLMMeter:
         self.input_tokens = 0
         self.output_tokens = 0
         self.cost_usd = 0.0
+        self.unpriced_calls = 0  # provider reported no cost for these
         self.json_requests = 0
         self.json_parse_failures = 0
         self.fenced_responses = 0
@@ -106,6 +107,7 @@ class _LLMMeter:
                 "input_tokens": self.input_tokens,
                 "output_tokens": self.output_tokens,
                 "cost_usd": self.cost_usd,
+                "unpriced_calls": self.unpriced_calls,
                 "json_requests": self.json_requests,
                 "json_parse_failures": self.json_parse_failures,
                 "fenced_responses": self.fenced_responses,
@@ -185,6 +187,7 @@ def _install_llm_provider(llm: CachedLLM, meter: _LLMMeter, max_tokens: int, key
                 input_tokens=reply.input_tokens,
                 output_tokens=reply.output_tokens,
                 cost_usd=float(reply.cost_usd or 0.0),
+                unpriced_calls=1 if reply.cost_usd is None else 0,
                 json_requests=1 if wants_json else 0,
                 json_parse_failures=0 if parsed_ok else 1,
                 fenced_responses=1 if (wants_json and fenced) else 0,
@@ -350,7 +353,11 @@ class Mem0System:
                 "fresh_llm_calls": int(after["fresh_calls"] - before["fresh_calls"]),
                 "input_tokens": int(after["input_tokens"] - before["input_tokens"]),
                 "output_tokens": int(after["output_tokens"] - before["output_tokens"]),
-                "cost_usd": after["cost_usd"] - before["cost_usd"],
+                "cost_usd": (
+                    None
+                    if after["unpriced_calls"] > before["unpriced_calls"]
+                    else after["cost_usd"] - before["cost_usd"]
+                ),
                 "json_parse_failures": int(
                     after["json_parse_failures"] - before["json_parse_failures"]
                 ),
@@ -430,7 +437,11 @@ class Mem0System:
             "fresh_llm_calls_this_process": int(self._meter.snapshot()["fresh_calls"]),
             "input_tokens": sum(r["input_tokens"] for r in rows),
             "output_tokens": sum(r["output_tokens"] for r in rows),
-            "cost_usd": round(sum(r["cost_usd"] for r in rows), 4),
+            "cost_usd": (
+                None
+                if any(r["cost_usd"] is None for r in rows)
+                else round(sum(r["cost_usd"] for r in rows), 4)
+            ),
             "wall_seconds": round(sum(r["wall_seconds"] for r in rows), 2),
             "json_parse_failures": sum(r.get("json_parse_failures", 0) for r in rows),
             "memories_stored": stored,
@@ -499,7 +510,12 @@ class Mem0PerConversation:
         total: dict[str, Any] = {}
         for cost in self._costs.values():
             for key, value in cost.items():
+                if value is None and key == "cost_usd":
+                    total[key] = None
+                    continue
                 if isinstance(value, bool) or not isinstance(value, (int, float)):
+                    continue
+                if key in total and total[key] is None:
                     continue
                 total[key] = round(total.get(key, 0) + value, 6)
         total["conversations"] = len(self._costs)
