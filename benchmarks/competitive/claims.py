@@ -110,7 +110,8 @@ class ClaimWriter:
     """Turns raw claims into ``ClaimInput`` values with explicit supersession."""
 
     def __init__(self) -> None:
-        self._latest: dict[tuple[str, str], tuple[str, str, str]] = {}
+        # Case-folded key -> (claim id, value, start, stored subject, stored predicate)
+        self._latest: dict[tuple[str, str], tuple[str, str, str, str, str]] = {}
         self.superseded = 0
         self.restated = 0
 
@@ -122,9 +123,12 @@ class ClaimWriter:
             if key in seen:
                 continue
             supersedes = None
+            subject, predicate = claim.subject, claim.predicate
             prior = self._latest.get(key)
             if prior is not None:
-                prior_id, prior_value, prior_start = prior
+                # The store only links a successor whose subject and predicate match
+                # its predecessor exactly, so reuse the stored spelling.
+                prior_id, prior_value, prior_start, subject, predicate = prior
                 if prior_value.casefold() == claim.value.casefold():
                     self.restated += 1
                     continue
@@ -135,8 +139,8 @@ class ClaimWriter:
             seen.add(key)
             prepared.append(
                 ClaimInput(
-                    subject=claim.subject,
-                    predicate=claim.predicate,
+                    subject=subject,
+                    predicate=predicate,
                     value=claim.value,
                     valid_from=unit.occurred_at,
                     confidence=0.8,
@@ -149,7 +153,9 @@ class ClaimWriter:
     def committed(self, record: Any) -> None:
         for claim in record.claims:
             key = (claim.subject.casefold(), claim.predicate.casefold())
-            self._latest[key] = (str(claim.id), claim.value, str(claim.valid_from))
+            self._latest[key] = (
+                str(claim.id), claim.value, str(claim.valid_from), claim.subject, claim.predicate,
+            )
 
 
 class LLMClaimSource:

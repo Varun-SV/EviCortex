@@ -78,6 +78,8 @@ def _lines(
             axis.axhline(value, color=MUTED, linewidth=1.2, linestyle=dashes, zorder=2,
                          label=f"{label} (control)")
             ends.append((value, f"{label}  {value:.0f}%", SECONDARY))
+    if not ends:
+        return
     # Labels sit in the right margin in value order, nudged apart so none overlap.
     ends.sort()
     low, high = axis.get_ylim()
@@ -119,6 +121,8 @@ def write_figures(payload: dict[str, Any], out: Path) -> None:
                 else:
                     accuracy.setdefault(cell["system"], {})[cell["budget"]] = cell["accuracy"]["mean"]
             budgets = sorted({budget for points in accuracy.values() for budget in points})
+        # A run with only controls has no budgeted series to plot.
+        if answers and any(system in SERIES for system in accuracy):
             figure, axis = plt.subplots(figsize=(8.6, 5.2), facecolor=SURFACE)
             _style(axis, ylabel="Answers judged correct (%)",
                    title=f"{name}: answer accuracy by evidence budget")
@@ -180,7 +184,7 @@ def write_figures(payload: dict[str, Any], out: Path) -> None:
         for cell in run["retrieval"]["cells"]:
             if cell["budget"] is not None and cell[metric]["mean"] is not None:
                 recall.setdefault(cell["system"], {})[cell["budget"]] = cell[metric]["mean"]
-        if recall:
+        if any(system in SERIES for system in recall):
             budgets = sorted({budget for points in recall.values() for budget in points})
             figure, axis = plt.subplots(figsize=(8.6, 5.0), facecolor=SURFACE)
             unit = "turns" if slug == "locomo" else "sessions"

@@ -471,6 +471,51 @@ class EvaluateTests(unittest.TestCase):
         self.assertIsNone(evaluate.cohen_kappa([]))
 
 
+class ClaimWriterTests(unittest.TestCase):
+    def test_successor_reuses_the_stored_spelling_of_its_key(self) -> None:
+        from evicortex import EviCortex
+
+        from benchmarks.competitive.claims import ClaimWriter, RawClaim
+        from benchmarks.competitive.types import Unit
+
+        def unit(index: int) -> Unit:
+            return Unit(f"D1:{index}", "session_1", f"2023-05-0{index}T00:00:00.000000Z",
+                        "1 May 2023", "Ada", f"turn {index}")
+
+        writer = ClaimWriter()
+        with EviCortex.open(":memory:") as memory:
+            for index, raw in ((1, RawClaim("Ada", "home_city", "Lisbon")),
+                               (2, RawClaim("ADA", "Home_City", "Paris"))):
+                claims = writer.prepare(unit(index), [raw])
+                record = memory.remember(
+                    namespace="t", content=unit(index).rendered,
+                    occurred_at=unit(index).occurred_at, claims=claims,
+                )
+                writer.committed(record)
+        self.assertEqual(writer.superseded, 1)
+        self.assertEqual((claims[0].subject, claims[0].predicate), ("Ada", "home_city"))
+        self.assertIsNotNone(claims[0].supersedes)
+
+
+@unittest.skipUnless(importlib.util.find_spec("matplotlib") is not None, "matplotlib is optional")
+class FigureTests(unittest.TestCase):
+    def test_control_only_run_produces_no_figures_and_no_error(self) -> None:
+        from benchmarks.competitive.figures import write_figures
+
+        estimate = {"n": 1, "mean": 0.2, "ci95": None}
+        payload = {"runs": {"LoCoMo-10": {
+            "answers": {"questions": 1, "reader": "fake", "category_counts": {"single-hop": 1},
+                        "cells": [{"system": "no_memory", "budget": 1000, "accuracy": estimate,
+                                   "accuracy_by_category": {"single-hop": estimate}}]},
+            "retrieval": {"questions": 1, "cells": [
+                {"system": "no_memory", "budget": 1000, "unit_recall": {"mean": 0.0},
+                 "session_recall": {"mean": 0.0}}]},
+        }}}
+        with tempfile.TemporaryDirectory() as directory:
+            write_figures(payload, Path(directory))
+            self.assertEqual(list(Path(directory).iterdir()), [])
+
+
 class ReportTests(unittest.TestCase):
     def test_cluster_bootstrap_is_deterministic_and_brackets_the_mean(self) -> None:
         rows = [
