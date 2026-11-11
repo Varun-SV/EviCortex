@@ -48,6 +48,9 @@ These documents describe the deeper design, evaluation contract, and retained re
 - [Phase C pinned semantic evaluation](phase-c.md)
 - [Phase C semantic smoke result](results/prototype-c-semantic-smoke.md)
 - [Phase C machine-readable smoke artifact](results/prototype-c-semantic-smoke.json)
+- [Phase D protocol: answer-level comparison against other memory systems](phase-d.md)
+- [Phase D result: LoCoMo and LongMemEval with a shared reader and blinded judge](results/phase-d.md)
+- [Phase D machine-readable summary](results/phase-d/summary.json)
 
 The result files are engineering checkpoints with named configurations and explicit
 claim boundaries. The synthetic suites are useful for regression testing, but they are

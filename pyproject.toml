@@ -35,6 +35,11 @@ local-transformers = [
   "transformers>=4.56,<5",
 ]
 
+benchmark = [
+  "matplotlib>=3.8",
+  "numpy>=1.26",
+]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

@@ -21,7 +21,8 @@ how to run the implemented checks and how to interpret the retained artifacts.
 | Prototype A synthetic suite | Compare deterministic temporal representation with mechanical lexical chunks | Results only for the named synthetic workload |
 | Prototype B diagnostic | Exercise extraction and exact-vector lifecycle with feature hashing | Wiring and cost shape, not semantic quality |
 | Phase C semantic smoke | Exercise a pinned real encoder on three synthetic LongMemEval-schema cases | Offline semantic integration, not official benchmark quality |
-| Official external evaluation | Planned strong comparison with shared reader and controls | Not yet completed |
+| Phase D competitive evaluation | Shared reader and blinded judge against Mem0, dense, hybrid, and BM25 on LoCoMo-10 and a LongMemEval-S sample | Answer accuracy for the named reader, judge, sample, and budgets |
+| Full official evaluation | All 500 LongMemEval-S questions, more external systems, human-calibrated judge | Not yet completed |
 
 ## Prepare the checkout
 
